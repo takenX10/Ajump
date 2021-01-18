@@ -6,7 +6,7 @@
 T     ___       |    - DANNO: 500 
    B            |-------------------
   S   ___       | Tank:
-     A          |    - HP: ....             *
+     A          |    - HP: ....             
     A                              
                         
  ____
@@ -33,11 +33,11 @@ T     ___       |    - DANNO: 500
 - ───── (196)
 - ┴┴┴┴ (193)
 - ╩╩╩╩ (202)
-- tipi di nemici:
-  - soldato semplice   (poca vita poco danno)
-  - artigliere     (tanto danno poca vita)
-  - tank         (tanta vita poco danno)
-  - BOSS        (tanto danno e tanta vita)
+- tipi di nemici: /* i nemici verranno distinti nel programma in base a dei numeri interi ( da 1 a 4 ) */
+  - soldato semplice   (poca vita poco danno) rappresentato da num -> 1
+  - artigliere     (tanto danno poca vita)    rappresentato da num -> 2
+  - tank         (tanta vita poco danno)      rappresentato da num -> 3
+  - BOSS        (tanto danno e tanta vita)    rappresentato da num -> 4
 - le stats dei nemici salgono ogni 30 gradini / un livello
 - i nemici spawnano per probabilita'
 - il boss ha una sua probabilita'
@@ -68,7 +68,7 @@ T     ___       |    - DANNO: 500
 0.02
 S = 90 - 5 (cap 5)
 T = 5 + 2,5
-A = 5 + 2,5
+A = 5 + 2,5+
 
 ### Ruoli:
 - uno che si occupa della mappa (input e il printare tutto) (8 e mezzo) @alex
