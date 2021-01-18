@@ -1,5 +1,5 @@
 /*
-@ Authors: Alessandro Frau, Francesco Apollonio, Alice Benatti, Alex Lorenzato
+@ Author: Alex Lorenzato
 
 */
 #include<iostream>
