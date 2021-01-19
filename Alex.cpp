@@ -3,15 +3,57 @@
 
 */
 #include <iostream>
+#include <cstdlib>
+#include <stdio.h>
+//#include <conio.h>
 using namespace std;
+
+#define ROW_DIM 12  
+
+struct Map
+{
+    char row[ROW_DIM];
+    Map* prev;
+    Map* next;
+};
+typedef Map* ptr_Map;
+
+void newRow(char row[])
+{
+    for(int i=0; i<ROW_DIM; i++)
+    {
+        row[i] = 196;
+    }
+}
+
+void printRow(char row[])
+{
+    for(int i=0; i<ROW_DIM; i++)
+    {
+        cout << row[i];
+    }
+    cout << endl;
+}
+
+/*********************** MAIN ************************/
 
 int main()
 {
-    cout << "ciao";
+    ptr_Map map = new Map;
+    int life = 10;
+    char row[ROW_DIM];
+
+    while(life > 0) 
+    {
+        newRow(row);
+        printRow(row);
+        life--;
+    }
 
     return 0;
 }
 
+/*
 //definizione dei tasti premuti (le lettere considerate sono quelle minuscole)
 #define SPACE 32
 #define ARROW_UP 72
@@ -77,3 +119,4 @@ void Setup(Player p, plat l[]) {
         cout << (char)205;
     }
     cout << (char)188;
+    */
