@@ -41,17 +41,17 @@ struct text_info
 
 
 
-int   c_getch(void);
-int   c_getche(void);
-int   c_kbhit(void);
+int   getch(void);
+int   getche(void);
+int   kbhit(void);
 
-void  c_clrscr();
-void  c_gotoxy(int x, int y);
-void  c_setcursortype(int cur_t);
-void  c_textbackground(int newcolor);
-void  c_textcolor(int newcolor);
-int   c_wherex(void);
-int   c_wherey(void);
-void  c_gettextinfo(struct text_info *r);
-void  c_textattr(int newattr);
+void  clrscr(void);
+void  gotoxy(int x, int y);
+void  setcursortype(int cur_t);
+void  textbackground(int newcolor);
+void  textcolor(int newcolor);
+int   wherex(void);
+int   wherey(void);
+void  gettextinfo(struct text_info *r);
+void  textattr(int newattr);
 

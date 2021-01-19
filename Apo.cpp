@@ -75,6 +75,7 @@ plistaNemici spawnNemico(plistaNemici *head, int &id_backup){
         else if (probability == 1) tipo = 2; // artigliere
         else if (probability == 2) tipo = 3; // tank
     }
+
     if (tipo == 0){ // statistiche del boss
     Entity(pos, VITA, DANNO, id);
     

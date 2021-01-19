@@ -13,9 +13,14 @@
 */
 #include <iostream>
 #include <cstring>
-#include <conio.h>
 #include <windows.h>
+#include <conio.h>
+#include "main.cpp"
+#include <fstream>
+
 using namespace std;
+
+#define INVIO 13
 
 void StartScreen();
 int Leaderboard();
@@ -24,22 +29,22 @@ int PrintMap();
 
 int main(){
     StartScreen();
+    
     return 0;
 }
 
 // ====== Schermata iniziale: titolo & menù ======
 void StartScreen(){
     char key;
-    textcolor(3);
-                                        
-    gotoxy(10, 11);
-    cout << "A jump" << endl;
-    cout << "press ENTER to play" << endl;
-    cout << "press C to view the leaderboard" << endl;
-    key=getchar();
-    
-    if ((int)key==10) PrintMap(); // funzione Alex -> inizia a giocare
-    else if ((int)key == 67 || (int)key ==99) Leaderboard();
+    color(Black, Yellow);
+    printfile("name.txt");
+    color(Black, Bright_White);
+    cout << "\n       >> press ENTER to play" << endl;
+    cout << "           >> press C to view the leaderboard" << endl;
+    color(Black, Light_Green);
+    key=getch();
+    if ((int)key==INVIO) PrintMap(); // funzione Alex -> inizia a giocare
+    else if ((int)key == 'c' || (int)key == 'C') Leaderboard();
     else  cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
 }
 
@@ -48,12 +53,14 @@ int PrintMap(){
     cout << "Sei in PrintMap u.u" << endl;
     return 0;
 }
+// ====== Classifica dei punteggi ======c
 
-// ====== Classifica dei punteggi ======
 int Leaderboard(){
-    clrscr();
-    cout << "GG Sei nella classifica :D" << endl;
-
+    clearscreen();
+    cout << "GG Sei nella classifica :D\n" << endl;
+    printfile("leaderboard.txt");
+    
+    getch();
     return 0;
 }
 

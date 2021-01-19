@@ -1,1 +1,1 @@
-cin >> key;
+name
