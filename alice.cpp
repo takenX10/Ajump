@@ -1,4 +1,4 @@
-/* conio.h
+/* 
 @ Author: Alice Benatti
 
 - uno che si occupa del game design (
@@ -11,40 +11,47 @@
 - classifica
 - schermata game over
 */
-#include<iostream>
-#include<cstring>
-#include<conio.h>
+#include <iostream>
+#include <cstring>
+#include <conio.h>
+#include <windows.h>
 using namespace std;
 
 void StartScreen();
 int Leaderboard();
 int PrintMap();
 
+
 int main(){
     StartScreen();
     return 0;
 }
 
+// ====== Schermata iniziale: titolo & menù ======
 void StartScreen(){
     char key;
-        
+    textcolor(3);
     cout << "Ajump" << endl;                                         
-    cout << "press SPACE to play" << endl;
+    cout << "press ENTER to play" << endl;
     cout << "press C to view the leaderboard" << endl;
-    cin >> key;
+    key=getchar();
     
     if ((int)key==10) PrintMap();
     else if ((int)key == 67 || (int)key ==99) Leaderboard();
     else  cout << "ERROR: hai scritto male u.u" << endl;
 }
 
+// funzione di alex x fare partire il Gioco
 int PrintMap(){
     cout << "Sei in PrintMap u.u" << endl;
     return 0;
 }
 
+// ====== Classifica dei punteggi ======
 int Leaderboard(){
+    clrscr();
     cout << "GG Sei nella classifica :D" << endl;
+
     return 0;
 }
 
