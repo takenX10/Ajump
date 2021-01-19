@@ -31,14 +31,16 @@ int main(){
 void StartScreen(){
     char key;
     textcolor(3);
-    cout << "Ajump" << endl;                                         
+                                        
+    gotoxy(10, 11);
+    cout << "A jump" << endl;
     cout << "press ENTER to play" << endl;
     cout << "press C to view the leaderboard" << endl;
     key=getchar();
     
-    if ((int)key==10) PrintMap();
+    if ((int)key==10) PrintMap(); // funzione Alex -> inizia a giocare
     else if ((int)key == 67 || (int)key ==99) Leaderboard();
-    else  cout << "ERROR: hai scritto male u.u" << endl;
+    else  cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
 }
 
 // funzione di alex x fare partire il Gioco
