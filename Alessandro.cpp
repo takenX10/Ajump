@@ -42,9 +42,11 @@ int newid(int &id_backup){
     return id_backup;
 }
 
+
 // Funzione che si occupa di pulire la lista dei nemici
 // Da chiamare alla fine di ogni partita
-plistaNemici pulisci_lista_nemici(plistaNemici head){
+
+plistaNemici pulisci_lista_nemici(plistaNemici head){ //perchè non void (?)
     plistaNemici aux = head;
     while(head != NULL){
         aux = aux->next;
