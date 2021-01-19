@@ -13,6 +13,7 @@
 */
 #include<iostream>
 #include<cstring>
+#include<conio.h>
 using namespace std;
 
 void StartScreen();
