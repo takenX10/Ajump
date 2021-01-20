@@ -45,7 +45,9 @@ void printfile(char filename[]){
     fp = fopen(filename, "r");
     while(!feof(fp)){
         fscanf(fp, "%c", &c);
-        cout<<c;
+        if(!feof(fp)){
+            cout<<c;
+        }
     }
     fclose(fp);
 }
