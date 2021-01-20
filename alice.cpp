@@ -28,6 +28,7 @@ int PrintMap();
 
 
 int main(){
+    color(Black, White);
     StartScreen();
     
     return 0;
