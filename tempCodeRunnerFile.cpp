@@ -1,1 +1,2 @@
-name
+
+    return 0;
