@@ -1,55 +1,198 @@
 /*
 @ Author: Alex Lorenzato
-
 */
+
 #include <iostream>
 #include <cstdlib>
 #include <stdio.h>
+#include <string.h>
+#include <math.h>
 //#include <conio.h>
 using namespace std;
 
-#define ROW_DIM 12  
+// dimensioni mappa giocabile
+#define ROW_DIM 25
+#define MAP_HEIGHT 30
 
 struct Map
 {
     char row[ROW_DIM];
+    long int numRow;    // identificatore univoco riga
     Map* prev;
     Map* next;
 };
 typedef Map* ptr_Map;
 
-void newRow(char row[])
+class Player
 {
-    for(int i=0; i<ROW_DIM; i++)
+    int x; // coordinata orizzontale
+    int playerRow; // altezza attuale rispetto alla riga 0
+    int life;
+
+    public:
+        void setX(int x){ this->x = x; }
+        int getX(){ return x; }
+        void setRow(int r){ this->playerRow = r; }
+        int getPlayerRow(){ return playerRow; }
+};
+
+
+/* 
+INFO: stampa di una riga 
+PARAMETRI: puntatore alla riga da stampare
+RETURN: void
+*/
+void printRow(ptr_Map paramRow)
+{
+    cout << (char) 177 << " ";
+    for(int i=0; i<ROW_DIM; i++) { cout << paramRow->row[i]; }
+    cout << (char) 177 << " ";
+    cout << " " <<paramRow->numRow;
+}
+
+/* 
+INFO: creazione prima riga 
+PARAMETRI: puntatore a una mappa vuota
+RETURN: puntatore alla row numero 0 
+*/
+ptr_Map firstRow(ptr_Map firstRow)
+{   
+    firstRow->next = NULL;  // riempio il first row, e ci metto un NULL come next
+    firstRow->numRow = 0;
+
+    char stringRow[ROW_DIM];
+    for(int i=0; i<ROW_DIM-1; i++) { stringRow[i] = '_'; }
+    stringRow[ROW_DIM-1] = '\0';
+    strcpy(firstRow->row, stringRow); 
+
+    return firstRow;
+}
+
+/*
+INFO: generazione nuova riga, in particolare la configurazione di piattaforme e spazi 
+PARAMETRI: puntatore all'ultima riga generata (ultimo nodo della lista) per evitare di dover scorrere ogni volta dal primo elemento
+           all'ultimo, visto che il gioco è studiato per essere senza fine
+RETURN: puntatore alla riga generata dalla funzione (nuovo ultimo nodo della lista)
+*/
+ptr_Map newRow(ptr_Map paramRow) // paramRow è l'ultimo nodo della lista
+{
+    ptr_Map newRow = new Map;
+    newRow->numRow = paramRow->numRow+1;
+    newRow->prev = paramRow;
+    newRow->next = NULL;
+    paramRow->next = newRow;
+
+    /*
+            int a = rand() % 6 + 2;                     // piattaforma 1 -> 2-7 spazi
+            int b = rand() % 6 + 2;                     // piattaforma 2 -> 2-7 spazi
+            int c = rand() % 6 + 2;                     // piattaforma 3 -> 2-7 spazi
+            int sumRandom = a+b+c;                      // totale spazi occupati da piattaforme nella riga
+            int spaces = ROW_DIM - sumRandom;           // spazi rimanenti
+            int numSpaces = rand() % 4 + 1;             // quanti spazi vuoti (spazi vuoti = serie di spazi consecutivi) ci saranno in una riga
+            int index = 0;                              // indice che mi dice fino a che colonna ho stampato
+            if(numSpaces == 4)
+            {
+                for(int i=0; i<; i++) { cout << (char) 196; }
+                
+            }
+                for(int i=0; i<a; i++) { cout << (char) 196; }
+            // |-- ---- -----       |            |   ----    --       -- |
+            // stringRow[i] = (char) 196;*/
+    char stringRow[ROW_DIM];
+
+    if(paramRow->numRow % 2 == 0) // caso riga "piena"
     {
-        row[i] = 196;
+        /*for(int i=0; i<ROW_DIM-1; i++)
+        {
+            stringRow[i] = '-'; 
+        }*/
+        int a = rand() % 12 +1; // piattaforma di 1-12 spazi
+        int b = ROW_DIM/2 - a +1;
+        int r1 = rand() % 7;
+        int r2 = rand() % 7;
+        int i=0;
+        //cout << "a: "<< a << " b: " << b << " r1: " << r1 << " r2: " << r2 << endl; 
+        for(i=0; i<r1; i++){ stringRow[i] = ' ';}
+        for(i=i; i<r1+a; i++){stringRow[i] = (char) 196;}
+        for(i=i; i<r1+a+r2; i++){ stringRow[i] = ' ';}
+        for(i=i; i<r1+a+r2+b; i++){stringRow[i] = (char) 196;}
+        for(i=i; i<ROW_DIM-1; i++){ stringRow[i] = ' ';}
+    }
+    else
+    {
+        for(int i=0; i<ROW_DIM-1; i++)
+        {
+            stringRow[i] = ' '; 
+        }
+    }
+    
+    stringRow[ROW_DIM-1] = '\0';
+    strcpy(newRow->row, stringRow); 
+
+    return newRow;  // ritorna l'ultima riga della mappa
+}
+
+/* 
+INFO: inizializzazione mappa: generazione firstRow e MAP_HEIGHT-1 righe aggiuntive; generazione Player
+PARAMETRI: puntatore a una mappa vuota; i parametri del Player sono fissi
+RETURN: puntatore alla riga numero 0 (testa della mappa)
+*/
+ptr_Map newMap(ptr_Map map, Player p)
+{
+    // generazione righe
+    map = firstRow(map);
+    ptr_Map tmp = map;
+    for(int i=0; i<MAP_HEIGHT-1; i++){ map = newRow(map); }
+    // stampa Player
+    map = tmp;
+    map = map->next->next;
+    cout << "p.x" << p.getX(); //map->row[p.x] = '@';
+    return tmp;
+}
+
+/*
+INFO: stampa di una "schermata", ovvero di MAP_HEIGHT piani dati da indice inferiore e superiore
+PARAMETRI: puntatore alla TESTA della mappa (row numero 0)
+RETURN: void
+*/
+void printMap(ptr_Map map, int indexBot, int indexTop)
+{
+    // clear screen
+    // stampa righe da x a y   
+    // endl dopo ogni riga
+    while(map->numRow != indexTop-1){ map = map->next; }
+    for(int i=0; i<30; i++)
+    {
+        printRow(map);
+        cout << endl;
+        map = map->prev;
     }
 }
 
-void printRow(char row[])
+void newPlayer(Player p, ptr_Map map)
 {
-    for(int i=0; i<ROW_DIM; i++)
-    {
-        cout << row[i];
-    }
-    cout << endl;
+    ptr_Map tmp = map->prev;
+    p.setRow(2);
+    p.setX(0);
+    while(p.getX() < 5){ p.setX(p.getX() + 1); } //tmp->row[p.x] != (char) 196
+    cout << "p.x newpPlayer" << p.getX();
 }
 
-/*********************** MAIN ************************/
+
+/************************************************************************** MAIN ***************************************************************************/
+/************************************************************************** MAIN ***************************************************************************/
 
 int main()
 {
     ptr_Map map = new Map;
-    int life = 10;
-    char row[ROW_DIM];
+    ptr_Map mapHead = map;
+    Player p;
+    newPlayer(p, map);
+    cout << "main p.x " << p.getX() << endl;
+    map = newMap(map, p);
+    printMap(mapHead, 0, 30);
 
-    while(life > 0) 
-    {
-        newRow(row);
-        printRow(row);
-        life--;
-    }
-
+    system("PAUSE");
     return 0;
 }
 
