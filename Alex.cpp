@@ -7,7 +7,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-//#include <conio.h>
+#include <conio.h>
+#include <Windows.h>
+#include "main.cpp"
 using namespace std;
 
 // dimensioni mappa giocabile
@@ -23,17 +25,9 @@ struct Map
 };
 typedef Map* ptr_Map;
 
-class Player
+struct Position
 {
-    int x; // coordinata orizzontale
-    int playerRow; // altezza attuale rispetto alla riga 0
-    int life;
-
-    public:
-        void setX(int x){ this->x = x; }
-        int getX(){ return x; }
-        void setRow(int r){ this->playerRow = r; }
-        int getPlayerRow(){ return playerRow; }
+    int x, y; // coordinata orizzontale
 };
 
 
@@ -137,7 +131,7 @@ INFO: inizializzazione mappa: generazione firstRow e MAP_HEIGHT-1 righe aggiunti
 PARAMETRI: puntatore a una mappa vuota; i parametri del Player sono fissi
 RETURN: puntatore alla riga numero 0 (testa della mappa)
 */
-ptr_Map newMap(ptr_Map map, Player p)
+ptr_Map newMap(ptr_Map map, Position p)
 {
     // generazione righe
     map = firstRow(map);
@@ -146,7 +140,7 @@ ptr_Map newMap(ptr_Map map, Player p)
     // stampa Player
     map = tmp;
     map = map->next->next;
-    cout << "p.x" << p.getX(); //map->row[p.x] = '@';
+    map->row[p.x] = '@';
     return tmp;
 }
 
@@ -169,29 +163,62 @@ void printMap(ptr_Map map, int indexBot, int indexTop)
     }
 }
 
-void newPlayer(Player p, ptr_Map map)
+/*
+INFO: inizializzazione del giocatore (posizionamento alla row 2 e colonna 5)
+PARAMETRI: puntatore al giocatore e alla mappa
+RETURN: void
+*/
+void newPlayer(Position &p, ptr_Map map)
 {
     ptr_Map tmp = map->prev;
-    p.setRow(2);
-    p.setX(0);
-    while(p.getX() < 5){ p.setX(p.getX() + 1); } //tmp->row[p.x] != (char) 196
-    cout << "p.x newpPlayer" << p.getX();
+    p.y = 2;
+    p.x = 0;
+    while(p.x < 5){ p.x = p.x + 1; } //tmp->row[p.x] != (char) 196
 }
 
+void controlPlayer()
+{
+    char a;
+    int b;
+    while(true)
+    {
+        Sleep(5);
+        if(kbhit())
+        {
+            while(kbhit())
+            {
+                a = getch();
+            }
+        cout << a;  
+        }
+        else{
+            cout << "no";
+        }
+    }
+}
+
+void moveTo(Position p)
+{
+    clearscreen();
+    for(int i=0; i<p.x; i++)
+    {
+        cout << " ";
+    }
+    cout << "@";
+}
 
 /************************************************************************** MAIN ***************************************************************************/
 /************************************************************************** MAIN ***************************************************************************/
 
 int main()
 {
-    ptr_Map map = new Map;
+    /*ptr_Map map = new Map;
     ptr_Map mapHead = map;
-    Player p;
+    Position p;
     newPlayer(p, map);
-    cout << "main p.x " << p.getX() << endl;
     map = newMap(map, p);
-    printMap(mapHead, 0, 30);
-
+    printMap(mapHead, 0, 30);*/
+    controlPlayer();
     system("PAUSE");
     return 0;
 }
