@@ -16,8 +16,8 @@
 #include <windows.h>
 #include <conio.h>
 #include "main.cpp"
-#include <fstream>
 #include <cstdio>
+#include <stdio.h>
 
 using namespace std;
 
@@ -26,17 +26,18 @@ using namespace std;
 #define ESC 27
 #define CHAR 30
 
-struct Classifica{
-    int id;
-    char nick[CHAR];
-    int score;
-    Classifica *next;
+class Classifica{
+    public:
+        int id;
+        char nick[CHAR];
+        int score;
+        Classifica *next;
 };
 typedef Classifica* lista;
 
 void StartScreen();
 void GameOver(lista lista, int punti);
-void BubbleSort();
+void SortFiles();
 void SaveOnFile(lista lista);
 void Leaderboard();
 int PrintMap(); //da cancellare quasi
@@ -47,6 +48,7 @@ int main(){
     lista LBoard= new Classifica;
     color(Black, White);
     GameOver(LBoard, 13000);
+   // StartScreen();
     return 0;
 }
 
@@ -55,21 +57,26 @@ void StartScreen(){
     clearscreen();
     char key;
     color(Black, Yellow);
-    printfile("name.txt");
+   // printfile("name.txt");
     color(Black, Bright_White);
     cout << "\n       >> press ENTER to play" << endl;
     cout << "           >> press C to view the leaderboard" << endl;
     cout << "              >> press ESC to exit" << endl;
     color(Black, Light_Green);
-    loop:
-    key=getch();
-    if ((int)key==ENTER) PrintMap(); // funzione Alex -> inizia a giocare
-    else if ((int)key == 'c' || (int)key == 'C') Leaderboard();
-    else if ((int)key==ESC) clearscreen();
-    else {
-        cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
-        goto loop;
+    do{
+        key=getch();
+        switch(key){
+            case ESC:{ 
+                clearscreen();
+                exit(0);
+            }
+            case ENTER: PrintMap();
+            case 67:  Leaderboard();
+            case 99: Leaderboard();
+        }
+        cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     }
+    while (true);
 }
 
 // funzione di alex x fare partire il Gioco
@@ -79,14 +86,12 @@ int PrintMap(){
     cout << "Sei in PrintMap u.u" << endl;
     color(Black, White);
     cout << "\n       >> press SPACE to return at home" << endl;
-    loop:
-    key=getch();
-    if ((int)key == SPACE) StartScreen();
-    else if ((int)key==ESC) clearscreen();
-    else {
-        cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
-        goto loop;
-    }
+    do{
+        key=getch();
+        if ((int)key == SPACE) StartScreen();
+        else if ((int)key==ESC) clearscreen();
+        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
+    } while(true);
     return 0;
 }
 
@@ -100,62 +105,58 @@ void GameOver(lista LBoard, int score){
     color(Red, Bright_White);
     printfile("gameover.txt");
     color(Black, White);
-    cout << "\nDo u wanna save a player? (y/n)" << endl;
+    cout << "\nDo u want to save ur game? (y/n)" << endl;
 
-    check:
-    key=getch();
-    if ((int)key == 'y' || (int)key == 'Y') {
-        cout << "Write ur nick: ";
-        cin >> input;
-        if (LBoard!=NULL){
-            while (LBoard->next != NULL){
-                LBoard=LBoard->next;
-                id++;
-            } 
-        }
-        else id=1;
-        LBoard->id=id;       
-        strcpy(LBoard->nick, input);
-        LBoard->score=score;
-        cout << "Ur score is save :D" << endl;
-        SaveOnFile(LBoard);
-        //cout << "SaveOnFile è stato eseguito " << endl;
-
-    }
-    else if ((int)key == 'n' || (int)key == 'N') {
-        cout << "\n\n       >> press SPACE to return at home" << endl;
-        loop:
+    do{
         key=getch();
-        if ((int)key == SPACE) StartScreen();
-        else {
-            cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
-            goto loop;
+        if ((int)key == 'y' || (int)key == 'Y') {
+            cout << "Insert ur nick: ";
+            cin >> input;
+            if (LBoard!=NULL){
+                while (LBoard->next != NULL){
+                    LBoard=LBoard->next;
+                    id++;
+                } 
+            }
+            else id=1;
+            LBoard->id=id;       
+            strcpy(LBoard->nick, input);
+            LBoard->score=score;
+            cout << "Ur score is saved :D" << endl;
+            SaveOnFile(LBoard);
+            //cout << "SaveOnFile è stato eseguito " << endl;
+
         }
-    }
-    else {
-            cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
-            goto check;
-    }
+        else if ((int)key == 'n' || (int)key == 'N') {
+            cout << "\n\n       >> press SPACE to return at home" << endl;
+            do{
+                key=getch();
+                if ((int)key == SPACE) StartScreen();
+                else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;  
+            } while(true);
+        }
+        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl; 
+    } while(true);
     cout << "           >> press C to view the leaderboard" << endl;
     cout << "\n\n       >> press SPACE to return at home" << endl;
-        loop1:
+    do{
         key=getch();
         if ((int)key == SPACE) StartScreen();
         else if ((int)key == 'c' || (int)key == 'C') Leaderboard();
-        else {
-            cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
-            goto loop1;
-        }
+        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
+    } while(true);
 }
 
-void BubbleSort(){
-    FILE * myfile = fopen("leaderboard.txt", "r");
+void SortFiles(lista Lista){
     
+    
+
 }
 
 void SaveOnFile(lista Classifica){
     FILE * myfile = fopen("leaderboard.txt", "a");
-    fprintf(myfile, "- %d  %s  %d \n", Classifica->id, Classifica->nick, Classifica->score);
+
+    fprintf(myfile, "%d  %s  %d \n", Classifica->id, Classifica->nick, Classifica->score);
     fclose(myfile);
 }
 
@@ -167,11 +168,9 @@ void Leaderboard(){
     printfile("leaderboard.txt");
     color(Black, White);
     cout << "\n\n       >> press SPACE to return at home" << endl;
-    loop:
-    key=getch();
-    if ((int)key == SPACE) StartScreen();
-    else {
-        cout << "ERROR: INSERISCI UN VALORE ACCETTATO u.u" << endl;
-        goto loop;
-    }
+    do{
+        key=getch();
+        if ((int)key == SPACE) StartScreen();
+        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
+    } while(true);
 }
