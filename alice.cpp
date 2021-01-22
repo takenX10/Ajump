@@ -17,7 +17,7 @@
 #include <conio.h>
 #include "main.cpp"
 #include <cstdio>
-#include <stdio.h>
+#include <fstream>
 
 using namespace std;
 
@@ -37,8 +37,8 @@ typedef Classifica* lista;
 
 void StartScreen();
 void GameOver(lista lista, int punti);
-void SortFiles();
-void SaveOnFile(lista lista);
+void SortFiles(lista Lista, int nsaved);
+int SaveOnFile(lista lista);
 void Leaderboard();
 int PrintMap(); //da cancellare quasi
 
@@ -123,7 +123,7 @@ void GameOver(lista LBoard, int score){
             strcpy(LBoard->nick, input);
             LBoard->score=score;
             cout << "Ur score is saved :D" << endl;
-            SaveOnFile(LBoard);
+            SortFiles(LBoard, SaveOnFile(LBoard));
             //cout << "SaveOnFile è stato eseguito " << endl;
 
         }
@@ -147,17 +147,68 @@ void GameOver(lista LBoard, int score){
     } while(true);
 }
 
-void SortFiles(lista Lista){
-    
-    
+void SortFiles(lista Lista, int nsaved){
+    ifstream OpenFile("leaderboard.txt");
+    char ch;
+    int counter=0;
+    while (!OpenFile.eof()) {
+        OpenFile.get(ch);
+        while (counter!=3){
+            while (strcmp((char *)ch, "_")==1){
+                if (counter==0) Lista->id += ch;
+                else if (counter==1) strcat(Lista->nick,(char *) ch);
+                else if (counter==2) Lista->score += ch;
+            }
+            OpenFile.ignore();
+            counter++;
+        }
+    }
+    int BestScore = 0;
+    int i=1;
+
+    while (Lista->next!=NULL){
+        if (Lista->score>BestScore){
+            BestScore = Lista->score; 
+            if (i!=1){
+
+            }
+            Lista->id= i;
+            i++;
+        } 
+        Lista = Lista->next;
+    }
+
+
 
 }
+#define EPSILON 1.0e-3f
 
-void SaveOnFile(lista Classifica){
+// Comaprision function. Returns <0 for a<b =0 for a=b and >0 for a>b
+static int compare_people( const void *a, const void *b );
+static int compare_people( const void *a, const void *b )
+{
+    const Classifica *p1 = (const Classifica *) a;
+    const Classifica *p2 = (const Classifica *) b;
+
+    // There are different ways of comparing floats to each other. In this case we use |a - b| < epsilon for some small epsilon
+    float difference = p2->score - p1->score;
+
+    if( difference <= -EPSILON )return -1;
+    else if( difference >= +EPSILON )return +1;
+    return 0;
+
+}
+int SaveOnFile(lista Classifica){
     FILE * myfile = fopen("leaderboard.txt", "a");
 
-    fprintf(myfile, "%d  %s  %d \n", Classifica->id, Classifica->nick, Classifica->score);
+    fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->score);
     fclose(myfile);
+    
+    FILE * nsaved = fopen("nsaved.txt", "r+" );
+    char *saved;
+    scanf(saved);
+    fprintf(nsaved, "%d", (int) saved++);
+    return (int)saved++;
 }
 
 // ====== Classifica dei punteggi ======
