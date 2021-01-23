@@ -25,6 +25,8 @@ using namespace std;
 #define SPACE 32
 #define ESC 27
 #define CHAR 30
+#define UNDERSCORE 95
+#define maxSaved 10
 
 class Classifica{
     public:
@@ -37,8 +39,11 @@ typedef Classifica* lista;
 
 void StartScreen();
 void GameOver(lista lista, int punti);
-void SortFiles(lista Lista, int nsaved);
-int SaveOnFile(lista lista);
+lista SortFiles(lista Lista);
+void BubbleSort(int a[], int lenght);
+void Swap(int& x, int& j);
+void SaveOnFileWITHOUTid(lista Classifica);
+void SaveOnFile(lista lista);
 void Leaderboard();
 int PrintMap(); //da cancellare quasi
 
@@ -47,7 +52,7 @@ int PrintMap(); //da cancellare quasi
 int main(){
     lista LBoard= new Classifica;
     color(Black, White);
-    GameOver(LBoard, 13000);
+    GameOver(LBoard, 898283);
    // StartScreen();
     return 0;
 }
@@ -103,7 +108,7 @@ void GameOver(lista LBoard, int score){
     int id;
     
     color(Red, Bright_White);
-    printfile("gameover.txt");
+   // printfile("gameover.txt");
     color(Black, White);
     cout << "\nDo u want to save ur game? (y/n)" << endl;
 
@@ -112,20 +117,16 @@ void GameOver(lista LBoard, int score){
         if ((int)key == 'y' || (int)key == 'Y') {
             cout << "Insert ur nick: ";
             cin >> input;
-            if (LBoard!=NULL){
-                while (LBoard->next != NULL){
-                    LBoard=LBoard->next;
-                    id++;
-                } 
-            }
-            else id=1;
-            LBoard->id=id;       
+                
             strcpy(LBoard->nick, input);
             LBoard->score=score;
-            cout << "Ur score is saved :D" << endl;
-            SortFiles(LBoard, SaveOnFile(LBoard));
-            //cout << "SaveOnFile è stato eseguito " << endl;
-
+            SaveOnFileWITHOUTid(LBoard);
+            cout << "Ur score is saved :D" << endl; 
+            
+            LBoard = SortFiles(LBoard);
+            cout << "SortFiles è stato eseguito" << endl;
+            SaveOnFile(LBoard); // Salvo la lista ordinata in modo da stamparla giusta :D
+        //    printfile("leaderboard.txt");
         }
         else if ((int)key == 'n' || (int)key == 'N') {
             cout << "\n\n       >> press SPACE to return at home" << endl;
@@ -137,6 +138,7 @@ void GameOver(lista LBoard, int score){
         }
         else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl; 
     } while(true);
+
     cout << "           >> press C to view the leaderboard" << endl;
     cout << "\n\n       >> press SPACE to return at home" << endl;
     do{
@@ -147,68 +149,81 @@ void GameOver(lista LBoard, int score){
     } while(true);
 }
 
-void SortFiles(lista Lista, int nsaved){
+lista SortFiles(lista Lista){
     ifstream OpenFile("leaderboard.txt");
+    lista SortedList = new Classifica;
     char ch;
     int counter=0;
+    int score[maxSaved];
+    char nickScore[maxSaved];
+
+    // prendo i valori salvati di sempre e li inserisco in una lista
     while (!OpenFile.eof()) {
         OpenFile.get(ch);
-        while (counter!=3){
-            while (strcmp((char *)ch, "_")==1){
-                if (counter==0) Lista->id += ch;
-                else if (counter==1) strcat(Lista->nick,(char *) ch);
-                else if (counter==2) Lista->score += ch;
-            }
+        if (ch == '\n'){
+            Lista = Lista->next;
+            counter = 0;
+        }
+        if ((int)ch != UNDERSCORE){
+            if (counter==1) strcat(Lista->nick, &ch);
+            else if (counter==2) Lista->score += ch;
+        }
+        else {
             OpenFile.ignore();
             counter++;
         }
-    }
-    int BestScore = 0;
-    int i=1;
+    } OpenFile.close();
 
-    while (Lista->next!=NULL){
-        if (Lista->score>BestScore){
-            BestScore = Lista->score; 
-            if (i!=1){
-
-            }
-            Lista->id= i;
-            i++;
-        } 
+    int i=0;
+    while (Lista->next!=NULL && i<maxSaved){
+        score[i]=Lista->score;
+        i++;
         Lista = Lista->next;
     }
+    BubbleSort(score, i);
 
+    // mi salvo quanti salvataggi ho = quanti elementi ho in lista
+    FILE * nsaved = fopen("nsaved.txt", "w");
+    fprintf(nsaved, "%d", i);
+    fclose(nsaved);
 
-
+    // creo la lista ordinata 
+    while (Lista->next!=NULL){
+        for (int j=0; j<i; j++){
+            SortedList->score = score[j];
+            while (Lista->score!=score[j]){Lista = Lista->next; }
+            strcpy(SortedList->nick, Lista->nick);
+            SortedList->id = j;
+        }
+    }
+    return SortedList;
 }
-#define EPSILON 1.0e-3f
 
-// Comaprision function. Returns <0 for a<b =0 for a=b and >0 for a>b
-static int compare_people( const void *a, const void *b );
-static int compare_people( const void *a, const void *b )
-{
-    const Classifica *p1 = (const Classifica *) a;
-    const Classifica *p2 = (const Classifica *) b;
-
-    // There are different ways of comparing floats to each other. In this case we use |a - b| < epsilon for some small epsilon
-    float difference = p2->score - p1->score;
-
-    if( difference <= -EPSILON )return -1;
-    else if( difference >= +EPSILON )return +1;
-    return 0;
-
+void BubbleSort(int a[], int lenght){
+    int i, j;
+    for (i=0; i<lenght; i++){
+        for (j=0; j<lenght-1-i; j++){
+            if (a[j]>a[j+1]) Swap(a[j], a[j+1]);
+        }
+    }
 }
-int SaveOnFile(lista Classifica){
+void Swap(int& x, int& j){
+    
+    int tmp = x;
+    x = j;
+    j  = tmp;
+}
+void SaveOnFileWITHOUTid(lista Classifica){
+    FILE * myfile = fopen("leaderboard.txt", "a");
+
+    fprintf(myfile, "%s_%d_\n", Classifica->nick, Classifica->score);
+    fclose(myfile);
+}
+void SaveOnFile(lista Classifica){
     FILE * myfile = fopen("leaderboard.txt", "a");
 
     fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->score);
     fclose(myfile);
-    
-    FILE * nsaved = fopen("nsaved.txt", "r+" );
-    char *saved;
-    scanf(saved);
-    fprintf(nsaved, "%d", (int) saved++);
-    return (int)saved++;
 }
 
 // ====== Classifica dei punteggi ======
