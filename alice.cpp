@@ -26,7 +26,7 @@ using namespace std;
 #define ESC 27
 #define CHAR 30
 #define UNDERSCORE 95
-#define maxSaved 10
+#define maxSaved 100
 
 class Classifica{
     public:
@@ -39,7 +39,7 @@ typedef Classifica* lista;
 
 void StartScreen();
 void GameOver(lista lista, int punti);
-lista SortFiles(lista Lista);
+lista SortFiles();
 void BubbleSort(int a[], int lenght);
 void Swap(int& x, int& j);
 void SaveOnFileWITHOUTid(lista Classifica);
@@ -73,11 +73,11 @@ void StartScreen(){
         switch(key){
             case ESC:{ 
                 clearscreen();
-                exit(0);
+                break;
             }
-            case ENTER: PrintMap();
-            case 67:  Leaderboard();
-            case 99: Leaderboard();
+            case ENTER: PrintMap(); break;
+            case 67:  Leaderboard();break;
+            case 99: Leaderboard(); break;
         }
         cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     }
@@ -123,7 +123,7 @@ void GameOver(lista LBoard, int score){
             SaveOnFileWITHOUTid(LBoard);
             cout << "Ur score is saved :D" << endl; 
             
-            LBoard = SortFiles(LBoard);
+            LBoard = SortFiles();
             cout << "SortFiles è stato eseguito" << endl;
             SaveOnFile(LBoard); // Salvo la lista ordinata in modo da stamparla giusta :D
         //    printfile("leaderboard.txt");
@@ -149,41 +149,41 @@ void GameOver(lista LBoard, int score){
     } while(true);
 }
 
-lista SortFiles(lista Lista){
-    ifstream OpenFile("leaderboard.txt");
-    lista SortedList = new Classifica;
+lista SortFiles(){
+    lista Lista = new Classifica;
     char ch;
     int counter=0;
     int score[maxSaved];
     char nickScore[maxSaved];
 
+    ifstream OpenFile("leaderboard.txt", ios::in);
+    lista SortedList = new Classifica;
+    
     // prendo i valori salvati di sempre e li inserisco in una lista
-    while (!OpenFile.eof()) {
+    while (!OpenFile.eof()){
         OpenFile.get(ch);
-        if (ch == '\n'){
-            Lista = Lista->next;
-            counter = 0;
+        if (ch=='\n'){
+            counter=0;
+            Lista=Lista->next;
         }
-        if ((int)ch != UNDERSCORE){
-            if (counter==1) strcat(Lista->nick, &ch);
-            else if (counter==2) Lista->score += ch;
+        else if (isspace(ch)!=0){
+            if (counter == 0) strcat(Lista->nick, &ch);
+            if (counter == 1) Lista->score+= ch;
         }
-        else {
-            OpenFile.ignore();
-            counter++;
-        }
-    } OpenFile.close();
-
-    int i=0;
-    while (Lista->next!=NULL && i<maxSaved){
-        score[i]=Lista->score;
+        else counter++;
+    }
+    OpenFile.close(); // chiudo il file 
+    lista tmp = Lista;
+    int i=0; // = elementi nella lista classifica
+    while (Lista->next!=NULL){
+        score[i]=tmp->score;
+        cout << "sono nel salvataggio di score per la volta " << i << endl;
         i++;
-        Lista = Lista->next;
+        tmp = tmp->next;
     }
     BubbleSort(score, i);
-
     // mi salvo quanti salvataggi ho = quanti elementi ho in lista
-    FILE * nsaved = fopen("nsaved.txt", "w");
+    FILE * nsaved = fopen("nsaved.txt", "out");
     fprintf(nsaved, "%d", i);
     fclose(nsaved);
 
@@ -208,7 +208,6 @@ void BubbleSort(int a[], int lenght){
     }
 }
 void Swap(int& x, int& j){
-    
     int tmp = x;
     x = j;
     j  = tmp;
@@ -220,9 +219,9 @@ void SaveOnFileWITHOUTid(lista Classifica){
     fclose(myfile);
 }
 void SaveOnFile(lista Classifica){
-    FILE * myfile = fopen("leaderboard.txt", "a");
-
-    fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->score);
+    FILE * myfile = fopen("leader-out.txt", "a");
+    while (Classifica->next != NULL)
+        fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->score);
     fclose(myfile);
 }
 

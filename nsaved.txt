@@ -1,0 +1,5 @@
+// qui dovrebbe salvare i numeri di salvateggi -> 
+dunque i numeri di righe presenti nel file Leaderboard.txt
+dunque il numero di elementi presenti nella Lista
+
+MA NON LO FA -.- fuck
