@@ -13,6 +13,7 @@
 */
 #include <iostream>
 #include <cstring>
+#include <string>
 #include <windows.h>
 #include <conio.h>
 #include "main.cpp"
@@ -32,7 +33,8 @@ class Classifica{
     public:
         int id;
         char nick[CHAR];
-        int score;
+        int score[CHAR];
+        int savedScore;
         Classifica *next;
 };
 typedef Classifica* lista;
@@ -62,7 +64,7 @@ void StartScreen(){
     clearscreen();
     char key;
     color(Black, Yellow);
-   // printfile("name.txt");
+  //  printfile("name.txt");
     color(Black, Bright_White);
     cout << "\n       >> press ENTER to play" << endl;
     cout << "           >> press C to view the leaderboard" << endl;
@@ -70,16 +72,10 @@ void StartScreen(){
     color(Black, Light_Green);
     do{
         key=getch();
-        switch(key){
-            case ESC:{ 
-                clearscreen();
-                break;
-            }
-            case ENTER: PrintMap(); break;
-            case 67:  Leaderboard();break;
-            case 99: Leaderboard(); break;
-        }
-        cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
+        if (key==ENTER)PrintMap();
+        else if (key== 'C' || key=='c') Leaderboard();
+        else if (key==ESC){ clearscreen(); exit(0); }
+        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     }
     while (true);
 }
@@ -106,53 +102,61 @@ void GameOver(lista LBoard, int score){
     char key;
     char input[CHAR];
     int id;
+    bool check = false;
     
     color(Red, Bright_White);
-   // printfile("gameover.txt");
+  //  printfile("gameover.txt");
     color(Black, White);
     cout << "\nDo u want to save ur game? (y/n)" << endl;
 
     do{
-        key=getch();
-        if ((int)key == 'y' || (int)key == 'Y') {
-            cout << "Insert ur nick: ";
-            cin >> input;
-                
-            strcpy(LBoard->nick, input);
-            LBoard->score=score;
-            SaveOnFileWITHOUTid(LBoard);
-            cout << "Ur score is saved :D" << endl; 
-            
-            LBoard = SortFiles();
-            cout << "SortFiles è stato eseguito" << endl;
-            SaveOnFile(LBoard); // Salvo la lista ordinata in modo da stamparla giusta :D
-        //    printfile("leaderboard.txt");
-        }
-        else if ((int)key == 'n' || (int)key == 'N') {
-            cout << "\n\n       >> press SPACE to return at home" << endl;
-            do{
-                key=getch();
-                if ((int)key == SPACE) StartScreen();
-                else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;  
-            } while(true);
-        }
-        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl; 
-    } while(true);
-
-    cout << "           >> press C to view the leaderboard" << endl;
-    cout << "\n\n       >> press SPACE to return at home" << endl;
-    do{
-        key=getch();
-        if ((int)key == SPACE) StartScreen();
-        else if ((int)key == 'c' || (int)key == 'C') Leaderboard();
-        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
+        do {
+            key=getch();
+            if ((int)key == 'y' || (int)key == 'Y') {
+                check = true;
+                cout << "Insert ur nick: ";
+                cin >> input;
+                    
+                strcpy(LBoard->nick, input);
+                LBoard->savedScore = score;
+                SaveOnFileWITHOUTid(LBoard);
+                cout << "Ur score is saved :D" << endl; 
+                delete(LBoard);
+                LBoard = SortFiles();
+                cout << "SortFiles e' stato eseguito" << endl;
+                SaveOnFile(LBoard);
+                cout<< "SaveOnFile e' stato eseguito" << endl;
+                // Salvo la lista ordinata in modo da stamparla giusta :D
+            }
+            else if ((int)key == 'n' || (int)key == 'N') {
+                check = true;
+                cout << "\n\n       >> press SPACE to return at home" << endl;
+                do{
+                    key=getch();
+                    if ((int)key == SPACE) StartScreen();
+                    else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;  
+                } while(true);
+            }
+            else{
+                check = false;
+                cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl; 
+            }
+        }while (check==false);
+        cout << "           >> press C to view the leaderboard" << endl;
+        cout << "\n\n       >> press SPACE to return at home" << endl;
+        do{
+            key=getch();
+            if ((int)key == SPACE) StartScreen();
+            else if ((int)key == 'c' || (int)key == 'C') Leaderboard();
+            else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
+        } while(true);
     } while(true);
 }
 
 lista SortFiles(){
     lista Lista = new Classifica;
     char ch;
-    int counter=0;
+    int counter=0, i=0, k=0;
     int score[maxSaved];
     char nickScore[maxSaved];
 
@@ -162,39 +166,57 @@ lista SortFiles(){
     // prendo i valori salvati di sempre e li inserisco in una lista
     while (!OpenFile.eof()){
         OpenFile.get(ch);
-        if (ch=='\n'){
+        if (ch=='\n' && counter==2){
             counter=0;
             Lista=Lista->next;
         }
-        else if (isspace(ch)!=0){
-            if (counter == 0) strcat(Lista->nick, &ch);
-            if (counter == 1) Lista->score+= ch;
+        else if (ch!=UNDERSCORE){
+            if (counter == 0){
+                Lista->nick[i]=ch;  
+                i++;
+            } 
+            if (counter == 1){
+                Lista->score[k]=ch;  
+                k++;
+            } 
         }
         else counter++;
+        OpenFile.ignore(ch);
     }
     OpenFile.close(); // chiudo il file 
     lista tmp = Lista;
-    int i=0; // = elementi nella lista classifica
+    int element=0; // = elementi nella lista classifica
+    string stringa; 
     while (Lista->next!=NULL){
-        score[i]=tmp->score;
+        for(int p=0; p<=k; p++){
+            stringa+=tmp->score[p];
+        }
+        tmp->savedScore = stoi(stringa, nullptr, 10);
+        score[element]=stoi(stringa,nullptr,10);
         cout << "sono nel salvataggio di score per la volta " << i << endl;
-        i++;
+        element++;
         tmp = tmp->next;
     }
+    Lista = tmp;
     BubbleSort(score, i);
     // mi salvo quanti salvataggi ho = quanti elementi ho in lista
     FILE * nsaved = fopen("nsaved.txt", "out");
-    fprintf(nsaved, "%d", i);
+    fprintf(nsaved, "%d", element);
     fclose(nsaved);
 
     // creo la lista ordinata 
-    while (Lista->next!=NULL){
-        for (int j=0; j<i; j++){
-            SortedList->score = score[j];
-            while (Lista->score!=score[j]){Lista = Lista->next; }
+    lista head = new Classifica; head->next->next=NULL;
+    while (head->next!=NULL){
+        for (int j=0; j<element; j++){
+            SortedList->savedScore = score[j];
+            while (Lista->savedScore != score[j]){
+                Lista = Lista->next;
+            }
             strcpy(SortedList->nick, Lista->nick);
             SortedList->id = j;
+            Lista = head;
         }
+        head = head->next;
     }
     return SortedList;
 }
@@ -214,14 +236,15 @@ void Swap(int& x, int& j){
 }
 void SaveOnFileWITHOUTid(lista Classifica){
     FILE * myfile = fopen("leaderboard.txt", "a");
-
-    fprintf(myfile, "%s_%d_\n", Classifica->nick, Classifica->score);
+    fprintf(myfile, "%s_%d_\n", Classifica->nick, Classifica->savedScore);
     fclose(myfile);
 }
 void SaveOnFile(lista Classifica){
-    FILE * myfile = fopen("leader-out.txt", "a");
-    while (Classifica->next != NULL)
-        fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->score);
+    FILE * myfile = fopen("leader-out.txt", "w");
+    while (Classifica->next != NULL){ 
+        fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->savedScore);
+        Classifica = Classifica->next;
+    }
     fclose(myfile);
 }
 
@@ -230,7 +253,7 @@ void Leaderboard(){
     char key;
     clearscreen();
     cout << "GG Sei nella classifica :D\n" << endl;
-    printfile("leaderboard.txt");
+ //   printfile("leader-out.txt");
     color(Black, White);
     cout << "\n\n       >> press SPACE to return at home" << endl;
     do{
