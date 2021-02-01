@@ -8,6 +8,15 @@
 using namespace std;
 
 
+void find_multiple_char(int column, int line, char buf[], int size){
+    COORD coord;
+    coord.X = column;
+    coord.Y = line;
+    DWORD num_read;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    ReadConsoleOutputCharacter(hConsole, (LPTSTR) buf, size, coord, (LPDWORD) &num_read);
+}
+
 char findchar(int column, int line){
     char buf[1];
     COORD coord;
