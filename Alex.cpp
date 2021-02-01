@@ -9,12 +9,16 @@
 #include <math.h>
 #include <conio.h>
 #include <Windows.h>
+#include <thread>
+#include <chrono>
 #include "main.cpp"
 using namespace std;
 
 // dimensioni mappa giocabile
 #define ROW_DIM 25
 #define MAP_HEIGHT 30
+#define REFRESH_RATE 30     // durata della sleep tra un print e l'altro
+
 
 struct Map
 {
@@ -29,95 +33,9 @@ struct Position
 {
     int x, y; // coordinata orizzontale
 };
-
-/*  INFO: inizializzazione mappa: generazione firstRow e MAP_HEIGHT-1 righe aggiuntive; generazione Player
-    PARAMETRI: puntatore a una mappa vuota; i parametri del Player sono fissi
-    RETURN: puntatore alla riga numero 0 (testa della mappa)    */
-ptr_Map newMap(ptr_Map map, Position p);
-
 /*  INFO: creazione prima riga 
     PARAMETRI: puntatore a una mappa vuota
     RETURN: puntatore alla row numero 0     */
-ptr_Map firstRow(ptr_Map firstRow);
-
-/*  INFO: generazione nuova riga, in particolare la configurazione di piattaforme e spazi 
-    PARAMETRI: puntatore all'ultima riga generata (ultimo nodo della lista) per evitare di dover scorrere ogni volta dal primo elemento
-               all'ultimo, visto che il gioco è studiato per essere senza fine
-    RETURN: puntatore alla riga generata dalla funzione (nuovo ultimo nodo della lista)    */
-ptr_Map newRow(ptr_Map paramRow); 
-
-/*  INFO: inizializzazione del giocatore (posizionamento alla row 2 e colonna 5)
-    PARAMETRI: puntatore al giocatore e alla mappa
-    RETURN: void    */
-void newPlayer(Position &p, ptr_Map map);
-
-/*  INFO: stampa di una riga 
-    PARAMETRI: puntatore alla riga da stampare
-    RETURN: void     */
-void printRow(ptr_Map paramRow, Position p);
-
-/*  INFO: stampa di una "schermata", ovvero di MAP_HEIGHT piani partendo dall' indice superiore
-    PARAMETRI: puntatore alla TESTA della mappa (row numero 0), posizione giocatore
-    RETURN: void    */
-void printMap(ptr_Map map, Position p);
-
-
-void controlPlayer();
-
-Position keyControl(int keyPressed, Position &p, ptr_Map map);
-
-/************************************************************************** MAIN ***************************************************************************/
-/************************************************************************** MAIN ***************************************************************************/
-
-int main()
-{
-    ptr_Map map = new Map; // creo puntatore mappa, salvo la testa
-    ptr_Map mapHead = map;
-    Position p;         // creo giocatore e inizializzo la sua posizione
-    newPlayer(p, map);
-    map = newMap(map, p);   // creo i primi MAP_HEIGHT piani e li stampo
-    printMap(mapHead, p);
-    
-    int key = 0;
-    int glo=0;
-    ptr_Map tmpp = mapHead;
-    while(true) 
-    {
-        key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
-       Sleep(500);
-        keyControl(key, p, map); 
-        printMap(mapHead, p);
-
-        tmpp = mapHead;
-        glo++;
-        while(tmpp->next != NULL){ tmpp = tmpp->next; } cout << "Riga max:" << tmpp->numRow << " glo " << glo;
-    }
-
-    system("PAUSE");
-    return 0;
-}
-
-/************************************************************************** MAIN ***************************************************************************/
-/************************************************************************** MAIN ***************************************************************************/
-
-void printRow(ptr_Map paramRow, Position p)
-{
-    cout << (char) 177 << " ";
-    for(int i=0; i<ROW_DIM; i++) 
-    { 
-        if(paramRow->numRow == p.y && i == p.x) // riga in cui c'è icona giocatore
-        {
-            cout << '@';
-        }
-        else
-        {
-            cout << paramRow->row[i]; 
-        }
-    }
-    cout << (char) 177 << " ";
-    cout << " " <<paramRow->numRow;
-}
-
 ptr_Map firstRow(ptr_Map firstRow)
 {   
     firstRow->next = NULL;  // riempio il first row, e ci metto un NULL come next
@@ -131,6 +49,10 @@ ptr_Map firstRow(ptr_Map firstRow)
     return firstRow;
 }
 
+/*  INFO: generazione nuova riga, in particolare la configurazione di piattaforme e spazi 
+    PARAMETRI: puntatore all'ultima riga generata (ultimo nodo della lista) per evitare di dover scorrere ogni volta dal primo elemento
+               all'ultimo, visto che il gioco è studiato per essere senza fine
+    RETURN: puntatore alla riga generata dalla funzione (nuovo ultimo nodo della lista)    */
 ptr_Map newRow(ptr_Map paramRow)
 {
     ptr_Map newRow = new Map;
@@ -189,7 +111,10 @@ ptr_Map newRow(ptr_Map paramRow)
     return newRow;  // ritorna l'ultima riga della mappa
 }
 
-ptr_Map newMap(ptr_Map map, Position p)
+/*  INFO: inizializzazione mappa: generazione firstRow e MAP_HEIGHT-1 righe aggiuntive; generazione Player
+    PARAMETRI: puntatore a una mappa vuota
+    RETURN: puntatore alla riga numero 0 (testa della mappa)    */
+ptr_Map newMap(ptr_Map map)
 {
     map = firstRow(map); // generazione prima riga
     ptr_Map tmp = map;  
@@ -198,59 +123,66 @@ ptr_Map newMap(ptr_Map map, Position p)
     return tmp;
 }
 
-void printMap(ptr_Map map, Position p)
+
+
+
+
+/*  INFO: inizializzazione del giocatore (posizionamento alla row 2 e colonna 5)
+    PARAMETRI: puntatore al giocatore
+    RETURN: void    */
+void newPlayer(Position *p)
 {
-    clearscreen();
-    // stampa righe da x a y   
-    // endl dopo ogni riga
-    int tmpy=p.y;
-    if(p.y < 6){ tmpy = 5;}
-    while(map->numRow != (tmpy-6+MAP_HEIGHT) ){ map = map->next; } // punto alla riga indexTop
-    for(int i=0; i<MAP_HEIGHT; i++) // stampo le MAP_HEIGHT righe
-    {
-            printRow(map, p);
-            cout << endl;
-            map = map->prev;
+    p->y = 0;
+    p->x = 5;
+}
+
+/*  INFO: stampa di una riga generica
+    PARAMETRI: puntatore alla riga da stampare
+    RETURN: void     */
+void printRow(ptr_Map paramRow, Position *p)
+{
+    cout << (char) 177 << " ";
+    for(int i=0; i<ROW_DIM; i++) 
+    { 
+        if(paramRow->numRow == p->y && i == p->x) // riga in cui c'è icona giocatore
+        {
+            cout << '@';
+        }
+        else { cout << paramRow->row[i]; }
     }
+    cout << (char) 177 << " ";
+    cout << " " <<paramRow->numRow;
 }
 
-void newPlayer(Position &p, ptr_Map map)
+/*  INFO: stampa di una "schermata", ovvero di MAP_HEIGHT piani
+    PARAMETRI: puntatore alla testa della mappa (row numero 0), posizione giocatore
+    RETURN: void    */
+void printMap(ptr_Map mapHead, Position *p)
 {
-    ptr_Map tmp = map->prev;
-    p.y = 0;
-    p.x = 5;
-}
-
-void controlPlayer()
-{
-    char a;
-    int b=0;
+    ptr_Map map;
     while(true)
     {
-        if(kbhit())
+        map = mapHead;
+        Sleep(REFRESH_RATE);
+        clearscreen();
+        int tmpy=p->y;
+        if(p->y < 6){ tmpy = 5;} // gestione dell'icona giocatore che dev'essere in una posizione relativa (al bottom) costante
+        while(map->numRow != (tmpy-6+MAP_HEIGHT) ){ map = map->next; } // punto alla riga indexTop
+        for(int i=0; i<MAP_HEIGHT; i++) // stampo le MAP_HEIGHT righe
         {
-            b=b+1;
-            //moveTo(b,b);
-        }
-        Sleep(5);
-        if(kbhit())
-        {
-            while(kbhit())
-            {
-                a = getch();
-            }
-        cout << a;  
-        }
-        else{
-            cout << "no";
+                printRow(map, p);
+                cout << endl;
+                map = map->prev;
         }
     }
 }
 
-Position keyControl(int keyPressed, Position &p, ptr_Map map)
-{
+/*  INFO: gestisce le azioni triggerate dai tasti premuti
+    PARAMETRI: tasto premuto, mappa e giocatore
+    RETURN: void    */
+void keyControl(int keyPressed, Position *p, ptr_Map map){
     while(map->next != NULL) { map = map->next; }
-    if( (p.x == 0 && keyPressed == 75) || (p.x == ROW_DIM-2 && keyPressed == 77) || (p.y == 0 && keyPressed == 80) ) { keyPressed = 40; }
+    if( (p->x == 0 && keyPressed == 75) || (p->x == ROW_DIM-2 && keyPressed == 77) || (p->y == 0 && keyPressed == 80) ) { keyPressed = 40; }
 
     switch(keyPressed)
     {
@@ -259,8 +191,8 @@ Position keyControl(int keyPressed, Position &p, ptr_Map map)
         break;
 
         case(72): // su
-            p.y += 2;
-            if(p.y > map->numRow - MAP_HEIGHT + 4) // se l'icona giocatore supera una certa altezza, viene creata una nuova riga 
+            p->y += 2;
+            if(p->y > map->numRow - MAP_HEIGHT + 4) // se l'icona giocatore supera una certa altezza, viene creata una nuova riga 
             {                                  // 
                 map = newRow(map);
                 map = newRow(map);
@@ -269,16 +201,86 @@ Position keyControl(int keyPressed, Position &p, ptr_Map map)
         break;
         
         case(80): // giu
-            p.y -= 2;
+            p->y -= 2;
         break;
         
         case(77): // dx
-            p.x += 1;
+            p->x += 1;
         break;
 
         case(75): // sx
-            p.x -= 1;
+            p->x -= 1;
         break;
     }
-    return p;
 }
+
+/*  INFO: eseguita da un thread, gestisce il movimento del giocatore
+    PARAMETRI: mappa e giocatore
+    RETURN: void    */
+void movePlayer(ptr_Map mappa, Position *player){
+    int key;
+    while(true) 
+    {
+        key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
+        keyControl(key, player, mappa);
+    }
+}
+
+/*  INFO: legge caratteri dal terminale
+    PARAMETRI: riga e colonna del carattere da leggere
+    RETURN: carattere letto    */
+char findChar(int column, int line)
+{
+    char buf[1];
+    COORD coord;
+    coord.X = column;
+    coord.Y = line;
+    DWORD num_read;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    ReadConsoleOutputCharacter(hConsole, (LPTSTR) buf, 1, coord, (LPDWORD) &num_read);
+    return buf[0];
+}
+
+/*  INFO: sposta il cursore del terminale
+    PARAMETRI: riga e colonna del carattere da leggere
+    RETURN: void    */
+void moveCursor(int column, int line)
+{
+    COORD coord;
+    coord.X = column;
+    coord.Y = line;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (!SetConsoleCursorPosition(hConsole, coord)){
+        cout<<"ERROR! (function: movecursor)"<<endl;
+    }
+}
+
+
+
+/************************************************************************** MAIN ***************************************************************************/
+/************************************************************************** MAIN ***************************************************************************/
+
+int main()
+{
+    ptr_Map map = new Map; // creo puntatore mappa, salvo la testa
+    Position *p = new Position;         // creo giocatore e inizializzo la sua posizione
+    newPlayer(p);
+    map = newMap(map);   // creo i primi MAP_HEIGHT piani e li stampo
+    thread print_map_thread(printMap, map, p);
+    thread get_position(movePlayer, map, p);
+    
+    print_map_thread.join();
+    get_position.join();    
+    
+    system("PAUSE");
+    return 0;
+}
+
+
+
+
+
+
+
+
+

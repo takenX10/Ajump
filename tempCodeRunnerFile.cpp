@@ -4,7 +4,7 @@
 */
 #include<iostream>
 #include<windows.h>
-#include<conio.h>
+
 using namespace std;
 
 
@@ -15,7 +15,7 @@ char findchar(int column, int line){
     coord.Y = line;
     DWORD num_read;
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    ReadConsoleOutputCharacter(hConsole, (LPTSTR) buf, 1, coord, (LPDWORD) &num_read);
+    ReadConsoleOutputCharacter(hConsole, (LPTSTR) buf, 1, coord, (LPDWORD) &num_read); // il terzo parametro è il numero di caratteri che leggo in un colpo solo
     return buf[0];
 }
 
@@ -40,6 +40,6 @@ int main(){
     cout<<"ao";
     movecursor(5, 1);
     cout<<"sa";
-    getch();
+    system("PAUSE");
     return 0;
 }
