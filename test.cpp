@@ -18,7 +18,7 @@ using namespace std;
 struct Map
 {
     char row[ROW_DIM];
-    long int numRow;    // identificatore univoco riga
+    long int num_row;    // identificatore univoco riga
     Map* prev;
     Map* next;
 };
@@ -38,7 +38,7 @@ void newPlayer(Position *p){
 
 ptr_Map firstRow(ptr_Map firstRow){   
     firstRow->next = NULL;  // riempio il first row, e ci metto un NULL come next
-    firstRow->numRow = 0;
+    firstRow->num_row = 0;
 
     char stringRow[ROW_DIM];
     for(int i=0; i<ROW_DIM-1; i++) { stringRow[i] = '_'; }
@@ -50,7 +50,7 @@ ptr_Map firstRow(ptr_Map firstRow){
 
 ptr_Map newRow(ptr_Map paramRow){
     ptr_Map newRow = new Map;
-    newRow->numRow = paramRow->numRow+1;
+    newRow->num_row = paramRow->num_row+1;
     newRow->prev = paramRow;
     newRow->next = NULL;
     paramRow->next = newRow;
@@ -73,7 +73,7 @@ ptr_Map newRow(ptr_Map paramRow){
             // stringRow[i] = (char) 196;*/
     char stringRow[ROW_DIM];
 
-    if(paramRow->numRow % 2 == 0) // caso riga "piena"
+    if(paramRow->num_row % 2 == 0) // caso riga "piena"
     {
         /*for(int i=0; i<ROW_DIM-1; i++)
         {
@@ -126,7 +126,7 @@ void keyControl(int keyPressed, Position *p, ptr_Map map){
 
         case(72): // su
             p->y += 2;
-            if(p->y > map->numRow - MAP_HEIGHT + 4) // se l'icona giocatore supera una certa altezza, viene creata una nuova riga 
+            if(p->y > map->num_row - MAP_HEIGHT + 4) // se l'icona giocatore supera una certa altezza, viene creata una nuova riga 
             {                                  // 
                 map = newRow(map);
                 map = newRow(map);
@@ -152,7 +152,7 @@ void printRow(ptr_Map paramRow, Position *p){
     cout << (char) 177 << " ";
     for(int i=0; i<ROW_DIM; i++) 
     { 
-        if(paramRow->numRow == p->y && i == p->x) // riga in cui c'è icona giocatore
+        if(paramRow->num_row == p->y && i == p->x) // riga in cui c'è icona giocatore
         {
             cout << '@';
         }
@@ -162,7 +162,7 @@ void printRow(ptr_Map paramRow, Position *p){
         }
     }
     cout << (char) 177 << " ";
-    cout << " " <<paramRow->numRow;
+    cout << " " <<paramRow->num_row;
 }
 
 void printMap(ptr_Map mapHead, Position *p){
@@ -175,7 +175,7 @@ void printMap(ptr_Map mapHead, Position *p){
         // endl dopo ogni riga
         int tmpy=p->y;
         if(p->y < 6){ tmpy = 5;}
-        while(map->numRow != (tmpy-6+MAP_HEIGHT) ){ map = map->next; } // punto alla riga indexTop
+        while(map->num_row != (tmpy-6+MAP_HEIGHT) ){ map = map->next; } // punto alla riga indexTop
         for(int i=0; i<MAP_HEIGHT; i++) // stampo le MAP_HEIGHT righe
         {
                 printRow(map, p);
