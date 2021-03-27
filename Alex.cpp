@@ -126,69 +126,34 @@ void printRow(ptr_Map param_row, Position *p)
 /*  INFO: generazione di una riga (aggiunta di un nodo alla lista)
     PARAMETRI: puntatore all'ultima riga generata (ultimo nodo della lista) [per evitare di scorrere tutta la lista ogni volta]
     RETURN: puntatore alla riga generata dalla funzione (nuovo ultimo nodo della lista)    */
-/*ptr_Map newRow(ptr_Map param_row)
-{
-    ptr_Map new_row = new Map;               // la mappa è una bi-lista di rows, alla creazione di un nuovo nodo aumento 
-    new_row->num_row = param_row->num_row+1;
-    new_row->prev = param_row; 
-    new_row->next = NULL;
-    param_row->next = new_row;
-
-    char string_row[ROW_DIM];
-
-    if(param_row->num_row % 2 == 0) // caso riga "piena"
-    {
-        int a = rand() % 12 +1; // piattaforma di 1-12 spazi
-        int b = ROW_DIM/2 - a +1;
-        int r1 = rand() % 7;
-        int r2 = rand() % 7;
-        int i=0;
-
-        for(i=0; i<r1; i++){ string_row[i] = ' '; }
-        for(i=i; i<r1+a; i++){ string_row[i] = (char) 196; }
-        for(i=i; i<r1+a+r2; i++){ string_row[i] = ' '; }
-        for(i=i; i<r1+a+r2+b; i++){ string_row[i] = (char) 196; }
-        for(i=i; i<ROW_DIM-1; i++){ string_row[i] = ' '; }
-    }
-    else
-    {
-        for(int i=0; i<ROW_DIM-1; i++) { string_row[i] = ' '; }
-    }
-    string_row[ROW_DIM-1] = '\0';
-    strcpy(new_row->row, string_row); 
-
-    return new_row;  // ritorna l'ultima riga della mappa
-}*/
-
-/*  INFO: generazione di una riga (aggiunta di un nodo alla lista)
-    PARAMETRI: puntatore all'ultima riga generata (ultimo nodo della lista) [per evitare di scorrere tutta la lista ogni volta]
-    RETURN: puntatore alla riga generata dalla funzione (nuovo ultimo nodo della lista)    */
 ptr_Map newRow(ptr_Map param_row)
 {
-    ptr_Map new_row = new Map;               
+    ptr_Map new_row = new Map;               // "collego" la nuova riga all'ultima riga generata
     param_row->next = new_row;
     new_row->num_row = param_row->num_row+1;
     new_row->prev = param_row; 
     new_row->next = NULL;
-
-    if(param_row->num_row % 2 == 0) // caso riga "piena"
+    
+    if(new_row->num_row % 2 != 0) // caso riga in cui NON vanno inserite piattaforme
     {
-        if(param_row->num_row % CHECKPOINT_ROW == 0)
-        {
-            for(int i=0; i<ROW_DIM; i++) {  // piano con piattaforma a larghezza max
+        for(int i=0; i<ROW_DIM-1; i++) { new_row->row[i] = ' '; }
+    }
+    else{
+        if(new_row->num_row % CHECKPOINT_ROW == 0){
+            for(int i=0; i<ROW_DIM; i++) {     // piano "checkpoint" con piattaforma a larghezza max
                 new_row->row[i] = (char) 196;
             }
         }
         else
         {
-            int dim_1 = rand() % (ROW_DIM/4) +2;
+            int dim_1 = rand() % (ROW_DIM/4) +1; // dimensioni piattaforme
             int dim_2 = rand() % (ROW_DIM/4) +2;
             int dim_3 = rand() % (ROW_DIM/4) +2;
-            int space_1 = rand() % 3 +1;
-            int space_2 = rand() % 5 +1;
+            int space_1 = rand() % 6 +1;         // spazi tra le piattaforme
+            int space_2 = rand() % 3 +1;
             int space_3 = rand() % 2 +1;
             int i=0;
-
+            // riempimento riga
             for(i=0; i<space_1; i++){ new_row->row[i] = ' '; }
             for(i=i; i<space_1 + dim_1; i++){ new_row->row[i] = (char) 196; }
             for(i=i; i<space_1 + dim_1 + space_2; i++){ new_row->row[i] = ' '; }
@@ -197,10 +162,6 @@ ptr_Map newRow(ptr_Map param_row)
             for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3 + dim_3; i++){ new_row->row[i] = (char) 196; }
             for(i=i; i<ROW_DIM-1; i++){ new_row->row[i] = ' '; }
         }
-    }
-    else
-    {
-        for(int i=0; i<ROW_DIM-1; i++) { new_row->row[i] = ' '; }
     }
     new_row->row[ROW_DIM-1] = '\0';
 
@@ -217,7 +178,7 @@ ptr_Map firstRow(ptr_Map first_row)
 
     for(int i=0; i<ROW_DIM-1; i++) 
     { 
-        first_row->row[i] = '_'; 
+        first_row->row[i] = (char) 196; 
     }
     first_row->row[ROW_DIM-1] = '\0';
 
@@ -283,45 +244,15 @@ void printMapCursor(ptr_Map map_head, Position *p)
     }
 }
 
-/*  INFO: stampa di una "schermata", ovvero di MAP_HEIGHT piani
-    PARAMETRI: puntatore alla testa della mappa (row numero 0), posizione giocatore
-    RETURN: void    */
-/*void printMap(ptr_Map map_head, Position *p)
-{
-    ptr_Map map;
-    while(true)
-    {
-        Sleep(REFRESH_RATE);
-        clearscreen();
-        map = map_head;
-        int tmp_player_y = p->y;
-        
-        if(p->y < 6) // gestione icona giocatore, dev'essere in una pos. relativa al bottom = 5
-        { 
-            tmp_player_y = 5;
-        } 
-        while(map->num_row != (MAP_HEIGHT + tmp_player_y - 6) ) // punto alla riga indexTop
-        { 
-            map = map->next; 
-        } 
-        for(int i=0; i<MAP_HEIGHT; i++) // stampo le MAP_HEIGHT righe
-        {
-            printRow(map, p);
-            cout << endl;
-            map = map->prev;
-        }
-    }
-}*/
-
 
 //                                                                             [[ funzioni relative al movimento del giocatore ]]
 
-/*  INFO: inizializzazione del giocatore (posizionamento alla row 2 e colonna 5)
+/*  INFO: posizionamento iniziale del giocatore 
     PARAMETRI: puntatore al giocatore
     RETURN: void    */
 void newPlayer(Position *p)
 {
-    p->y = 0;
+    p->y = 1;
     p->x = 5;
 }
 
@@ -334,33 +265,20 @@ bool checkPlatformProximity(int key_pressed, Position *p, ptr_Map map)
     // movimento SU
     if(key_pressed == 72)     // il caso di row = 0 ha bisogno di una distinzione speciale in quanto la distanza
     {                         // giocatore-piattaforma è = 1 invece che = 2 come nel resto della mappa
-        if(p->y == 0)  // caso row = 0
-        {
-            map = map->next;   // il confronto sarà fatto con row = 1
-            if(map->row[p->x] == (char) 196) { flag = true; }
-        }
-        else
-        {
-            while(map->num_row != p->y +1){ map = map->next; }     // punto a 2 righe sopra al giocatore, dov'è lo strato successivo di piattaforme
-            // <!>
-            if(map->row[p->x] == (char) 196) { flag = true; }      // se c'è una piattaforma allora ho l'ok per il movimento
-        }
+        while(map->num_row != p->y +1){ map = map->next; }     // punto a 2 righe sopra al giocatore, dov'è lo strato successivo di piattaforme
+        // <!>
+        if(map->row[p->x] == (char) 196) { flag = true; }      // se c'è una piattaforma allora ho l'ok per il movimento
     }
     // movimento GIU
     if(key_pressed == 80)     
     {
-        if(p->y == 2)
+        if(p->y != 1)
         {
-            flag = true;
-        }
-        else
-        {
-            while(map->num_row != p->y -3){ map = map->next; }     // punto a 2 righe sopra al giocatore, dov'è lo strato successivo di piattaforme
+            while(map->num_row != p->y -3){ map = map->next; }     // punto a 2 righe sotto al giocatore, dov'è lo strato successivo di piattaforme
             // <!>
-            if(map->row[p->x] == (char) 196 || map->row[p->x] == '_') { flag = true; }       // se c'è una piattaforma (oppure il row 0) allora ho l'ok per il movimento
+            if(map->row[p->x] == (char) 196 || map->num_row == 1) { flag = true; }       // se c'è una piattaforma (oppure il row 1) allora ho l'ok per il movimento
         }
     }
-
     return flag;
 }
 
