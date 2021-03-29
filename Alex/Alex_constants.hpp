@@ -13,7 +13,7 @@ namespace constants{
     constexpr int CHECKPOINT_ROW = 50;   // frequenza con cui si trova il piano con piattaforma a larghezza ROW_DIM
 
     // Caratteri
-    constexpr char MURO =  147;
+    constexpr char MURO =  177;
     constexpr char PIATTAFORMA = 196;
 
     // Direzioni
@@ -23,5 +23,9 @@ namespace constants{
     constexpr int SINISTRA = 75;
     constexpr int SPAZIO = 32;
 
+    // Giocatore
+    constexpr int STARTING_X = ROW_DIM/2;
+    constexpr int STARTING_Y = 1;
+    constexpr int OFFSET = 6;
 }
 #endif

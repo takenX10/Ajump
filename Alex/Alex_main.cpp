@@ -17,14 +17,50 @@ externalConsole: true
 // (non c'e' bisogno di compilare i file header)
 // Sono riuscito ad eseguire tutto alla fine delle modifiche senza alcun tipo di problema
 
+class Gioco{
+    private:
+        Mappa mappa_gioco;
+        Player p;
+
+    public:
+        Gioco(Mappa m, Player p){
+            this->mappa_gioco = m;
+            this->p = p;
+        }
+        void printMap(){
+            while(true){
+                Sleep(REFRESH_RATE);
+                this->mappa_gioco.printMap(this->p.getY() + this->mappa_gioco.getHeight() - OFFSET + (OFFSET > this->p.getY() ? OFFSET - this->p.getY() : 0) );
+            }
+        }
+        
+        /*  
+        INFO: eseguita da un thread, gestisce il movimento del giocatore
+            PARAMETRI: mappa e giocatore
+            RETURN: void    
+        */
+        void keyListener(){
+            int key;
+            while(true) {
+                key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
+                this->p.move(key);
+            }
+        }
+};
+
+
+
 int main(void){
-    ptr_Map map = new Map;                // creo puntatore mappa, salvo la testa
-    Position *p = new Position;           // creo giocatore e inizializzo la sua posizione
-    newPlayer(p);
-    map = newMap(map);                    // creo i primi MAP_HEIGHT piani e li stampo
-    thread print_map_thread(printMapCursor, map, p);
-    thread get_position(movePlayer, map, p);
+
+    Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
+    Player p = Player(STARTING_X, STARTING_Y, &m);
+    Gioco  g = Gioco(m, p);
+    
     hidecursor();                         // per rendere il cursore invisibile
+
+    thread print_map_thread(&Gioco::printMap, g);
+    thread get_position(&Gioco::keyListener, g);
+
     print_map_thread.join();
     get_position.join();    
     
