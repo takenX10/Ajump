@@ -1,16 +1,10 @@
 /*
 @ Author: Alex Lorenzato
 */
-
-
-#include <iostream>
 #include <cstdlib>
-#include <stdio.h>
 #include <string.h>
 #include <math.h>
 #include <Windows.h>
-#include <thread>
-#include <chrono>
 #include "Alex_character_editing.hpp"
 #include "Alex_constants.hpp"
 
@@ -48,7 +42,7 @@ class Mappa{
         int map_width;
 
     public:
-        Mappa(int map_height, int map_width){
+        Mappa(int map_height = 0, int map_width = 0){
             //ptr_Map tmp = map_head;  // uso tmp perché map verrà aggiornato e non punterà più alla riga 0
             this->map_height = map_height;
             this->map_width = map_width;
@@ -128,11 +122,12 @@ class Mappa{
         */
         void printMap(int top_line){
             ptr_Map map = this->map_tail;
-            if(this->map_tail->num_row < top_line){
-                cout << "ERROR: WRONG TOP LINE";
+            if(this->map_tail->num_row + 1< top_line){
+                cout<<this->map_tail->num_row<<"<= "<<top_line - 1<<endl;
+                cout << "ERROR: WRONG TOP LINE"<<endl;
                 return;
             }
-            while(map->num_row > top_line){
+            while(map->num_row + 1 > top_line){
                 map = map->prev;
             }
             for(int i=0; i<this->map_height; i++){
@@ -165,6 +160,7 @@ class Mappa{
 
         void setChar(int x, int y, char c){
             ptr_Map tmp = this->map_tail;
+            
             if(y > tmp->num_row){
                 cout << "ERROR: LA RIGA NON ESISTE";
             }else{
@@ -185,10 +181,12 @@ class Player{
         Mappa *ptr_mappa;
 
     public:
-        Player(int x, int y, Mappa *m){
+        Player(Mappa *m = NULL, int x = 0, int y = 1){
             this->x = x;
             this->y = y;
             this->ptr_mappa = m;
+            this->ptr_mappa->setChar(this->x, this->y , '@');
+            system("PAUSE");
         }
 
         bool checkMovement(int direction){
@@ -225,7 +223,7 @@ class Player{
             return false;
         }
 
-        int move(int direction){
+        void move(int direction){
             if(this->checkMovement(direction) == true){
                 switch(direction){
                     case SOPRA:

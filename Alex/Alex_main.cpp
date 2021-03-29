@@ -1,8 +1,13 @@
 #include<iostream>
+using namespace std;
+#include "Alex_constants.hpp"
 #include "Alex_character_editing.hpp"
 #include "Alex.cpp"
-#include "Alex_constants.hpp"
-using namespace std;
+#include <conio.h>
+#include <thread>
+#include <chrono>
+
+
 
 /*
 compilare con F5
@@ -24,10 +29,14 @@ class Gioco{
 
     public:
         Gioco(Mappa m, Player p){
+            cout<<"gioco";
+            system("PAUSE");
             this->mappa_gioco = m;
             this->p = p;
         }
         void printMap(){
+            cout<<"printMap";
+            system("PAUSE");
             while(true){
                 Sleep(REFRESH_RATE);
                 this->mappa_gioco.printMap(this->p.getY() + this->mappa_gioco.getHeight() - OFFSET + (OFFSET > this->p.getY() ? OFFSET - this->p.getY() : 0) );
@@ -40,6 +49,8 @@ class Gioco{
             RETURN: void    
         */
         void keyListener(){
+            cout<<"keyListener";
+            system("PAUSE");
             int key;
             while(true) {
                 key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
@@ -53,7 +64,8 @@ class Gioco{
 int main(void){
 
     Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
-    Player p = Player(STARTING_X, STARTING_Y, &m);
+    Player p = Player(&m, STARTING_X, STARTING_Y);
+    system("PAUSE");
     Gioco  g = Gioco(m, p);
     
     hidecursor();                         // per rendere il cursore invisibile

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <windows.h>
+#include <conio.h>
 #include "Alex_character_editing.hpp"
 using namespace std;
 

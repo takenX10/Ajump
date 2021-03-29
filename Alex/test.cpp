@@ -1,207 +1,350 @@
-/*
-@ Author: Alessandro Frau
-
-*/
 #include<iostream>
-#include<cstring>
-#include<conio.h>
-#include<windows.h>
-#include<thread>
-#include<chrono>
-#include "main.cpp"
+#include <cstdlib>
+#include <string.h>
+#include <math.h>
+#include <Windows.h>
+#include <conio.h>
+#include <thread>
+#include <chrono>
 using namespace std;
+#include <iostream>
+#include <windows.h>
+#include <conio.h>
 
-#define ROW_DIM 25
-#define MAP_HEIGHT 30
-#define REFRESH_RATE 30     // durata della sleep tra un print e l'altro UwU
+namespace constants{
+    // Costanti mappa
+    constexpr int ROW_DIM = 40;
+    constexpr int MAP_HEIGHT = 30;
+    constexpr int REFRESH_RATE = 30;     // durata della sleep tra un print e l'altro
+    constexpr int CHECKPOINT_ROW = 50;   // frequenza con cui si trova il piano con piattaforma a larghezza ROW_DIM
 
-struct Map
-{
+    // Caratteri
+    constexpr char MURO =  177;
+    constexpr char PIATTAFORMA = 196;
+
+    // Direzioni
+    constexpr int SOPRA = 72;
+    constexpr int SOTTO = 80;
+    constexpr int DESTRA = 77;
+    constexpr int SINISTRA = 75;
+    constexpr int SPAZIO = 32;
+
+    // Giocatore
+    constexpr int STARTING_X = ROW_DIM/2;
+    constexpr int STARTING_Y = 1;
+    constexpr int OFFSET = 6;
+}
+
+using namespace constants;
+
+char findChar(int column, int line){
+    char buf[1];
+    COORD coord;
+    coord.X = column;
+    coord.Y = line;
+    DWORD num_read;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    ReadConsoleOutputCharacter(hConsole, (LPTSTR) buf, 1, coord, (LPDWORD) &num_read);
+    return buf[0];
+}
+
+void moveCursor(int column, int line){
+    COORD coord;
+    coord.X = column;
+    coord.Y = line;
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (!SetConsoleCursorPosition(hConsole, coord)){
+        cout<<"ERROR! (function: movecursor)"<<endl;
+    }
+}
+
+void hidecursor(void){
+   HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+   CONSOLE_CURSOR_INFO info;
+   info.dwSize = 100;
+   info.bVisible = FALSE;
+   SetConsoleCursorInfo(consoleHandle, &info);
+}
+
+struct Map{
     char row[ROW_DIM];
     long int num_row;    // identificatore univoco riga
     Map* prev;
     Map* next;
 };
-
 typedef Map* ptr_Map;
 
-struct Position
-{
-    int x, y; // coordinata orizzontale
+class Mappa{
+    private:
+        ptr_Map map_head;
+        ptr_Map map_tail;
+        int map_height;
+        int map_width;
+        int total_height;
+
+    public:
+        Mappa(int map_height = 0, int map_width = 0){
+            //ptr_Map tmp = map_head;  // uso tmp perché map verrà aggiornato e non punterà più alla riga 0
+            this->map_height = map_height;
+            this->map_width = map_width;
+            this->map_head = NULL;
+            this->map_tail = NULL;
+            this->total_height = 0;
+            for(int i=0; i < this->map_height; i++){
+                this->newRow();
+            }
+        }
+        void newRow(){
+            if(this->map_head == NULL){
+                this->map_head = new Map;
+                this->map_head->next = NULL;
+                this->map_head->prev = NULL;
+                this->map_head->num_row = 0;
+
+                for(int i=0; i < this->map_width-1; i++){ 
+                    this->map_head->row[i] = PIATTAFORMA; 
+                }
+                this->map_head->row[this->map_width-1] = '\0';
+                this->map_tail = this->map_head;
+                this->total_height = this->map_tail->num_row;
+            }else{
+                ptr_Map new_row = new Map;               // "collego" la nuova riga all'ultima riga generata
+                this->map_tail->next = new_row;
+                new_row->num_row = this->map_tail->num_row+1;
+                new_row->prev = this->map_tail; 
+                new_row->next = NULL;
+                
+                if(new_row->num_row % 2 != 0){ // caso riga in cui NON vanno inserite piattaforme
+                    for(int i=0; i<this->map_width-1; i++) { new_row->row[i] = ' '; }
+                }else{
+                    if(new_row->num_row % CHECKPOINT_ROW == 0){
+                        for(int i=0; i<this->map_width; i++) {     // piano "checkpoint" con piattaforma a larghezza max
+                            new_row->row[i] = PIATTAFORMA;
+                        }
+                    }else{
+                        /* avrei scelto un approccio piu estendibile, nella forma di
+                        for(i = 0, i < NUM_PIATTAFORME; i++){
+                            dim[i] = ...;
+                            space[i] = ...;
+                        }
+                        fai_cose(dim, space);
+                        */
+                        // FALLO.
+                        int dim_1 = rand() % (ROW_DIM/4) +1; // dimensioni piattaforme
+                        int dim_2 = rand() % (ROW_DIM/4) +2;
+                        int dim_3 = rand() % (ROW_DIM/4) +2;
+                        int space_1 = rand() % 6 +1;         // spazi tra le piattaforme
+                        int space_2 = rand() % 3 +1;
+                        int space_3 = rand() % 2 +1;
+                        int i=0;
+                        // riempimento riga
+                        for(i=0; i<space_1; i++){ new_row->row[i] = ' '; }
+                        for(i=i; i<space_1 + dim_1; i++){ new_row->row[i] = PIATTAFORMA; }
+                        for(i=i; i<space_1 + dim_1 + space_2; i++){ new_row->row[i] = ' '; }
+                        for(i=i; i<space_1 + dim_1 + space_2 + dim_2; i++){ new_row->row[i] = PIATTAFORMA; }
+                        for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3; i++){ new_row->row[i] = ' '; }
+                        for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3 + dim_3; i++){ new_row->row[i] =PIATTAFORMA; }
+                        for(i=i; i<ROW_DIM-1; i++){ new_row->row[i] = ' '; }
+                    }
+                }
+                new_row->row[ROW_DIM-1] = '\0';
+                this->map_tail = new_row;
+                this->total_height = this->map_tail->num_row;
+            }
+        }
+
+        /*  
+            INFO: stampa di una "schermata", ovvero di MAP_HEIGHT piani
+            PARAMETRI: puntatore alla testa della mappa (row numero 0), posizione giocatore
+            RETURN: void    
+        */
+        void printMap(int top_line){
+            ptr_Map map = this->map_tail;
+            if(this->map_tail->num_row + 1< top_line){
+                cout<<this->map_tail->num_row<<"<= "<<top_line - 1<<endl;
+                cout << "ERROR: WRONG TOP LINE"<<endl;
+                return;
+            }
+            while(map->num_row + 1 > top_line){
+                map = map->prev;
+            }
+            for(int i=0; i<this->map_height; i++){
+                for(int j=0; j<this->map_width; j++){
+                    if(findChar(j,i) != map->row[j]){
+                        moveCursor(j,i);
+                        cout << map->row[j];
+                    }
+                }
+                cout << MURO << " " << map->num_row;
+                map = map->prev;
+            }
+        }
+
+        ptr_Map getRow(int n){
+            ptr_Map tmp = this->map_tail;
+            if(n > tmp->num_row){
+                cout << "ERROR: LA RIGA NON ESISTE";
+                return NULL;
+            }
+            while(tmp->num_row > n){
+                tmp = tmp->prev;
+            }
+            return tmp;
+        }
+
+        void setChar(int x, int y, char c){
+            ptr_Map tmp = this->map_tail;
+            
+            if(y > tmp->num_row){
+                cout << "ERROR: LA RIGA NON ESISTE";
+            }else{
+                while(tmp->num_row > y){
+                    tmp = tmp->prev;
+                }
+                tmp->row[x] = c;
+            }
+        }
+        int getWidth(){ return this->map_width; }
+        int getHeight(){ return this->map_height; }
+        int getTotalHeight(){return this->total_height;}
 };
 
+class Player{
+    private:
+        int x;
+        int y;
+        Mappa *ptr_mappa;
 
-void newPlayer(Position *p){
-    p->y = 0;
-    p->x = 5;
-}
-
-ptr_Map firstRow(ptr_Map firstRow){   
-    firstRow->next = NULL;  // riempio il first row, e ci metto un NULL come next
-    firstRow->num_row = 0;
-
-    char stringRow[ROW_DIM];
-    for(int i=0; i<ROW_DIM-1; i++) { stringRow[i] = '_'; }
-    stringRow[ROW_DIM-1] = '\0';
-    strcpy(firstRow->row, stringRow); 
-
-    return firstRow;
-}
-
-ptr_Map newRow(ptr_Map paramRow){
-    ptr_Map newRow = new Map;
-    newRow->num_row = paramRow->num_row+1;
-    newRow->prev = paramRow;
-    newRow->next = NULL;
-    paramRow->next = newRow;
-
-    /*
-            int a = rand() % 6 + 2;                     // piattaforma 1 -> 2-7 spazi
-            int b = rand() % 6 + 2;                     // piattaforma 2 -> 2-7 spazi
-            int c = rand() % 6 + 2;                     // piattaforma 3 -> 2-7 spazi
-            int sumRandom = a+b+c;                      // totale spazi occupati da piattaforme nella riga
-            int spaces = ROW_DIM - sumRandom;           // spazi rimanenti
-            int numSpaces = rand() % 4 + 1;             // quanti spazi vuoti (spazi vuoti = serie di spazi consecutivi) ci saranno in una riga
-            int index = 0;                              // indice che mi dice fino a che colonna ho stampato
-            if(numSpaces == 4)
-            {
-                for(int i=0; i<; i++) { cout << (char) 196; }
-                
+    public:
+        Player(Mappa *m = NULL, int x = 0, int y = 1){
+            this->x = x;
+            this->y = y;
+            this->ptr_mappa = m;
+            if(this->ptr_mappa != NULL){
+                this->ptr_mappa->setChar(this->x, this->y , '@');
             }
-                for(int i=0; i<a; i++) { cout << (char) 196; }
-            // |-- ---- -----       |            |   ----    --       -- |
-            // stringRow[i] = (char) 196;*/
-    char stringRow[ROW_DIM];
-
-    if(paramRow->num_row % 2 == 0) // caso riga "piena"
-    {
-        /*for(int i=0; i<ROW_DIM-1; i++)
-        {
-            stringRow[i] = '-'; 
-        }*/
-        int a = rand() % 12 +1; // piattaforma di 1-12 spazi
-        int b = ROW_DIM/2 - a +1;
-        int r1 = rand() % 7;
-        int r2 = rand() % 7;
-        int i=0;
-        //cout << "a: "<< a << " b: " << b << " r1: " << r1 << " r2: " << r2 << endl; 
-        for(i=0; i<r1; i++){ stringRow[i] = ' ';}
-        for(i=i; i<r1+a; i++){stringRow[i] = (char) 196;}
-        for(i=i; i<r1+a+r2; i++){ stringRow[i] = ' ';}
-        for(i=i; i<r1+a+r2+b; i++){stringRow[i] = (char) 196;}
-        for(i=i; i<ROW_DIM-1; i++){ stringRow[i] = ' ';}
-    }
-    else
-    {
-        for(int i=0; i<ROW_DIM-1; i++)
-        {
-            stringRow[i] = ' '; 
         }
-    }
-    
-    stringRow[ROW_DIM-1] = '\0';
-    strcpy(newRow->row, stringRow); 
 
-    return newRow;  // ritorna l'ultima riga della mappa
-}
-
-ptr_Map newMap(ptr_Map map){
-    map = firstRow(map); // generazione prima riga
-    ptr_Map tmp = map;
-    for(int i=0; i<MAP_HEIGHT; i++){ 
-        tmp = newRow(tmp); 
-    } // generazione righe successive
-    return map;
-}
-
-void keyControl(int keyPressed, Position *p, ptr_Map map){
-    while(map->next != NULL) { map = map->next; }
-    if( (p->x == 0 && keyPressed == 75) || (p->x == ROW_DIM-2 && keyPressed == 77) || (p->y == 0 && keyPressed == 80) ) { keyPressed = 40; }
-
-    switch(keyPressed)
-    {
-        case(32): // spazio
-
-        break;
-
-        case(72): // su
-            p->y += 2;
-            if(p->y > map->num_row - MAP_HEIGHT + 4) // se l'icona giocatore supera una certa altezza, viene creata una nuova riga 
-            {                                  // 
-                map = newRow(map);
-                map = newRow(map);
-            }
+        bool checkMovement(int direction){
             
-        break;
-        
-        case(80): // giu
-            p->y -= 2;
-        break;
-        
-        case(77): // dx
-            p->x += 1;
-        break;
+            switch(direction){
+                case SOPRA:
+                    if(this->ptr_mappa->getRow(this->y + 1)->row[this->x] == PIATTAFORMA){
+                        return true;
+                    }
+                break;
 
-        case(75): // sx
-            p->x -= 1;
-        break;
-    }
-}
+                case SOTTO:
+                    if(this->y > 2){
+                        if(this->ptr_mappa->getRow(this->y - 3)->row[this->x] == PIATTAFORMA){
+                            return true;
+                        }
+                    }
+                    
+                break;
 
-void printRow(ptr_Map paramRow, Position *p){
-    cout << (char) 177 << " ";
-    for(int i=0; i<ROW_DIM; i++) 
-    { 
-        if(paramRow->num_row == p->y && i == p->x) // riga in cui c'è icona giocatore
-        {
-            cout << '@';
+                case SINISTRA:
+                    if(this->x-1 >=0){
+                        if(this->ptr_mappa->getRow(this->y -1)->row[this->x -1] == PIATTAFORMA){
+                            return true;
+                        }
+                    }
+                break;
+
+                case DESTRA:
+                    if(this->x+1<this->ptr_mappa->getWidth()){
+                        if(this->ptr_mappa->getRow(this->y -1)->row[this->x +1] == PIATTAFORMA){
+                            return true;
+                        }
+                    }
+                break;
+
+                case SPAZIO:
+
+                break;
+            }
+            return false;
         }
-        else
-        {
-            cout << paramRow->row[i]; 
+
+        void move(int direction){
+            if(this->checkMovement(direction) == true){
+                switch(direction){
+                    case SOPRA:
+                        this->ptr_mappa->setChar(this->x, this->y +2, '@');
+                        this->ptr_mappa->setChar(this->x, this->y, ' ');
+                        this->y += 2;
+                        // aggiunta new line 
+                        if(OFFSET < this->y && this->y - OFFSET + this->ptr_mappa->getHeight() >  this->ptr_mappa->getTotalHeight()){
+                            this->ptr_mappa->newRow();
+                            this->ptr_mappa->newRow();
+                        }
+                    break;
+
+                    case SOTTO:
+                        this->ptr_mappa->setChar(this->x, this->y -2, '@');
+                        this->ptr_mappa->setChar(this->x, this->y, ' ');
+                        this->y -= 2;
+                    break;
+
+                    case DESTRA:
+                        this->ptr_mappa->setChar(this->x +1, this->y, '@');
+                        this->ptr_mappa->setChar(this->x, this->y, ' ');
+                        this->x += 1;
+                    break;
+
+                    case SINISTRA:
+                        this->ptr_mappa->setChar(this->x -1, this->y, '@');
+                        this->ptr_mappa->setChar(this->x, this->y, ' ');
+                        this->x -= 1;
+                    break;
+
+                    case SPAZIO:
+
+                    break;
+                }
+            }
         }
-    }
-    cout << (char) 177 << " ";
-    cout << " " <<paramRow->num_row;
-}
 
-void printMap(ptr_Map mapHead, Position *p){
-    ptr_Map map;
-    while(true){
-        map = mapHead;
-        Sleep(REFRESH_RATE);
-        clearscreen();
-        // stampa righe da x a y   
-        // endl dopo ogni riga
-        int tmpy=p->y;
-        if(p->y < 6){ tmpy = 5;}
-        while(map->num_row != (tmpy-6+MAP_HEIGHT) ){ map = map->next; } // punto alla riga indexTop
-        for(int i=0; i<MAP_HEIGHT; i++) // stampo le MAP_HEIGHT righe
-        {
-                printRow(map, p);
-                cout << endl;
-                map = map->prev;
+        int getX(){ return this->x; }
+        int getY(){ return this->y; }
+};
+
+class Gioco{
+    private:
+        Mappa *mappa_gioco;
+        Player *p;
+
+    public:
+        Gioco(Mappa *m, Player *p){
+            this->mappa_gioco = m;
+            this->p = p;
         }
-    }
-}
+        void auto_print_map(){
+            while(true){
+                Sleep(REFRESH_RATE);
+                this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0) );
+            }
+        }
+        void keyListener(){
+            int key;
+            while(true) {
+                key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
+                this->p->move(key);
+            }
+        }
+};
 
-void sposta_player(ptr_Map mappa, Position *player){
-    int key;
-    while(true) {
-        key = (int) getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
-        keyControl(key, player, mappa);
-    }
-}
+int main(void){
 
-int main(){
-    ptr_Map map = new Map; // creo puntatore mappa, salvo la testa
-    Position *p = new Position;         // creo giocatore e inizializzo la sua posizione
-    newPlayer(p);
-    map = newMap(map);   // creo i primi MAP_HEIGHT piani e li stampo
-    thread print_map_thread(printMap, map, p);
-    thread get_position(sposta_player, map, p);
+    Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
+    Player p = Player(&m, STARTING_X, STARTING_Y);
+    Gioco  g = Gioco(&m, &p);
     
+    hidecursor();                         // per rendere il cursore invisibile
+
+    thread print_map_thread(&Gioco::auto_print_map, g);
+    thread get_position(&Gioco::keyListener, g);
+
     print_map_thread.join();
-    get_position.join();
-    return 0;
+    get_position.join();    
 }
