@@ -5,7 +5,7 @@
     aumento di livello, statistiche e percentuali), 
     del main, 
     game over e classifica (8)
-- i bonus li implementa quello che ha meno roba da fare (ce ne accorgeremo sul momento)
+- i bonus li iListaementa quello che ha meno roba da fare (ce ne accorgeremo sul momento)
 
 - schermata di inizio (premi invio per iniziare ecc....)
 - classifica
@@ -13,12 +13,9 @@
 */
 #include <iostream>
 #include <cstring>
-#include <string>
 #include <windows.h>
 #include <conio.h>
-#include "main.cpp"
-#include <cstdio>
-#include <fstream>
+#include "../Main/main.cpp"
 
 using namespace std;
 
@@ -27,35 +24,133 @@ using namespace std;
 #define ESC 27
 #define CHAR 30
 #define UNDERSCORE 95
-#define maxSaved 100
+#define maxSaved 65*40 // 40 maxListaayer salvati
+
+struct lista_classifica{
+    char nick[CHAR];
+    int score;
+    struct lista_classifica *next;
+};
+typedef struct lista_classifica *plista;
 
 class Classifica{
     public:
-        int id;
-        char nick[CHAR];
-        int score[CHAR];
-        int savedScore;
-        Classifica *next;
+        plista head;
+        char filename[30];
+    public:
+        Classifica(char filename[]){
+            strcpy(this->filename, filename);
+            this->head = this->get_file();
+        }
+        
+        /*
+            - apro il file
+            - prendo i valori e li salvo in lista
+            - trovo il punto giusto dove inserire il nuovo punteggio delListaayer
+            - aggiungo ilList 
+            - stampo la Top(X) dove X num da settare in base a quanti giocatori vogliamo visualizzare
+        */
+        plista get_file(void){
+            FILE *OpenFile;
+            OpenFile = fopen (this->filename, "r");
+            int c;
+            plista Lista = new lista_classifica;
+            plista tmp = Lista;
+            plista tmp2 = NULL;
+            int pass;
+            while (feof(OpenFile)){
+                cout << "devo scannare" << endl;
+                fscanf(OpenFile, "%d", pass);
+                fscanf(OpenFile, "%s", tmp->nick);
+                fscanf(OpenFile, "%d", tmp->score);
+                fscanf(OpenFile, "\n", c);
+                cout << "ho fatto tutti fscanf" << endl; //da togliere
+                if (c == '\n') {
+                    tmp2 = new lista_classifica;
+                    tmp->next = tmp2;
+                    tmp = tmp2;
+                }else{
+                    tmp->next = NULL;
+                }
+            }
+            fclose(OpenFile);
+            return Lista;
+        
+        }
+        
+        /* 
+            aggiungo alla lista nel punto desiderato
+            - salvo la lista
+            - scorro la lista e trovo il punto di inserimento
+            - creo tmp aggiungo in testa il nuovo elemento
+            - allaccio le liste
+        */
+        void add_value(int score, char nick[]){
+            plista tmp = this->head;
+            plista new_val = new lista_classifica;
+            new_val->score = score;
+            strcpy(new_val->nick, nick);
+            if (tmp == NULL){
+                new_val->next = NULL;
+                this->head = new_val;
+            }else if (tmp->score < new_val->score ){
+                this->head = new_val;
+                new_val->next = tmp;
+            }else{
+                bool exit = false;
+                while (tmp->next != NULL && exit == false){
+                    if (tmp->next->score < new_val->score){
+                        new_val->next = tmp->next;
+                        tmp->next = new_val;
+                        exit = true;
+                    }
+                }
+                if (exit == false){
+                    tmp->next = new_val;
+                    new_val->next = NULL;
+                }
+            }
+        }
+
+        void save_file(void){
+            plista tmp = this->head;
+            FILE* myfile = fopen(this->filename, "a");
+            int i = 1;
+            while (tmp != NULL){         
+                fprintf(myfile, "%d %s %d\n", i, tmp->nick, tmp->score);
+                tmp = tmp->next;
+                i++;
+            }
+            fclose(myfile);
+        }
+        
+        plista get_position(int position){
+            plista tmp = this->head;
+            int i = 1;
+            while(i < position && tmp != NULL){
+                tmp = tmp->next;
+                i++;
+            }
+            if(i != position){
+                return NULL;
+            }
+            return tmp;
+        }
 };
-typedef Classifica* lista;
 
 void StartScreen();
-void GameOver(lista lista, int punti);
-lista SortFiles();
-void BubbleSort(int a[], int lenght);
-void Swap(int& x, int& j);
-void SaveOnFileWITHOUTid(lista Classifica);
-void SaveOnFile(lista lista);
+void GameOver(plista lista, int punti);
 void Leaderboard();
-int PrintMap(); //da cancellare quasi
-
+int PrintMap(); //da cancellare QUASI
 
 
 int main(){
-    lista LBoard= new Classifica;
+    Classifica alice = Classifica("leaderboard.txt");
     color(Black, White);
-    GameOver(LBoard, 898283);
-   // StartScreen();
+    plista aposessuale = alice.get_position(1);
+    cout<<aposessuale->score;
+    //GameOver(alice, 883);
+   // StartScreen();  //decommentare
     return 0;
 }
 
@@ -66,7 +161,7 @@ void StartScreen(){
     color(Black, Yellow);
   //  printfile("name.txt");
     color(Black, Bright_White);
-    cout << "\n       >> press ENTER to play" << endl;
+    cout << "\n       >> press ENTER toListaay" << endl;
     cout << "           >> press C to view the leaderboard" << endl;
     cout << "              >> press ESC to exit" << endl;
     color(Black, Light_Green);
@@ -80,7 +175,7 @@ void StartScreen(){
     while (true);
 }
 
-// funzione di alex x fare partire il Gioco
+// funzione di alex x fare partire il Gioco + cose
 int PrintMap(){
     clearscreen();
     char key;
@@ -97,7 +192,7 @@ int PrintMap(){
 }
 
 // ====== Game Over ======
-void GameOver(lista LBoard, int score){
+void GameOver(plista LBoard, int score){
     clearscreen();
     char key;
     char input[CHAR];
@@ -105,7 +200,7 @@ void GameOver(lista LBoard, int score){
     bool check = false;
     
     color(Red, Bright_White);
-  //  printfile("gameover.txt");
+  //  printfile("gameover.txt");  //da scommentare
     color(Black, White);
     cout << "\nDo u want to save ur game? (y/n)" << endl;
 
@@ -117,15 +212,6 @@ void GameOver(lista LBoard, int score){
                 cout << "Insert ur nick: ";
                 cin >> input;
                     
-                strcpy(LBoard->nick, input);
-                LBoard->savedScore = score;
-                SaveOnFileWITHOUTid(LBoard);
-                cout << "Ur score is saved :D" << endl; 
-                delete(LBoard);
-                LBoard = SortFiles();
-                cout << "SortFiles e' stato eseguito" << endl;
-                SaveOnFile(LBoard);
-                cout<< "SaveOnFile e' stato eseguito" << endl;
                 // Salvo la lista ordinata in modo da stamparla giusta :D
             }
             else if ((int)key == 'n' || (int)key == 'N') {
@@ -151,101 +237,6 @@ void GameOver(lista LBoard, int score){
             else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
         } while(true);
     } while(true);
-}
-
-lista SortFiles(){
-    lista Lista = new Classifica;
-    char ch;
-    int counter=0, i=0, k=0;
-    int score[maxSaved];
-    char nickScore[maxSaved];
-
-    ifstream OpenFile("leaderboard.txt", ios::in);
-    lista SortedList = new Classifica;
-    
-    // prendo i valori salvati di sempre e li inserisco in una lista
-    while (!OpenFile.eof()){
-        OpenFile.get(ch);
-        if (ch=='\n' && counter==2){
-            counter=0;
-            Lista=Lista->next;
-        }
-        else if (ch!=UNDERSCORE){
-            if (counter == 0){
-                Lista->nick[i]=ch;  
-                i++;
-            } 
-            if (counter == 1){
-                Lista->score[k]=ch;  
-                k++;
-            } 
-        }
-        else counter++;
-        OpenFile.ignore(ch);
-    }
-    OpenFile.close(); // chiudo il file 
-    lista tmp = Lista;
-    int element=0; // = elementi nella lista classifica
-    string stringa; 
-    while (Lista->next!=NULL){
-        for(int p=0; p<=k; p++){
-            stringa+=tmp->score[p];
-        }
-        tmp->savedScore = stoi(stringa, nullptr, 10);
-        score[element]=stoi(stringa,nullptr,10);
-        cout << "sono nel salvataggio di score per la volta " << i << endl;
-        element++;
-        tmp = tmp->next;
-    }
-    Lista = tmp;
-    BubbleSort(score, i);
-    // mi salvo quanti salvataggi ho = quanti elementi ho in lista
-    FILE * nsaved = fopen("nsaved.txt", "out");
-    fprintf(nsaved, "%d", element);
-    fclose(nsaved);
-
-    // creo la lista ordinata 
-    lista head = new Classifica; head->next->next=NULL;
-    while (head->next!=NULL){
-        for (int j=0; j<element; j++){
-            SortedList->savedScore = score[j];
-            while (Lista->savedScore != score[j]){
-                Lista = Lista->next;
-            }
-            strcpy(SortedList->nick, Lista->nick);
-            SortedList->id = j;
-            Lista = head;
-        }
-        head = head->next;
-    }
-    return SortedList;
-}
-
-void BubbleSort(int a[], int lenght){
-    int i, j;
-    for (i=0; i<lenght; i++){
-        for (j=0; j<lenght-1-i; j++){
-            if (a[j]>a[j+1]) Swap(a[j], a[j+1]);
-        }
-    }
-}
-void Swap(int& x, int& j){
-    int tmp = x;
-    x = j;
-    j  = tmp;
-}
-void SaveOnFileWITHOUTid(lista Classifica){
-    FILE * myfile = fopen("leaderboard.txt", "a");
-    fprintf(myfile, "%s_%d_\n", Classifica->nick, Classifica->savedScore);
-    fclose(myfile);
-}
-void SaveOnFile(lista Classifica){
-    FILE * myfile = fopen("leader-out.txt", "w");
-    while (Classifica->next != NULL){ 
-        fprintf(myfile, "%d_%s_%d_\n", Classifica->id, Classifica->nick, Classifica->savedScore);
-        Classifica = Classifica->next;
-    }
-    fclose(myfile);
 }
 
 // ====== Classifica dei punteggi ======
