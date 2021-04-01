@@ -13,6 +13,9 @@
 */
 #include <iostream>
 #include <cstring>
+#include <fstream>
+#include <stdlib.h> // per il file 
+#include <stdio.h>
 #include <windows.h>
 #include <conio.h>
 #include "../Main/main.cpp"
@@ -24,7 +27,7 @@ using namespace std;
 #define ESC 27
 #define CHAR 30
 #define UNDERSCORE 95
-#define maxSaved 65*40 // 40 maxListaayer salvati
+#define maxSaved 65*40 // 40 maxListaplayer salvati
 
 struct lista_classifica{
     char nick[CHAR];
@@ -51,33 +54,28 @@ class Classifica{
             - stampo la Top(X) dove X num da settare in base a quanti giocatori vogliamo visualizzare
         */
         plista get_file(void){
-            FILE *OpenFile;
-            OpenFile = fopen (this->filename, "r");
+            ifstream OpenFile;
+            OpenFile.open(this->filename,ios::in);
             int c;
             plista Lista = new lista_classifica;
             plista tmp = Lista;
             plista tmp2 = NULL;
             int pass;
-            while (feof(OpenFile)){
+            string stringa;
+            while (!OpenFile.eof()){
                 cout << "devo scannare" << endl;
-                fscanf(OpenFile, "%d", pass);
-                fscanf(OpenFile, "%s", tmp->nick);
-                fscanf(OpenFile, "%d", tmp->score);
-                fscanf(OpenFile, "\n", c);
+                getline(OpenFile, stringa, '\n');
+                strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-2).c_str());
+                tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')));
                 cout << "ho fatto tutti fscanf" << endl; //da togliere
-                if (c == '\n') {
-                    tmp2 = new lista_classifica;
-                    tmp->next = tmp2;
-                    tmp = tmp2;
-                }else{
-                    tmp->next = NULL;
-                }
+                tmp2 = new lista_classifica;
+                tmp->next = tmp2;
+                tmp = tmp2;
+                tmp->next = NULL;
             }
-            fclose(OpenFile);
+            OpenFile.close();
             return Lista;
-        
         }
-        
         /* 
             aggiungo alla lista nel punto desiderato
             - salvo la lista
@@ -114,14 +112,19 @@ class Classifica{
 
         void save_file(void){
             plista tmp = this->head;
-            FILE* myfile = fopen(this->filename, "a");
+            ofstream myfile;
+            cout<<this->filename;
+            myfile.open(this->filename);
             int i = 1;
             while (tmp != NULL){         
-                fprintf(myfile, "%d %s %d\n", i, tmp->nick, tmp->score);
+                myfile<<i<<" "<<tmp->nick<<" "<<tmp->score;
+                if(tmp->next != NULL){
+                    myfile<<"\n";
+                }
                 tmp = tmp->next;
                 i++;
             }
-            fclose(myfile);
+            myfile.close();
         }
         
         plista get_position(int position){
@@ -148,7 +151,10 @@ int main(){
     Classifica alice = Classifica("leaderboard.txt");
     color(Black, White);
     plista aposessuale = alice.get_position(1);
-    cout<<aposessuale->score;
+    cout<<aposessuale->score<<endl;
+    alice.add_value(20150, "pietrosmusi");
+    cout<<alice.get_position(2)->score<<endl;
+    alice.save_file();
     //GameOver(alice, 883);
    // StartScreen();  //decommentare
     return 0;
