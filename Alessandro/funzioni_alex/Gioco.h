@@ -1,6 +1,7 @@
 #ifndef GIOCO_H
 #define GIOCO_H
 #include "Mappa.h"
+#include "Player.h"
 class Gioco{
     private:
         Mappa *mappa_gioco;
