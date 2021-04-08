@@ -15,6 +15,7 @@ namespace constants{
     // Caratteri
     constexpr char MURO =  177;
     constexpr char PIATTAFORMA = 196;
+    constexpr char ENEMY_CHAR = '@';
 
     // Direzioni
     constexpr int SOPRA = 72;
@@ -22,6 +23,8 @@ namespace constants{
     constexpr int DESTRA = 77;
     constexpr int SINISTRA = 75;
     constexpr int SPAZIO = 32;
+    constexpr int SOTTO_DESTRA = -1; // questo valore non e' influente, basta che sia diverso da tutte le altre direzioni
+    constexpr int SOTTO_SINISTRA = -2; // stessa cosa scritta sopra
 
     // Giocatore
     constexpr int STARTING_X = ROW_DIM/2;
