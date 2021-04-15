@@ -9,13 +9,13 @@ namespace constants{
     // Costanti mappa
     constexpr int ROW_DIM = 40;
     constexpr int MAP_HEIGHT = 30;
-    constexpr int REFRESH_RATE = 30;     // durata della sleep tra un print e l'altro
+    constexpr int REFRESH_RATE = 1;     // durata della sleep tra un print e l'altro
     constexpr int CHECKPOINT_ROW = 50;   // frequenza con cui si trova il piano con piattaforma a larghezza ROW_DIM
 
     // Caratteri
     constexpr char MURO =  177;
     constexpr char PIATTAFORMA = 196;
-    constexpr char ENEMY_CHAR = '@';
+    constexpr char ENEMY_CHAR = 'V';
 
     // Direzioni
     constexpr int SOPRA = 72;
