@@ -11,7 +11,7 @@
 using namespace constants;
 using namespace std;
 
-// da eliminare in seguito
+// da eliminare in seguito, e' un sample
 class Nemico{
     public:
         int x;
@@ -25,6 +25,7 @@ struct nodo_nemici{
     bool just_spawned;
     char old_char;
     int move_direction;
+    int id;
     struct nodo_nemici *next;
     struct nodo_nemici *prev;
 };
@@ -32,7 +33,7 @@ typedef nodo_nemici *ptr_nodo_nemici;
 
 class Lista_nemici{
     protected:
-        
+        int current_id;
         int list_size;
         ptr_nodo_nemici head;
         Mappa *map;

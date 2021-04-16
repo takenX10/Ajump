@@ -6,7 +6,8 @@
 #include "funzioni_alex/Alex_constants.hpp"
 #include "funzioni_alex/Gioco.h"
 #include "funzioni_alex/print_functions.h"
-#include "Alessandro.h"
+#include "Nemici.h"
+#include "Proiettili.h"
 
 using namespace std;
 using namespace constants;
