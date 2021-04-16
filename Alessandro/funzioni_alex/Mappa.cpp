@@ -16,6 +16,7 @@ Mappa::Mappa(int map_height /*= 0*/, int map_width /*= 0*/){
         this->newRow();
     }
 }
+
 void Mappa::newRow(void){
     if(this->map_head == NULL){
         this->map_head = new Map;
