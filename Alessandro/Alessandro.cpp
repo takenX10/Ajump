@@ -11,13 +11,13 @@
 using namespace constants;
 using namespace std;
 
-
+/*
 Nemico::Nemico(int x, int y, int tipo){
     this->x = x;
     this->y = y;
     this->tipo = tipo;
 }
-
+*/
 Lista_nemici::Lista_nemici(Mappa *map, Player *p){
     this->head = NULL;
     this->map = map;
@@ -30,7 +30,7 @@ Lista_nemici::Lista_nemici(Mappa *map, Player *p){
 // nella colonna in cui e' situato enemy
 // per decidere la coordinata x di enemy e' opportuno usare la funzione
 // get_spawnpos_X di questa classe
-void Lista_nemici::aggiungi_nemico(Nemico enemy){
+void Lista_nemici::aggiungi_nemico(general_enemy enemy){
     this->list_size++;
     ptr_nodo_nemici new_enemy = new nodo_nemici;
     new_enemy->entity = enemy;
