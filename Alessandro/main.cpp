@@ -16,8 +16,8 @@ int main(void){
 
     Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
     Player p = Player(&m, STARTING_X, STARTING_Y);
-    Lista_nemici ent = Lista_nemici(&m, &p);
-    Lista_proiettili proiettili = Lista_proiettili();
+    Lista_proiettili proiettili = Lista_proiettili(&m);
+    Lista_nemici ent = Lista_nemici(&m, &p, &proiettili);
     Gioco  g = Gioco(&m, &p, &proiettili, &ent);
 
 

@@ -8,6 +8,7 @@
 #include "funzioni_alex/Player.h"
 #include "funzioni_alex/Alex_constants.hpp"
 #include "Nemici.h"
+#include "Proiettili.h"
 
 using namespace constants;
 using namespace std;
@@ -50,12 +51,13 @@ Nemico::Nemico(int x, int y, int tipo){
     this->tipo = tipo;
 }
 
-Lista_nemici::Lista_nemici(Mappa *map, Player *p){
+Lista_nemici::Lista_nemici(Mappa *map, Player *p, Lista_proiettili *proiettili){
     this->head = NULL;
     this->map = map;
     this->player = p;
     this->list_size = 0;
     this->current_id = 0;
+    this->proiettili = proiettili;
 }
 
 // aggiunta mantenendo ordine per colonne (in testa il nemico piu a sinistra e in coda quello piu a destra)
@@ -128,6 +130,9 @@ void Lista_nemici::elimina_nemico(int id){
 void Lista_nemici::muovi_nemici(void){
     this->nuove_direzioni();        // calcola le nuove direzioni degli elementi
     ptr_nodo_nemici tmp = this->head;
+    //debug
+    printfile(this->head);
+    /////
     while(tmp!=NULL){
         if(tmp->just_spawned == true){  // nemico appena spawnato
             tmp->old_char = this->map->getRow(tmp->entity.y)->row[tmp->entity.x];
@@ -175,8 +180,10 @@ void Lista_nemici::muovi_nemici(void){
                 tmp->old_char = this->map->getRow(newY)->row[newX];
                 if(tmp->old_char == ENEMY_CHAR){
                     tmp->old_char = tmp->next->old_char;
-                }else if(tmp->old_char == '@'){ // questo else va tolto debug
+                }else if(tmp->old_char == PLAYER){ // questo else va tolto debug
                     tmp->old_char = ' ';
+                }else if(tmp->old_char == PROIETTILE){
+                    tmp->old_char = this->proiettili->set_and_retrieve(newX, newY, ENEMY_CHAR);
                 }
                 this->map->setChar(newX, newY, ENEMY_CHAR);
                 tmp->entity.x = newX;
@@ -188,6 +195,16 @@ void Lista_nemici::muovi_nemici(void){
     // debug
     printfile(this->head);
     ///////
+}
+
+void Lista_nemici::spara(void){
+    ptr_nodo_nemici tmp = this->head;
+    while(tmp!=NULL){
+        if(this->map->getRow(tmp->entity.y - 1)->row[tmp->entity.x] != PROIETTILE){
+            this->proiettili->aggiungi_proiettile(tmp->entity.x, tmp->entity.y - 1, SOTTO);
+        }
+        tmp = tmp->next;
+    }
 }
 
 // aggiorna il valore della variabile "move_direction" di ogni entita della lista

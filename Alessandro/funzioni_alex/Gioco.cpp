@@ -26,20 +26,38 @@ void Gioco::auto_print_map(){
     // il tempo che impiegano a nascere
     int counter = 0; // serve per decidere quando far muovere i nemici
     int counter2 = 0;
+    int counter_movimento_proiettili = 0;
+    int counter_fire = 0;
     // velocita_spawn DEVE essere maggiore di velocita_movimento!!!!!!!!!!!!!!
     // per testare con tante entita 1-3 va bene, piu realistico 4-100
-    int velocita_movimento = 1; // 1 molto veloce, 20 medio lenta
-    int velocita_spawn = 3; // 3 molto veloce, 100 medio lenta
-
+    int velocita_movimento_proiettili = 1;
+    int velocita_movimento = velocita_movimento_proiettili * 5; // 1 molto veloce, 20 medio lenta
+    int velocita_spawn = velocita_movimento + 50; // 3 molto veloce, 100 medio lenta
+    int fire_rate = velocita_movimento_proiettili * 7;
     while(true){
         Sleep(REFRESH_RATE);
-        if(counter == velocita_movimento){ // tickrate del movimento dei proiettili.
+
+        if(counter_movimento_proiettili == velocita_movimento_proiettili){
             this->proiettili->muovi_proiettili();
+            counter_movimento_proiettili = -1;
+        }
+
+        if(counter_fire == fire_rate){
+            this->nemici->spara();
+            counter_fire = -1;
+        }
+
+        if(counter == velocita_movimento){ // tickrate del movimento dei proiettili.
             this->nemici->muovi_nemici();
             counter = -1;
         }
+
+        
+
         counter++;
         counter2++;
+        counter_movimento_proiettili++;
+        counter_fire++;
         
         this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0) );
         
