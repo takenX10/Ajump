@@ -15,7 +15,10 @@ namespace constants{
     // Caratteri
     constexpr char MURO =  177;
     constexpr char PIATTAFORMA = 196;
-    constexpr char ENEMY_CHAR = 'V';
+    constexpr char ENEMY_CHAR_ARTIGLIERE = 'A';
+    constexpr char ENEMY_CHAR_SOLD_SEMPLICE = 'S';
+    constexpr char ENEMY_CHAR_TANK = 'T';
+    constexpr char ENEMY_CHAR_BOSS = 'B';
     constexpr char PROIETTILE = '+';
     constexpr char PLAYER = '@';
 

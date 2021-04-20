@@ -11,48 +11,18 @@
 using namespace constants;
 using namespace std;
 
-#include <fstream>
-///// debug
-string where(int n){
-    switch(n){
-        case SOTTO:
-            return "SOTTO         ";
-            break;
-        case SOTTO_DESTRA:
-            return "SOTTO_DESTRA  ";
-        case SOTTO_SINISTRA:
-            return "SOTTO_SINISTRA";
-        default:
-            return "NON_LO_SO     ";
-    }
-    return "NON_LO_SO     ";
-}
-
-void printfile(ptr_nodo_nemici lista){
-  ofstream myfile;
-  myfile.open ("lista.txt");
-  int i = 0;
-  while(lista!=NULL){
-      myfile << to_string(i) << ") "<<(i>9?"":" ")<<"Movedir:"<<where(lista->move_direction)<<" X:"<<to_string(lista->entity.x)<<(lista->entity.x>9?"":" ")<<" Y:"<<to_string(lista->entity.y)<<(lista->entity.y>9?"":" ")<<endl;
-      i++;
-      lista = lista->next;
-  }
-  myfile.close();
-}
-/////
-
+/*
 Nemico::Nemico(int x, int y, int tipo){
     this->x = x;
     this->y = y;
     this->tipo = tipo;
 }
-
+*/
 Lista_nemici::Lista_nemici(Mappa *map, Player *p){
     this->head = NULL;
     this->map = map;
     this->player = p;
     this->list_size = 0;
-    this->current_id = 0;
 }
 
 // aggiunta mantenendo ordine per colonne
@@ -64,8 +34,6 @@ void Lista_nemici::aggiungi_nemico(Nemico enemy){
     this->list_size++;
     ptr_nodo_nemici new_enemy = new nodo_nemici;
     new_enemy->entity = enemy;
-    new_enemy->id = this->current_id;
-    this->current_id++;
     if (this->head == NULL){
         this->head = new_enemy;
         new_enemy->next = new_enemy->prev = NULL;
@@ -92,7 +60,6 @@ void Lista_nemici::aggiungi_nemico(Nemico enemy){
             new_enemy->next = NULL;
         }
     }
-    printfile(this->head);
 }
 
 // del player in realta ci interessano solo le coordinate
@@ -144,12 +111,8 @@ void Lista_nemici::nuove_direzioni(void){
                 int newdir = (fdir == 1 ? SOTTO_DESTRA : SOTTO_SINISTRA);
                 if(next_node == NULL){
                     first->move_direction = newdir;
-                }else if(first->just_spawned == true){
-                    first->move_direction = SOTTO;
                 }else if(next_node->entity.x == first->entity.x + (fdir == 1 ? 1 : -1)){
-                    if(next_node->entity.x == playerX){
-                        first->move_direction = SOTTO;
-                    }else if(next_node->move_direction == SOTTO){
+                    if(next_node->move_direction == SOTTO){
                         first->move_direction = SOTTO;
                     }else{
                         first->move_direction = newdir;
@@ -164,8 +127,6 @@ void Lista_nemici::nuove_direzioni(void){
             ptr_nodo_nemici next_node = (fdir == 1 ? second->prev : second->next);
             int newdir = (fdir == 1 ? SOTTO_SINISTRA : SOTTO_DESTRA);
             if(second->entity.x == playerX){
-                second->move_direction = SOTTO;
-            }else if(second->just_spawned == true){
                 second->move_direction = SOTTO;
             }else if(next_node != NULL){
                 if(next_node->entity.x == second->entity.x + (fdir == 1 ? -2 : 2)){
@@ -193,9 +154,9 @@ void Lista_nemici::nuove_direzioni(void){
 }
 
 // funzione che elimina il nemico in una determinata colonna
-void Lista_nemici::elimina_nemico(int id){
+void Lista_nemici::elimina_nemico(int colonna){
     ptr_nodo_nemici tmp = this->head;
-    while(tmp != NULL && tmp->id != id){
+    while(tmp != NULL && tmp->entity.x != colonna){
         tmp = tmp->next;
     }
     if(tmp !=NULL){
@@ -211,7 +172,6 @@ void Lista_nemici::elimina_nemico(int id){
         this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
         free(tmp);
     }
-    printfile(this->head);
 }
 
 
@@ -227,67 +187,53 @@ void Lista_nemici::muovi_nemici(void){
             tmp->just_spawned = false;
             tmp = tmp->next;
         }else{
-            if(tmp->prev == NULL){
-                this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
-            }else{
-                if(tmp->prev->move_direction != SOTTO_DESTRA || tmp->prev->entity.x != tmp->entity.x || tmp->prev->entity.y != tmp->entity.y){
-                    this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
-                }
-            }
-            
+            this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
             int newX = tmp->entity.x + (tmp->move_direction == SOTTO_DESTRA?1:0) - (tmp->move_direction == SOTTO_SINISTRA?1:0);
             int newY = tmp->entity.y - 1; // perche' i nemici vanno sempre e comunque sotto
-
+            
             if(newY < 1 || newY < this->player->getY() - OFFSET){
                 // il nemico e' in una posizione inferiore all'altezza del player o a quella della mappa quindi deve essere distrutto
                 if(tmp->next != NULL){
                     tmp = tmp->next;
-                    this->elimina_nemico(tmp->prev->id);
+                    this->elimina_nemico(tmp->prev->entity.x);
                 }else{
-                    this->elimina_nemico(tmp->id);
+                    this->elimina_nemico(tmp->entity.x);
                     tmp = NULL;
                 }
             }else{
                 tmp->old_char = this->map->getRow(newY)->row[newX];
-                if(tmp->old_char == ENEMY_CHAR){
-                    tmp->old_char = tmp->next->old_char;
-                }else if(tmp->old_char == '@'){ // questo else va tolto
-                    tmp->old_char = ' ';
-                }
                 this->map->setChar(newX, newY, ENEMY_CHAR);
-                tmp->entity.x = newX;
-                tmp->entity.y = newY;
+                tmp->entity.update_position(newX, newY);
                 tmp = tmp->next;
             }
         }
     }
-    printfile(this->head);
 }
 
 // da chiamare ogni volta che si vuole far spawnare un nemico, max una volta a movimento dei nemici.
-int Lista_nemici::calcola_spawnpos_X(void){
+ int Lista_nemici::calcola_spawnpos_X(void){
     if(this->list_size < ROW_DIM - 1){ // il -1 e' per il \0
-        int numspace = ROW_DIM - this->list_size - 1;
-        int spawnpos = (rand() % numspace) + 1;
-
+        int numspace = ROW_DIM - this->list_size;
+        int spawnpos = rand() % numspace;
         ptr_nodo_nemici tmp = this->head;
-        int numero_spazi = 0;
-        int finalX = -1; // se tmp == NULL allora tutto e' vuoto quindi spawnpos == entityX
-        while(tmp != NULL && finalX == -1){
+        int n = 0;
+        int sum = 0;
+        int finalX = spawnpos; // se tmp == NULL allora tutto e' vuoto quindi spawnpos == entityX
+        while(n < spawnpos && tmp != NULL){
             if(tmp->prev == NULL){
-                numero_spazi += tmp->entity.x;
+                sum = tmp->entity.x;
             }else{
-                numero_spazi += tmp->entity.x - tmp->prev->entity.x - 1;
+                sum = tmp->entity.x - tmp->prev->entity.x - 1;
             }
-            if(numero_spazi >= spawnpos){
-                finalX = tmp->entity.x - (numero_spazi - spawnpos) - 1;
+            if(n+sum >spawnpos){
+                finalX = tmp->entity.x - (n+sum-spawnpos) - 1;
+            }else if(n+sum == spawnpos){
+                finalX = tmp->entity.x - 1;
             }else if(tmp->next == NULL){
-                finalX = tmp->entity.x + (spawnpos - numero_spazi);
+                finalX = tmp->entity.x + (spawnpos - (n + sum));
             }
+            n += sum;
             tmp = tmp->next;
-        }
-        if(finalX == -1){
-            finalX = spawnpos - 1;
         }
         return finalX;
 
@@ -353,7 +299,7 @@ void Lista_proiettili::elimina_proiettile(int id){
 }
 
 void Lista_proiettili::muovi_proiettili(void){
-    ptr_nodo_proiettili tmp = this->head;
+    ptr_nodo_proiettili tmp = this->head; // Testa -> Proiettile più in alto 
     bool exit = false;
     ptr_nodo_proiettili aux;
     while(tmp != NULL){
@@ -397,7 +343,6 @@ void Lista_proiettili::muovi_proiettili(void){
                     }
                     exit = true;
                 }
-
                 aux = (tmp->direction == SOPRA ? aux->prev:aux->next);
             }
         }

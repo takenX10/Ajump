@@ -45,10 +45,50 @@ void printfile(ptr_nodo_nemici lista){
 }
 /////
 
-Nemico::Nemico(int x, int y, int tipo){
-    this->x = x;
-    this->y = y;
-    this->tipo = tipo;
+Nemico::Nemico(int pos_x = -1, int pos_y = -1){
+    this->x = pos_x;
+    this->y = pos_y;
+    this->kind_of_enemy = kind_of_enemy;
+    // Dal tipo di nemico posso già sapere vita e danno; inutile prenderli come ulteriori parametri.
+    if (kind_of_enemy == 1) { this->health = 50; this->damage = 50; }
+    else if (kind_of_enemy == 2) { this->health = 100; this->damage = 100; }
+    else if (kind_of_enemy == 3) { this->health = 150; this->damage = 150; }
+    else { this->health = 200; this->damage = 200;}
+}
+
+char Nemico::char_of_enemy(){
+    if (kind_of_enemy == 1) return ENEMY_CHAR_SOLD_SEMPLICE;
+    else if (kind_of_enemy == 2) return ENEMY_CHAR_ARTIGLIERE;
+    else if (kind_of_enemy == 3) return ENEMY_CHAR_TANK;
+    else return ENEMY_CHAR_BOSS;
+}
+
+void Nemico::change_health(int value){
+    this->health += value;
+}
+
+void Nemico::change_damage(int value){
+    this->damage += value;
+}
+
+void Nemico::update_position(int new_x, int new_y){
+    this->x = new_x;
+    this->y = new_y;
+}
+//funzione beta per la determinazione del tipo di nemico. 
+void Nemico::decide_kindOfEnemy(int level){
+    if(level > 1000) this->kind_of_enemy = 4; //Se siamo ad un livello più avanazato spawnano sempre boss (?)
+    else{
+        int boss_probability = rand() % RAND_MAX;
+        if(boss_probability % 10 == 0) this->kind_of_enemy = 4; //ho il 10% di possibilità che spawni il BOSS
+        else{ //se non è spawnato il boss allora calcolo quale altro nemico spawna
+        //hanno tutti la stessa possibilità di spawnare. (33.3%)
+            int probability = rand() % 3;
+            if (probability == 0) this->kind_of_enemy = 1; //soldato semplice
+            else if (probability == 1) this->kind_of_enemy = 2; // artigliere
+            else if (probability == 2) this->kind_of_enemy = 3; // tank
+        }
+    }
 }
 
 Lista_nemici::Lista_nemici(Mappa *map, Player *p, Lista_proiettili *proiettili){
@@ -136,7 +176,7 @@ void Lista_nemici::muovi_nemici(void){
     while(tmp!=NULL){
         if(tmp->just_spawned == true){  // nemico appena spawnato
             tmp->old_char = this->map->getRow(tmp->entity.y)->row[tmp->entity.x];
-            this->map->setChar(tmp->entity.x, tmp->entity.y, ENEMY_CHAR);
+            this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->entity.char_of_enemy());
             tmp->just_spawned = false;
             tmp = tmp->next;
         }else{
@@ -178,20 +218,20 @@ void Lista_nemici::muovi_nemici(void){
                 }
             }else{  // muovi nemico
                 tmp->old_char = this->map->getRow(newY)->row[newX];
-                if(tmp->old_char == ENEMY_CHAR){
+                if(tmp->old_char == tmp->entity.char_of_enemy()){
                     tmp->old_char = tmp->next->old_char;
                 }else if(tmp->old_char == PLAYER){ // questo else va tolto debug
                     tmp->old_char = ' ';
                 }else if(tmp->old_char == PROIETTILE){
-                    tmp->old_char = this->proiettili->set_and_retrieve(newX, newY, ENEMY_CHAR);
+                    tmp->old_char = this->proiettili->set_and_retrieve(newX, newY, tmp->entity.char_of_enemy());
                 }
-                this->map->setChar(newX, newY, ENEMY_CHAR);
-                tmp->entity.x = newX;
-                tmp->entity.y = newY;
+                this->map->setChar(newX, newY, tmp->entity.char_of_enemy());
+                tmp->entity.update_position(newX, newY);
                 tmp = tmp->next;
             }
         }
     }
+    /*AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA*/
     // debug
     printfile(this->head);
     ///////

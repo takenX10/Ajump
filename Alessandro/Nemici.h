@@ -12,13 +12,29 @@
 using namespace constants;
 using namespace std;
 
-// da eliminare in seguito, e' un sample
 class Nemico{
     public:
-        int x;
-        int y;
-        int tipo;
-        Nemico(int x=-1, int y=-1, int tipo=-1); 
+        int x, y; //Posizione
+        int health;
+        int damage;
+        int kind_of_enemy; // 1-> Soldato semplice | 2-> Artigliere | 3-> Tank | 4-> Boss
+
+    public:
+        Nemico(int pos_x, int pos_y);
+        char char_of_enemy();
+        /*
+        * Questo metodo permette di modificare la salute attuale del nemico;
+        * Il valore preso in input può essere sia positivo che negativo, seguono due scenari d'esempio.
+        * value == +50 -> Il player prende un Malus che aumenta la vita di tutti i nemici nella mappa.
+        * value == -50 -> Il player spara il nemico ottenendo una riduzione della sua vita.
+        * value == -1000 -> Il player prende un bonus che riduce infinitamente la vita di tutti i nemici nella mappa: ottiene piazza pulita.
+        */
+        void change_health(int value);
+        // Stesso discorso di change_health: value può essere sia positivo che negativo.
+        void change_damage(int value);
+        void update_position(int new_x, int new_y);
+        void decide_kindOfEnemy(int level);
+
 };
 
 struct nodo_nemici{

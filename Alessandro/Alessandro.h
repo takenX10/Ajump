@@ -11,14 +11,7 @@
 using namespace constants;
 using namespace std;
 
-// da eliminare in seguito, e' un sample
-class Nemico{
-    public:
-        int x;
-        int y;
-        int tipo;
-        Nemico(int x=-1, int y=-1, int tipo=-1);  
-};
+
 
 struct nodo_nemici{
     Nemico entity;

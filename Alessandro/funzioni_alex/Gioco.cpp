@@ -66,7 +66,8 @@ void Gioco::auto_print_map(){
         if(this->enemy_spawn() && counter2 == velocita_spawn){
             counter2 = 0;
             // da creare una funzione per decidere il tipo, per ora settato a 1
-            Nemico enemy(this->nemici->calcola_spawnpos_X(), this->mappa_gioco->getTotalHeight(), 1);
+            Nemico enemy(this->nemici->calcola_spawnpos_X(), this->mappa_gioco->getTotalHeight());
+            enemy.decide_kindOfEnemy(this->mappa_gioco->getHeight());
             this->nemici->aggiungi_nemico(enemy);
         }
     }

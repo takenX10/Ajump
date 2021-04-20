@@ -141,7 +141,8 @@ void Lista_proiettili::muovi_proiettili(void){
 
     while(tmp != NULL){
         // aggiorna mappa
-        if(tmp->old_char != ENEMY_CHAR){
+        if(tmp->old_char != ENEMY_CHAR_ARTIGLIERE && tmp->old_char != ENEMY_CHAR_SOLD_SEMPLICE
+           && tmp->old_char != ENEMY_CHAR_TANK && tmp->old_char != ENEMY_CHAR_BOSS){
             if(tmp->old_char == PLAYER){
                 tmp->old_char = ' ';
             }
@@ -160,7 +161,8 @@ void Lista_proiettili::muovi_proiettili(void){
             
             // spostamento nella mappa del proiettile
             tmp->old_char = this->map->getRow(tmp->y)->row[tmp->x];\
-            if(tmp->old_char != ENEMY_CHAR){
+            if(tmp->old_char != ENEMY_CHAR_ARTIGLIERE && tmp->old_char != ENEMY_CHAR_SOLD_SEMPLICE
+           && tmp->old_char != ENEMY_CHAR_TANK && tmp->old_char != ENEMY_CHAR_BOSS){
                 this->map->setChar(tmp->x, tmp->y, PROIETTILE);
             }
 
