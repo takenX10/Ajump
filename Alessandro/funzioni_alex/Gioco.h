@@ -2,7 +2,8 @@
 #define GIOCO_H
 #include "Mappa.h"
 #include "Player.h"
-#include "../Alessandro.h"
+#include "../Nemici.h"
+#include "../Proiettili.h"
 class Gioco{
     private:
         Mappa *mappa_gioco;
