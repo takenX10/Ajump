@@ -6,8 +6,7 @@
 #include "funzioni_alex/Alex_constants.hpp"
 #include "funzioni_alex/Gioco.h"
 #include "funzioni_alex/print_functions.h"
-#include "Nemici.h"
-#include "Proiettili.h"
+#include "Alessandro.h"
 
 using namespace std;
 using namespace constants;
@@ -16,8 +15,8 @@ int main(void){
 
     Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
     Player p = Player(&m, STARTING_X, STARTING_Y);
-    Lista_proiettili proiettili = Lista_proiettili(&m);
-    Lista_nemici ent = Lista_nemici(&m, &p, &proiettili);
+    Lista_nemici ent = Lista_nemici(&m, &p);
+    Lista_proiettili proiettili = Lista_proiettili();
     Gioco  g = Gioco(&m, &p, &proiettili, &ent);
 
 

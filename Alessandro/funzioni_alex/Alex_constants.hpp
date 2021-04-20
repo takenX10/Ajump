@@ -16,8 +16,6 @@ namespace constants{
     constexpr char MURO =  177;
     constexpr char PIATTAFORMA = 196;
     constexpr char ENEMY_CHAR = 'V';
-    constexpr char PROIETTILE = '+';
-    constexpr char PLAYER = '@';
 
     // Direzioni
     constexpr int SOPRA = 72;
