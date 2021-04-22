@@ -6,6 +6,7 @@
 #include "funzioni_alex/Mappa.h"
 #include "funzioni_alex/Player.h"
 #include "funzioni_alex/Alex_constants.hpp"
+#include "nemici.h"
 #include "Proiettili.h"
 using namespace constants;
 using namespace std;
@@ -30,31 +31,43 @@ string wheree(int n){
 }
 
 void printfilee(ptr_nodo_proiettili lista){
-  ofstream myfile;
-  myfile.open ("lista.txt");
-  int i = 0;
-  while(lista!=NULL){
-      myfile << to_string(i) << ") "<<(i>9?"":" ")<<"ID:"<<lista->id<<(lista->id>9? "":" ")<<" X:"<<to_string(lista->x)<<(lista->x>9?"":" ")<<" Y:"<<to_string(lista->y)<<(lista->y>9?"":" ")<<endl;
-      i++;
-      lista = lista->next;
-  }
-  myfile.close();
+    ofstream myfile;
+    myfile.open ("lista_proiettili.txt");
+    int i = 0;
+    while(lista!=NULL){
+        myfile << to_string(i) << ") "<<(i>9?"":" ")<<"ID:"<<lista->id<<(lista->id>9? "":" ")<<" X:"<<to_string(lista->x)<<(lista->x>9?"":" ")<<" Y:"<<to_string(lista->y)<<(lista->y>9?"":" ")<<endl;
+        i++;
+        lista = lista->next;
+    }
+    myfile.close();
 }
 /////
 
 
 
-Lista_proiettili::Lista_proiettili(Mappa *map){
+Lista_proiettili::Lista_proiettili(Mappa *map, Player *p){
     this->head = NULL;
     this->current_id = 0;
     this->map = map;
+    this->player = p;
 }
 
+void Lista_proiettili::spara_player(void){
+    if(this->map->getRow(this->player->getY()+1)->row[this->player->getX()] != PROIETTILE){
+        this->aggiungi_proiettile(this->player->getX(), this->player->getY()+1, SOPRA);
+    }
+}
+
+
+// funzione che aggiunge un proiettile alla lista
+// la lista e' ordinata per righe, quindi la funzione si occupa di
+// aggiungere il proiettile nella posizione corretta
 void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction){
     ptr_nodo_proiettili nuovo_proiettile = new nodo_proiettili;
     nuovo_proiettile->x = x;
     nuovo_proiettile->y = y;
     nuovo_proiettile->direction = direction;
+    nuovo_proiettile->already_moved = false;
     nuovo_proiettile->id = this->current_id + 1;
     this->current_id++;
     // inserimento nella mappa del proiettile
@@ -78,8 +91,10 @@ void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction){
             tmp = tmp->next;
         }
         if(tmp->y < nuovo_proiettile->y){ // significa che tmp->next == NULL
+            if(tmp->prev != NULL){
+                tmp->prev->next = nuovo_proiettile;
+            }
             nuovo_proiettile->prev = tmp->prev;
-            tmp->prev->next = nuovo_proiettile;
             nuovo_proiettile->next = tmp;
             tmp->prev = nuovo_proiettile;
         }else{
@@ -92,7 +107,7 @@ void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction){
     printfilee(this->head);
     ////
 }
-
+//Funzione che si occupa di eleminare il proiettile con l'id passato
 void Lista_proiettili::elimina_proiettile(int id){
     ptr_nodo_proiettili tmp = this->head;
     while(tmp!=NULL){
@@ -102,6 +117,9 @@ void Lista_proiettili::elimina_proiettile(int id){
             }
             if(tmp->next != NULL){
                 tmp->next->prev = tmp->prev;
+            }
+            if(this->head->id == tmp->id){
+                this->head = this->head->next;
             }
             free(tmp);
             tmp = NULL;
@@ -113,6 +131,7 @@ void Lista_proiettili::elimina_proiettile(int id){
     printfilee(this->head);
     //////
 }
+// setta l'old_char del proiettile a coordinate x, y, e ne restituisce l'old_char prima di essere modificato
 
 char Lista_proiettili::set_and_retrieve(int x, int y, int old_char){
     ptr_nodo_proiettili tmp = this->head;
@@ -127,100 +146,179 @@ char Lista_proiettili::set_and_retrieve(int x, int y, int old_char){
     return ' '; // non dovrebbe succedere
 }
 
+// funzione che si occupa di far muovere tutti i proiettili nelle giuste posizioni
 // la testa e' il proiettile piu in alto
 // la lista e' ordinata per righe
+/* Spiegazione intuitiva algoritmo
+    Partendo dal proiettile in testa si decidono le nuove coordinate del proiettile.
+    - Per prima cosa si rimuove dalla mappa il carattere del proiettile vecchio
+    - poi si verifica cosa e' presente nella nuova posizione
+        - se e' presente il player allora il gioco finisce
+        - se e' presente un altro proiettile allora si prende dal proiettile nuovo
+          il carattere che era presente sotto di esso.
+        - altrimenti si prende il carattere e lo si salva.
+    - si aggiorna la mappa con il proiettile nella nuova posizione
+    - Si verifica se il proiettile e' da eliminare perche' out of bound, altrimenti si va avanti
+    - Si controlla se e' avvenuta una collisione tra due proiettili, in quel caso si eliminano entrambi
+    - altrimenti si ricerca quale e' il prossimo proiettile da muovere e si salva
+      (questo perche' alcuni proiettili possono andare avanti nella lista)
+    - e si ricerca la nuova posizione nella lista del proiettile andando avanti fino al punto giusto
+      facendo attenzione agli estremi.
+*/
 void Lista_proiettili::muovi_proiettili(void){
     ptr_nodo_proiettili tmp = this->head;
-    if(tmp != NULL){
-        while(tmp->next != NULL){
-            tmp = tmp->next;
-        }
-    }
-    bool exit = false;
-    ptr_nodo_proiettili aux;
+    bool collision;
 
+    ptr_nodo_proiettili aux;
     while(tmp != NULL){
-        // aggiorna mappa
+        // aggiorna posizione vecchia proiettile nella mappa
         if(tmp->old_char != ENEMY_CHAR_ARTIGLIERE && tmp->old_char != ENEMY_CHAR_SOLD_SEMPLICE
            && tmp->old_char != ENEMY_CHAR_TANK && tmp->old_char != ENEMY_CHAR_BOSS){
-            if(tmp->old_char == PLAYER){
-                tmp->old_char = ' ';
-            }
             this->map->setChar(tmp->x, tmp->y, tmp->old_char);
         }
         tmp->y += (tmp->direction == SOPRA ? 1 : -1);
-        if(tmp->y < 1){ // non so se eliminare i proiettili se sono sotto al player
-            if(tmp->prev == NULL){
+        char new_old_char = this->map->getRow(tmp->y)->row[tmp->x];
+        // controlli per capire cosa e' presente nella nuova posizione
+        if(new_old_char == PLAYER){
+            end_game = true;
+            tmp->old_char = DESTRUCT_PLAYER;
+        }else if(new_old_char == PROIETTILE){
+            tmp->old_char = this->set_and_retrieve(tmp->x, tmp->y, tmp->old_char);
+        }else{
+            tmp->old_char = new_old_char;
+        }
+        this->map->setChar(tmp->x, tmp->y, PROIETTILE);
+        // elimina proiettili out of bounds
+        if(tmp->y < 1 || tmp->y > this->map->getTotalHeight() - 1){ // non so se eliminare i proiettili se sono sotto al player
+            this->map->setChar(tmp->x, tmp->y, tmp->old_char);
+            if(tmp->next == NULL){
                 this->elimina_proiettile(tmp->id);
                 tmp = NULL;
             }else {
-                tmp = tmp->prev;
-                this->elimina_proiettile(tmp->next->id);
+                tmp = tmp->next;
+                this->elimina_proiettile(tmp->prev->id);
             }
         }else{
-            
-            // spostamento nella mappa del proiettile
-            tmp->old_char = this->map->getRow(tmp->y)->row[tmp->x];\
-            if(tmp->old_char != ENEMY_CHAR_ARTIGLIERE && tmp->old_char != ENEMY_CHAR_SOLD_SEMPLICE
-           && tmp->old_char != ENEMY_CHAR_TANK && tmp->old_char != ENEMY_CHAR_BOSS){
-                this->map->setChar(tmp->x, tmp->y, PROIETTILE);
+            tmp->already_moved = true;
+            collision = false;
+            ptr_nodo_proiettili next = tmp->next; // salvare prossimo proiettile da muovere
+            while(next != NULL && (next->already_moved || (next->y == tmp->y && next->x == tmp->x))){
+                next = next->next;
             }
 
-            // questa parte mantiene ordinata la lista per righe
-            // in testa il proiettile piu in alto e in coda quello piu in basso
+            // controllo collisioni con altri proiettili o nemici
+            if((new_old_char == ENEMY_CHAR_ARTIGLIERE || new_old_char == ENEMY_CHAR_BOSS || new_old_char == ENEMY_CHAR_SOLD_SEMPLICE || new_old_char == ENEMY_CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico
+                collision = true;
+                this->elimina_nemico_x = tmp->x;
+                this->elimina_proiettile(tmp->id);
+            }else if(tmp->direction == SOTTO){
+                aux = tmp->next;
+                while(aux != NULL && aux->y >= tmp->y && !collision){
+                    if(tmp->y == aux->y && tmp->x == aux->x){
+                        if(aux->direction == SOPRA){
+                            this->map->setChar(aux->x, aux->y, aux->old_char);
+                            this->elimina_proiettile(tmp->id);
+                            this->elimina_proiettile(aux->id);
+                            collision = true;
+                        }
+                    }
+                    if(!collision){
+                        aux = aux->next;
+                    }
+                }
 
-            if(tmp->next != NULL){
-                tmp->next->prev = tmp->prev;
+            }else{
+                aux = tmp->prev;
+                while(aux != NULL && aux->y <= tmp->y && !collision){
+                    if(tmp->y == aux->y && tmp->x == aux->x){
+                        if(aux->direction == SOTTO){
+                            this->map->setChar(aux->x, aux->y, aux->old_char);
+                            this->elimina_proiettile(tmp->id);
+                            this->elimina_proiettile(aux->id);
+                            collision = true;
+                        }
+                    }
+                    if(!collision){
+                        aux = aux->prev;
+                    }
+                }
             }
-            if(tmp->prev != NULL){
-                tmp->prev->next = tmp->next;
-            }
-            aux = (tmp->direction == SOPRA ? tmp->prev : tmp->next);
-            exit = false;
-            while(aux != NULL && !exit){
-                if((aux->y >= tmp->y && tmp->direction == SOPRA) || (aux->y <= tmp->y && tmp->direction == SOTTO)){
-                    if(tmp->direction == SOPRA){
-                        tmp->prev = aux;
-                        tmp->next = aux->next;
+            if(!collision){
+                // spostamento del proiettile nella lista
+                if(tmp->direction == SOPRA){
+                    if(tmp->prev != NULL){
+                        tmp->prev->next = tmp->next;
+                    }
+                    if(tmp->next != NULL){
+                        tmp->next->prev = tmp->prev;
+                    }
+                    aux = tmp->prev;
+                    while(aux != NULL && aux->y < tmp->y){
+                        aux = aux->prev;
+                    }
+                    if(aux == NULL){
+                        if(this->head->id == tmp->id){
+                            if(tmp->next != NULL){
+                                tmp->next->prev = tmp;
+                            }
+                        }else{
+                            tmp->next = this->head;
+                            this->head->prev = tmp;
+                        }
+                        this->head = tmp;
+                        tmp->prev = NULL;
+                    }else{
                         if(aux->next != NULL){
                             aux->next->prev = tmp;
                         }
+                        tmp->next = aux->next;
                         aux->next = tmp;
+                        tmp->prev = aux;
+
+
+                    }
+                }else{ // direction == SOTTO
+                    if(tmp->prev != NULL){
+                        tmp->prev->next = tmp->next;
+                    }
+                    if(tmp->next != NULL){
+                        tmp->next->prev = tmp->prev;
+                    }
+                    aux = tmp->next;
+                    ptr_nodo_proiettili prev = (aux == NULL?tmp->prev:aux->prev);
+                    while(aux != NULL && aux->y > tmp->y){
+                        prev = aux;
+                        aux = aux->next;
+                    }
+                    if(aux == NULL){
+                        if(prev == NULL){
+                            this->head = tmp;
+                            tmp->next = NULL;
+                            tmp->prev = NULL;
+                        }else{
+                            prev->next = tmp;
+                            tmp->prev = prev;
+                            tmp->next = NULL;
+                        }
                     }else{
-                        tmp->next = aux;
-                        if(aux->prev != NULL){
+                        tmp->prev = aux->prev;
+                        if(aux->prev!=NULL){
                             aux->prev->next = tmp;
                         }
-                        tmp->prev = aux->prev;
                         aux->prev = tmp;
+                        tmp->next = aux;
                     }
-                    exit = true;
-                }
-                if(aux->next == NULL && tmp->direction == SOTTO && !exit){
-                    aux->next = tmp;
-                    tmp->next = NULL;
-                    tmp->prev = aux;
-                    aux = NULL;
-                    exit = true;
-                } else{
-                    aux = (tmp->direction == SOPRA ? aux->prev:aux->next);
+
                 }
             }
-            if((tmp->next == NULL) && (tmp->prev == NULL)){
-                this->head = tmp;
-            }else if (!exit){
-                if(tmp->direction == SOPRA){
-                    tmp->prev = NULL;
-                    tmp->next = this->head;
-                    this->head = tmp;
-                }else{
-                    tmp->prev->next = tmp;
-                    tmp->next = NULL;
-                }
-            }
-            tmp = tmp->prev;
+            tmp = next;
         }
+        //debug
         printfilee(this->head);
     }
-    
+    tmp = this->head;
+    while(tmp != NULL){
+        tmp->already_moved = false;
+        tmp = tmp->next;
+    }
 }

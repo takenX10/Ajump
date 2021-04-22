@@ -28,17 +28,20 @@ void Gioco::auto_print_map(){
     int counter2 = 0;
     int counter_movimento_proiettili = 0;
     int counter_fire = 0;
-    // velocita_spawn DEVE essere maggiore di velocita_movimento!!!!!!!!!!!!!!
-    // per testare con tante entita 1-3 va bene, piu realistico 4-100
+
     int velocita_movimento_proiettili = 1;
-    int velocita_movimento = velocita_movimento_proiettili * 5; // 1 molto veloce, 20 medio lenta
-    int velocita_spawn = velocita_movimento + 50; // 3 molto veloce, 100 medio lenta
-    int fire_rate = velocita_movimento_proiettili * 7;
-    while(true){
+    int velocita_movimento = velocita_movimento_proiettili * 10;
+    int velocita_spawn = velocita_movimento + 10;
+    int fire_rate = velocita_movimento_proiettili * 10;
+    while(!end_game){
         Sleep(REFRESH_RATE);
 
         if(counter_movimento_proiettili == velocita_movimento_proiettili){
             this->proiettili->muovi_proiettili();
+            if(this->proiettili->elimina_nemico_x != -1){
+                this->nemici->elimina_nemico_x(this->proiettili->elimina_nemico_x);
+                this->proiettili->elimina_nemico_x = -1;
+            }
             counter_movimento_proiettili = -1;
         }
 
@@ -52,15 +55,15 @@ void Gioco::auto_print_map(){
             counter = -1;
         }
 
-        
+
 
         counter++;
         counter2++;
         counter_movimento_proiettili++;
         counter_fire++;
-        
+
         this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0) );
-        
+
         // decidi se far spawnare nemici, e in caso dagli le caratteristiche
         // va implementata la funzione enemy_spawn
         if(this->enemy_spawn() && counter2 == velocita_spawn){
@@ -72,11 +75,15 @@ void Gioco::auto_print_map(){
         }
     }
 }
-void Gioco::keyListener(){
+void Gioco::keyListener(void){
     int key;
-    while(true) {
+    while(!end_game) {
         key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
         this->p->move(key);
+        if(this->p->deve_sparare){
+            this->p->deve_sparare = false;
+            this->proiettili->spara_player();
+        }
     }
 }
 

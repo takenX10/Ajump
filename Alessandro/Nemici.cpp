@@ -15,7 +15,7 @@ using namespace std;
 
 #include <fstream>
 ///// debug
-// Queste funzioni servono per visualizzare meglio la lista
+// Queste funzioni servono per visualizzare meglio la lista di nemici
 // salvandola in un file
 string where(int n){
     switch(n){
@@ -33,15 +33,15 @@ string where(int n){
 }
 
 void printfile(ptr_nodo_nemici lista){
-  ofstream myfile;
-  myfile.open ("lista.txt");
-  int i = 0;
-  while(lista!=NULL){
-      myfile << to_string(i) << ") "<<(i>9?"":" ")<<"Movedir:"<<where(lista->move_direction)<<" X:"<<to_string(lista->entity.x)<<(lista->entity.x>9?"":" ")<<" Y:"<<to_string(lista->entity.y)<<(lista->entity.y>9?"":" ")<<endl;
-      i++;
-      lista = lista->next;
-  }
-  myfile.close();
+    ofstream myfile;
+    myfile.open ("lista_nemici.txt");
+    int i = 0;
+    while(lista!=NULL){
+        myfile << to_string(i) << ") "<<(i>9?"":" ")<<"Movedir:"<<where(lista->move_direction)<<" X:"<<to_string(lista->entity.x)<<(lista->entity.x>9?"":" ")<<" Y:"<<to_string(lista->entity.y)<<(lista->entity.y>9?"":" ")<<endl;
+        i++;
+        lista = lista->next;
+    }
+    myfile.close();
 }
 /////
 
@@ -75,14 +75,14 @@ void Nemico::update_position(int new_x, int new_y){
     this->x = new_x;
     this->y = new_y;
 }
-//funzione beta per la determinazione del tipo di nemico. 
+//funzione beta per la determinazione del tipo di nemico.
 void Nemico::decide_kindOfEnemy(int level){
     if(level > 1000) this->kind_of_enemy = 4; //Se siamo ad un livello più avanazato spawnano sempre boss (?)
     else{
         int boss_probability = rand() % RAND_MAX;
         if(boss_probability % 10 == 0) this->kind_of_enemy = 4; //ho il 10% di possibilità che spawni il BOSS
         else{ //se non è spawnato il boss allora calcolo quale altro nemico spawna
-        //hanno tutti la stessa possibilità di spawnare. (33.3%)
+            //hanno tutti la stessa possibilità di spawnare. (33.3%)
             int probability = rand() % 3;
             if (probability == 0) this->kind_of_enemy = 1; //soldato semplice
             else if (probability == 1) this->kind_of_enemy = 2; // artigliere
@@ -181,7 +181,7 @@ void Lista_nemici::muovi_nemici(void){
             tmp = tmp->next;
         }else{
             // questo controllo esiste perche' se un nemico deve muoversi esattamente sopra nella stessa posizione
-            // in cui e' presente un altro nemico, quando il nemico numero due si sposta resetta il carattere 
+            // in cui e' presente un altro nemico, quando il nemico numero due si sposta resetta il carattere
             // succede solo in caso i nemici vadano da sinistra a destra
             /* esempio
             ---------------- fase 1
@@ -189,21 +189,21 @@ void Lista_nemici::muovi_nemici(void){
             .....V.........
             ...............
             ---------------- fase 2
-            ................   
+            ................
             .....V..........
             ......V.........
             ----------------
             in questo caso senza questo controllo il nemico piu in alto scomparirebbe.
             */
-            
-            if(tmp->prev == NULL){  
+
+            if(tmp->prev == NULL){
                 this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
             }else{
                 if(tmp->prev->move_direction != SOTTO_DESTRA || tmp->prev->entity.x != tmp->entity.x || tmp->prev->entity.y != tmp->entity.y){
                     this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
                 }
             }
-            
+
             int newX = tmp->entity.x + (tmp->move_direction == SOTTO_DESTRA?1:0) - (tmp->move_direction == SOTTO_SINISTRA?1:0);
             int newY = tmp->entity.y - 1; // perche' i nemici vanno sempre e comunque sotto
 
@@ -220,7 +220,8 @@ void Lista_nemici::muovi_nemici(void){
                 tmp->old_char = this->map->getRow(newY)->row[newX];
                 if(tmp->old_char == tmp->entity.char_of_enemy()){
                     tmp->old_char = tmp->next->old_char;
-                }else if(tmp->old_char == PLAYER){ // questo else va tolto debug
+                }else if(tmp->old_char == PLAYER){
+                    end_game = true;
                     tmp->old_char = ' ';
                 }else if(tmp->old_char == PROIETTILE){
                     tmp->old_char = this->proiettili->set_and_retrieve(newX, newY, tmp->entity.char_of_enemy());
@@ -237,11 +238,45 @@ void Lista_nemici::muovi_nemici(void){
     ///////
 }
 
+
+
+
+// elimina il nemico nella colonna x
+void Lista_nemici::elimina_nemico_x(int x){
+    ptr_nodo_nemici tmp = this->head;
+    while(tmp != NULL && tmp->entity.x != x){ // vai avanti fino al nemico giusto
+        tmp = tmp->next;
+    }
+    if(tmp !=NULL){
+        this->list_size--;
+        if(tmp->prev != NULL){
+            tmp->prev->next = tmp->next;
+        }else{      // il nemico da eliminare e' in testa
+            this->head = tmp->next;
+        }
+        if(tmp->next != NULL){
+            tmp->next->prev = tmp->prev;
+        }
+        this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
+        free(tmp);
+    }
+    printfile(this->head);
+}
+
+// fa sparare tutti i nemici, posizionando il proiettile sotto il nemico
+
 void Lista_nemici::spara(void){
     ptr_nodo_nemici tmp = this->head;
     while(tmp!=NULL){
-        if(this->map->getRow(tmp->entity.y - 1)->row[tmp->entity.x] != PROIETTILE){
-            this->proiettili->aggiungi_proiettile(tmp->entity.x, tmp->entity.y - 1, SOTTO);
+        if(tmp->entity.y >2){
+            char oldchar = this->map->getRow(tmp->entity.y - 1)->row[tmp->entity.x];
+            if(oldchar != PROIETTILE && oldchar != PLAYER){
+                this->proiettili->aggiungi_proiettile(tmp->entity.x, tmp->entity.y - 1, SOTTO);
+            }else{
+                if(oldchar == PLAYER){
+                    end_game = true;
+                }
+            }
         }
         tmp = tmp->next;
     }
@@ -255,21 +290,21 @@ tutti i nemici devono muoversi verso la posizione del player, con alcuni vincoli
 
 - se due nemici si vogliono spostare nella stessa colonna ha la priorita quello piu in basso
 
-Per questi vincoli lo spostamento dei nemici risulta a cascata, quindi se il nemico a sinistra del 
-player si muove, anche tutti quelli alla sua sinistra si muovono (eccetto casi elencati sotto), mentre 
+Per questi vincoli lo spostamento dei nemici risulta a cascata, quindi se il nemico a sinistra del
+player si muove, anche tutti quelli alla sua sinistra si muovono (eccetto casi elencati sotto), mentre
 quelli a destra devono controllare se hanno spazio libero altrimenti sono bloccati, e viceversa
 
 
 L' algoritmo trova il nemico a sinistra piu vicino al player, ma non sopra, poi valuta
 se il nemico a sinistra e' piu in basso di quello a destra inizia a spostarsi di conseguenza, settando come first tutti
 i nemici che sono nel lato che si muove per "primo", e che quindi hanno la priorita, e setta come second i nemici
-che si muovono come secondi. Valuta i nemici in ordine da quello piu vicino al player allontanandosi, facendo 
-prima tutti quelli nel primo lato poi tutti quelli nel secondo lato, in questo modo si e' sicuri che 
+che si muovono come secondi. Valuta i nemici in ordine da quello piu vicino al player allontanandosi, facendo
+prima tutti quelli nel primo lato poi tutti quelli nel secondo lato, in questo modo si e' sicuri che
 tutti i nemici valutati si basino su valori gia aggiornati.
 I casi in cui i nemici si muovono verso il basso sono:
     - il nemico e' appena spawnato
-    - il nemico e' sopra il player 
-    - la colonna in cui il nemico si vuole spostare e' occupata da un 
+    - il nemico e' sopra il player
+    - la colonna in cui il nemico si vuole spostare e' occupata da un
       altro nemico che va in basso, quindi non la libera. (quelli che si muovono per secondi)
 */
 void Lista_nemici::nuove_direzioni(void){
@@ -323,7 +358,7 @@ void Lista_nemici::nuove_direzioni(void){
                     first->move_direction = SOTTO;
                 }else if(next_node->entity.x == first->entity.x + (fdir == 1 ? 1 : -1)){
                     if(next_node->entity.x == playerX){ // questo controllo serve nel caso il PRIMO nemico controllato
-                                                        // sia esattamente affianco al nemico sopra al player 
+                        // sia esattamente affianco al nemico sopra al player
                         first->move_direction = SOTTO;
                     }else if(next_node->move_direction == SOTTO){
                         first->move_direction = SOTTO;
@@ -333,7 +368,7 @@ void Lista_nemici::nuove_direzioni(void){
                 }else{
                     first->move_direction = newdir;
                 }
-            } 
+            }
             first = (fdir == 1 ? first->prev : first->next);
         }
         while(second != NULL){  // intuitivamente molto simile a first, con qualche controllo in piu per colpa delle minori priorita
@@ -345,7 +380,7 @@ void Lista_nemici::nuove_direzioni(void){
                 second->move_direction = SOTTO;
             }else if(next_node != NULL){
                 if(next_node->entity.x == second->entity.x + (fdir == 1 ? -2 : 2)){ // questo controllo serve per mantenere le priorita nel caso
-                                                                                    // con due nemici che vanno nella stessa colonna
+                    // con due nemici che vanno nella stessa colonna
                     if(next_node->move_direction == SOTTO || next_node->move_direction == newdir){
                         second->move_direction = newdir;
                     }else{
@@ -365,7 +400,7 @@ void Lista_nemici::nuove_direzioni(void){
             }
             second = (fdir == 1 ? second->next : second->prev);
         }
-        
+
     }
 }
 
@@ -373,7 +408,7 @@ void Lista_nemici::nuove_direzioni(void){
 // se non ci sono spazi restituisce -1
 /* Spiegazione intuitiva algoritmo
     Conta quanti spazi vuoti sono liberi, e ne decide uno random in cui inserire il nemico
-    Esempio: 
+    Esempio:
     la riga e' lunga 20 spazi, ci sono gia 10 nemici, quindi abbiamo 10 spazi vuoti (20 - 10)
     generiamo un numero random tra 1 e 10, per esempio 3, restituiamo la cordinata X del terzo spazio vuoto
 
@@ -384,12 +419,12 @@ void Lista_nemici::nuove_direzioni(void){
 */
 int Lista_nemici::calcola_spawnpos_X(void){
     if(this->list_size < ROW_DIM - 1){ // il -1 e' per il \0
-        int num_free_spaces = ROW_DIM - this->list_size - 1; 
-        int spawnpos = (rand() % num_free_spaces) + 1;  // il +1 e' perche' ∀a>=b, a%b restituisce valori da 0 a b-1, 
-                                                        // ma a noi interessano da 1 a b, perche' spawnpos corrisponde all' nesimo spazio libero
+        int num_free_spaces = ROW_DIM - this->list_size - 1;
+        int spawnpos = (rand() % num_free_spaces) + 1;  // il +1 e' perche' ∀a>=b, a%b restituisce valori da 0 a b-1,
+        // ma a noi interessano da 1 a b, perche' spawnpos corrisponde all' nesimo spazio libero
         ptr_nodo_nemici tmp = this->head;
         int numero_spazi = 0;       // numero di spazi gia superati
-        int finalX = -1; 
+        int finalX = -1;
         while(tmp != NULL && finalX == -1){
             if(tmp->prev == NULL){          // primo elemento della lista
                 numero_spazi += tmp->entity.x;
@@ -405,7 +440,7 @@ int Lista_nemici::calcola_spawnpos_X(void){
         }
         // se finalX == -1 allora tmp == NULL, quindi tutti gli spazi sono vuoti
         // e il valore random corrispondera' alla cordinata della x (-1 perche' gli indici partono da 0)
-        if(finalX == -1){   
+        if(finalX == -1){
             finalX = spawnpos - 1;
         }
         return finalX;

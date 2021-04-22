@@ -10,6 +10,7 @@ class Player{
         Mappa *ptr_mappa;
 
     public:
+        bool deve_sparare = false;
         Player(Mappa *m = NULL, int x = 0, int y = 1);
         bool checkMovement(int direction);
         void move(int direction);

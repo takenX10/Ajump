@@ -5,6 +5,7 @@ per usare costanti:
 #include "path_to_this_file"
 using namespace constants;
 */
+bool end_game = false;
 namespace constants{
     // Costanti mappa
     constexpr int ROW_DIM = 40;
@@ -21,6 +22,8 @@ namespace constants{
     constexpr char ENEMY_CHAR_BOSS = 'B';
     constexpr char PROIETTILE = '+';
     constexpr char PLAYER = '@';
+    constexpr char DESTRUCT_PLAYER = '#';
+
 
     // Direzioni
     constexpr int SOPRA = 72;

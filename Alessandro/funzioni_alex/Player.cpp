@@ -17,7 +17,6 @@ Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/){
 }
 
 bool Player::checkMovement(int direction){
-    
     switch(direction){
         case SOPRA:
             if(this->ptr_mappa->getRow(this->y + 1)->row[this->x] == PIATTAFORMA){
@@ -51,16 +50,21 @@ bool Player::checkMovement(int direction){
         break;
 
         case SPAZIO:
-
+            return true;
         break;
     }
     return false;
 }
 
 void Player::move(int direction){
+    char oldchar;
     if(this->checkMovement(direction) == true){
         switch(direction){
             case SOPRA:
+                oldchar = this->ptr_mappa->getRow(this->y+2)->row[this->x];
+                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                    end_game = true;
+                }
                 this->ptr_mappa->setChar(this->x, this->y +2, '@');
                 this->ptr_mappa->setChar(this->x, this->y, ' ');
                 this->y += 2;
@@ -72,25 +76,37 @@ void Player::move(int direction){
             break;
 
             case SOTTO:
+                oldchar = this->ptr_mappa->getRow(this->y-2)->row[this->x];
+                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                    end_game = true;
+                }
                 this->ptr_mappa->setChar(this->x, this->y -2, '@');
                 this->ptr_mappa->setChar(this->x, this->y, ' ');
                 this->y -= 2;
             break;
 
             case DESTRA:
+                oldchar = this->ptr_mappa->getRow(this->y)->row[this->x + 1];
+                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                    end_game = true;
+                }
                 this->ptr_mappa->setChar(this->x +1, this->y, '@');
                 this->ptr_mappa->setChar(this->x, this->y, ' ');
                 this->x += 1;
             break;
 
             case SINISTRA:
+                oldchar = this->ptr_mappa->getRow(this->y)->row[this->x - 1];
+                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                    end_game = true;
+                }
                 this->ptr_mappa->setChar(this->x -1, this->y, '@');
                 this->ptr_mappa->setChar(this->x, this->y, ' ');
                 this->x -= 1;
             break;
 
             case SPAZIO:
-
+                this->deve_sparare = true;
             break;
         }
     }
