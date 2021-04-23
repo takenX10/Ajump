@@ -4,6 +4,7 @@
 */
 #include<iostream>
 #include<string>
+#include <ctime>
 #include "funzioni_alex/Mappa.h"
 #include "funzioni_alex/Player.h"
 #include "funzioni_alex/Alex_constants.hpp"
@@ -50,10 +51,10 @@ Nemico::Nemico(int pos_x = -1, int pos_y = -1){
     this->y = pos_y;
     this->kind_of_enemy = kind_of_enemy;
     // Dal tipo di nemico posso già sapere vita e danno; inutile prenderli come ulteriori parametri.
-    if (kind_of_enemy == 1) { this->health = 50; this->damage = 50; }
-    else if (kind_of_enemy == 2) { this->health = 100; this->damage = 100; }
-    else if (kind_of_enemy == 3) { this->health = 150; this->damage = 150; }
-    else { this->health = 200; this->damage = 200;}
+    if (kind_of_enemy == 1) { this->health = 100; this->damage = 10; }
+    else if (kind_of_enemy == 2) { this->health = 50; this->damage = 20; }
+    else if (kind_of_enemy == 3) { this->health = 150; this->damage = 5; }
+    else { this->health = 300; this->damage = 50;}
 }
 
 char Nemico::char_of_enemy(){
@@ -77,17 +78,14 @@ void Nemico::update_position(int new_x, int new_y){
 }
 //funzione beta per la determinazione del tipo di nemico.
 void Nemico::decide_kindOfEnemy(int level){
+    srand(level);
     if(level > 1000) this->kind_of_enemy = 4; //Se siamo ad un livello più avanazato spawnano sempre boss (?)
     else{
-        int boss_probability = rand() % RAND_MAX;
-        if(boss_probability % 10 == 0) this->kind_of_enemy = 4; //ho il 10% di possibilità che spawni il BOSS
-        else{ //se non è spawnato il boss allora calcolo quale altro nemico spawna
-            //hanno tutti la stessa possibilità di spawnare. (33.3%)
-            int probability = rand() % 3;
-            if (probability == 0) this->kind_of_enemy = 1; //soldato semplice
-            else if (probability == 1) this->kind_of_enemy = 2; // artigliere
-            else if (probability == 2) this->kind_of_enemy = 3; // tank
-        }
+        int random_number = rand() % 9;
+        if(random_number == 0) this->kind_of_enemy = 4; //ho poco meno del 10% di possibilità che spawni il BOSS
+        else if (random_number > 0 && random_number < 4) this->kind_of_enemy = 1;
+        else if (random_number > 3 && random_number < 7) this->kind_of_enemy = 2;
+        else this->kind_of_enemy = 3;       
     }
 }
 
@@ -271,7 +269,7 @@ void Lista_nemici::spara(void){
         if(tmp->entity.y >2){
             char oldchar = this->map->getRow(tmp->entity.y - 1)->row[tmp->entity.x];
             if(oldchar != PROIETTILE && oldchar != PLAYER){
-                this->proiettili->aggiungi_proiettile(tmp->entity.x, tmp->entity.y - 1, SOTTO);
+                this->proiettili->aggiungi_proiettile(tmp->entity.x, tmp->entity.y - 1, SOTTO, tmp->entity.kind_of_enemy);
             }else{
                 if(oldchar == PLAYER){
                     end_game = true;

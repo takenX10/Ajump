@@ -11,7 +11,6 @@
 #include "Proiettili.h"
 using namespace constants;
 using namespace std;
-
 class Nemico{
 public:
     int x, y; //Posizione

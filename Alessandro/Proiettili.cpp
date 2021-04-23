@@ -11,7 +11,7 @@
 using namespace constants;
 using namespace std;
 
-///// debug
+///// for debug purpose//////////////////////////////////
 #include <fstream>
 // Queste funzioni servono per visualizzare meglio la lista
 // salvandola in un file
@@ -41,7 +41,7 @@ void printfilee(ptr_nodo_proiettili lista){
     }
     myfile.close();
 }
-/////
+///// end of debugging things ////////////////////////////
 
 
 
@@ -54,7 +54,9 @@ Lista_proiettili::Lista_proiettili(Mappa *map, Player *p){
 
 void Lista_proiettili::spara_player(void){
     if(this->map->getRow(this->player->getY()+1)->row[this->player->getX()] != PROIETTILE){
-        this->aggiungi_proiettile(this->player->getX(), this->player->getY()+1, SOPRA);
+        this->aggiungi_proiettile(this->player->getX(), this->player->getY()+1, SOPRA, -1);
+        //Attenzione: quando a sparare è il player la variabile "shotte from" viene settata
+        //di default a -1
     }
 }
 
@@ -62,7 +64,7 @@ void Lista_proiettili::spara_player(void){
 // funzione che aggiunge un proiettile alla lista
 // la lista e' ordinata per righe, quindi la funzione si occupa di
 // aggiungere il proiettile nella posizione corretta
-void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction){
+void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction, int who_shot){
     ptr_nodo_proiettili nuovo_proiettile = new nodo_proiettili;
     nuovo_proiettile->x = x;
     nuovo_proiettile->y = y;
@@ -70,6 +72,14 @@ void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction){
     nuovo_proiettile->already_moved = false;
     nuovo_proiettile->id = this->current_id + 1;
     this->current_id++;
+    //determinazione del danno del proiettile
+    if(who_shot == 4) nuovo_proiettile->damage = 50;
+    else if (who_shot == 3) nuovo_proiettile->damage = 5;
+    else if (who_shot == 2) nuovo_proiettile->damage = 20;
+    else if (who_shot == 1) nuovo_proiettile->damage = 10;
+    else if(who_shot == -1) nuovo_proiettile->damage = 0;
+    else nuovo_proiettile->damage = 200; //for bug purpose
+
     // inserimento nella mappa del proiettile
     nuovo_proiettile->old_char = this->map->getRow(y)->row[x];
     this->map->setChar(x, y, PROIETTILE);
@@ -180,8 +190,17 @@ void Lista_proiettili::muovi_proiettili(void){
         char new_old_char = this->map->getRow(tmp->y)->row[tmp->x];
         // controlli per capire cosa e' presente nella nuova posizione
         if(new_old_char == PLAYER){
+            if( player->is_dead(tmp->damage) == true ){
             end_game = true;
-            tmp->old_char = DESTRUCT_PLAYER;
+            tmp->old_char = DESTRUCT_PLAYER;                
+            }
+            else{
+                tmp->old_char = PLAYER;
+                
+                
+                //this->elimina_proiettile(tmp->id); // NON FUNONZIA (?)
+                
+            }
         }else if(new_old_char == PROIETTILE){
             tmp->old_char = this->set_and_retrieve(tmp->x, tmp->y, tmp->old_char);
         }else{

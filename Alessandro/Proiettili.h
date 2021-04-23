@@ -15,6 +15,7 @@ struct nodo_proiettili{
     int y;
     char old_char;
     bool already_moved;
+    int damage; //dipende dal nemico che lo spara
     struct nodo_proiettili *next;
     struct nodo_proiettili *prev;
 };
@@ -33,7 +34,10 @@ public:
     // funzione che aggiunge un proiettile alla lista
     // la lista e' ordinata per righe, quindi la funzione si occupa di
     // aggiungere il proiettile nella posizione corretta
-    void aggiungi_proiettile(int x, int y, int direction);
+
+    //Who shot: devo sapere chi ha sparato per sapere quanto danno farà il proiettile.    
+    void aggiungi_proiettile(int x, int y, int direction, int who_shot);
+
 
     void elimina_proiettile(int id);
 
