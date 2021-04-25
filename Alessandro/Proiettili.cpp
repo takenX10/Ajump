@@ -178,6 +178,7 @@ char Lista_proiettili::set_and_retrieve(int x, int y, int old_char){
 void Lista_proiettili::muovi_proiettili(void){
     ptr_nodo_proiettili tmp = this->head;
     bool collision;
+    bool proiettile_on_player = false;
 
     ptr_nodo_proiettili aux;
     while(tmp != NULL){
@@ -196,142 +197,151 @@ void Lista_proiettili::muovi_proiettili(void){
             }
             else{
                 tmp->old_char = PLAYER;
-                
-                
-                //this->elimina_proiettile(tmp->id); // NON FUNONZIA (?)
-                
+                //this->map->setChar(tmp->x, tmp->y, PLAYER);
+                this->elimina_proiettile(tmp->id);          
+                tmp=this->head;    
+                proiettile_on_player = true;                
             }
+
         }else if(new_old_char == PROIETTILE){
             tmp->old_char = this->set_and_retrieve(tmp->x, tmp->y, tmp->old_char);
         }else{
             tmp->old_char = new_old_char;
         }
-        this->map->setChar(tmp->x, tmp->y, PROIETTILE);
+
+       if (proiettile_on_player == false) this->map->setChar(tmp->x, tmp->y, PROIETTILE);
+       
+       
         // elimina proiettili out of bounds
-        if(tmp->y < 1 || tmp->y > this->map->getTotalHeight() - 1){ // non so se eliminare i proiettili se sono sotto al player
-            this->map->setChar(tmp->x, tmp->y, tmp->old_char);
-            if(tmp->next == NULL){
-                this->elimina_proiettile(tmp->id);
-                tmp = NULL;
-            }else {
-                tmp = tmp->next;
-                this->elimina_proiettile(tmp->prev->id);
-            }
-        }else{
-            tmp->already_moved = true;
-            collision = false;
-            ptr_nodo_proiettili next = tmp->next; // salvare prossimo proiettile da muovere
-            while(next != NULL && (next->already_moved || (next->y == tmp->y && next->x == tmp->x))){
-                next = next->next;
-            }
-
-            // controllo collisioni con altri proiettili o nemici
-            if((new_old_char == ENEMY_CHAR_ARTIGLIERE || new_old_char == ENEMY_CHAR_BOSS || new_old_char == ENEMY_CHAR_SOLD_SEMPLICE || new_old_char == ENEMY_CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico
-                collision = true;
-                this->elimina_nemico_x = tmp->x;
-                this->elimina_proiettile(tmp->id);
-            }else if(tmp->direction == SOTTO){
-                aux = tmp->next;
-                while(aux != NULL && aux->y >= tmp->y && !collision){
-                    if(tmp->y == aux->y && tmp->x == aux->x){
-                        if(aux->direction == SOPRA){
-                            this->map->setChar(aux->x, aux->y, aux->old_char);
-                            this->elimina_proiettile(tmp->id);
-                            this->elimina_proiettile(aux->id);
-                            collision = true;
-                        }
-                    }
-                    if(!collision){
-                        aux = aux->next;
-                    }
+        if (proiettile_on_player == false){
+            this->map->setChar(tmp->x, tmp->y, PROIETTILE);
+        
+            if( (tmp->y < 1 || tmp->y > this->map->getTotalHeight() - 1 ) ){ // non so se eliminare i proiettili se sono sotto al player
+                this->map->setChar(tmp->x, tmp->y, tmp->old_char);
+                if(tmp->next == NULL){
+                    this->elimina_proiettile(tmp->id);
+                    tmp = NULL;
+                }else {
+                    tmp = tmp->next;
+                    this->elimina_proiettile(tmp->prev->id);
                 }
-
             }else{
-                aux = tmp->prev;
-                while(aux != NULL && aux->y <= tmp->y && !collision){
-                    if(tmp->y == aux->y && tmp->x == aux->x){
-                        if(aux->direction == SOTTO){
-                            this->map->setChar(aux->x, aux->y, aux->old_char);
-                            this->elimina_proiettile(tmp->id);
-                            this->elimina_proiettile(aux->id);
-                            collision = true;
+                tmp->already_moved = true;
+                collision = false;
+                ptr_nodo_proiettili next = tmp->next; // salvare prossimo proiettile da muovere
+                while(next != NULL && (next->already_moved || (next->y == tmp->y && next->x == tmp->x))){
+                    next = next->next;
+                }
+
+                // controllo collisioni con altri proiettili o nemici
+                if((new_old_char == ENEMY_CHAR_ARTIGLIERE || new_old_char == ENEMY_CHAR_BOSS || new_old_char == ENEMY_CHAR_SOLD_SEMPLICE || new_old_char == ENEMY_CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico
+                    collision = true;
+                    this->elimina_nemico_x = tmp->x;
+                    this->elimina_proiettile(tmp->id);
+                }else if(tmp->direction == SOTTO){
+                    aux = tmp->next;
+                    while(aux != NULL && aux->y >= tmp->y && !collision){
+                        if(tmp->y == aux->y && tmp->x == aux->x){
+                            if(aux->direction == SOPRA){
+                                this->map->setChar(aux->x, aux->y, aux->old_char);
+                                this->elimina_proiettile(tmp->id);
+                                this->elimina_proiettile(aux->id);
+                                collision = true;
+                            }
+                        }
+                        if(!collision){
+                            aux = aux->next;
                         }
                     }
-                    if(!collision){
-                        aux = aux->prev;
+
+                }else{
+                    aux = tmp->prev;
+                    while(aux != NULL && aux->y <= tmp->y && !collision){
+                        if(tmp->y == aux->y && tmp->x == aux->x){
+                            if(aux->direction == SOTTO){
+                                this->map->setChar(aux->x, aux->y, aux->old_char);
+                                this->elimina_proiettile(tmp->id);
+                                this->elimina_proiettile(aux->id);
+                                collision = true;
+                            }
+                        }
+                        if(!collision){
+                            aux = aux->prev;
+                        }
                     }
                 }
-            }
-            if(!collision){
-                // spostamento del proiettile nella lista
-                if(tmp->direction == SOPRA){
-                    if(tmp->prev != NULL){
-                        tmp->prev->next = tmp->next;
-                    }
-                    if(tmp->next != NULL){
-                        tmp->next->prev = tmp->prev;
-                    }
-                    aux = tmp->prev;
-                    while(aux != NULL && aux->y < tmp->y){
-                        aux = aux->prev;
-                    }
-                    if(aux == NULL){
-                        if(this->head->id == tmp->id){
-                            if(tmp->next != NULL){
-                                tmp->next->prev = tmp;
+                if(!collision){
+                    // spostamento del proiettile nella lista
+                    if(tmp->direction == SOPRA){
+                        if(tmp->prev != NULL){
+                            tmp->prev->next = tmp->next;
+                        }
+                        if(tmp->next != NULL){
+                            tmp->next->prev = tmp->prev;
+                        }
+                        aux = tmp->prev;
+                        while(aux != NULL && aux->y < tmp->y){
+                            aux = aux->prev;
+                        }
+                        if(aux == NULL){
+                            if(this->head->id == tmp->id){
+                                if(tmp->next != NULL){
+                                    tmp->next->prev = tmp;
+                                }
+                            }else{
+                                tmp->next = this->head;
+                                this->head->prev = tmp;
                             }
-                        }else{
-                            tmp->next = this->head;
-                            this->head->prev = tmp;
-                        }
-                        this->head = tmp;
-                        tmp->prev = NULL;
-                    }else{
-                        if(aux->next != NULL){
-                            aux->next->prev = tmp;
-                        }
-                        tmp->next = aux->next;
-                        aux->next = tmp;
-                        tmp->prev = aux;
-
-
-                    }
-                }else{ // direction == SOTTO
-                    if(tmp->prev != NULL){
-                        tmp->prev->next = tmp->next;
-                    }
-                    if(tmp->next != NULL){
-                        tmp->next->prev = tmp->prev;
-                    }
-                    aux = tmp->next;
-                    ptr_nodo_proiettili prev = (aux == NULL?tmp->prev:aux->prev);
-                    while(aux != NULL && aux->y > tmp->y){
-                        prev = aux;
-                        aux = aux->next;
-                    }
-                    if(aux == NULL){
-                        if(prev == NULL){
                             this->head = tmp;
-                            tmp->next = NULL;
                             tmp->prev = NULL;
                         }else{
-                            prev->next = tmp;
-                            tmp->prev = prev;
-                            tmp->next = NULL;
-                        }
-                    }else{
-                        tmp->prev = aux->prev;
-                        if(aux->prev!=NULL){
-                            aux->prev->next = tmp;
-                        }
-                        aux->prev = tmp;
-                        tmp->next = aux;
-                    }
+                            if(aux->next != NULL){
+                                aux->next->prev = tmp;
+                            }
+                            tmp->next = aux->next;
+                            aux->next = tmp;
+                            tmp->prev = aux;
 
+
+                        }
+                    }else{ // direction == SOTTO
+                        if(tmp->prev != NULL){
+                            tmp->prev->next = tmp->next;
+                        }
+                        if(tmp->next != NULL){
+                            tmp->next->prev = tmp->prev;
+                        }
+                        aux = tmp->next;
+                        ptr_nodo_proiettili prev = (aux == NULL?tmp->prev:aux->prev);
+                        while(aux != NULL && aux->y > tmp->y){
+                            prev = aux;
+                            aux = aux->next;
+                        }
+                        if(aux == NULL){
+                            if(prev == NULL){
+                                this->head = tmp;
+                                tmp->next = NULL;
+                                tmp->prev = NULL;
+                            }else{
+                                prev->next = tmp;
+                                tmp->prev = prev;
+                                tmp->next = NULL;
+                            }
+                        }else{
+                            tmp->prev = aux->prev;
+                            if(aux->prev!=NULL){
+                                aux->prev->next = tmp;
+                            }
+                            aux->prev = tmp;
+                            tmp->next = aux;
+                        }
+
+                    }
                 }
+                tmp = next;
             }
-            tmp = next;
         }
+        proiettile_on_player = false;
         //debug
         printfilee(this->head);
     }
