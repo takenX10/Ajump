@@ -5,6 +5,7 @@
 #include "funzioni_alex/Mappa.h"
 #include "funzioni_alex/Player.h"
 #include "funzioni_alex/Alex_constants.hpp"
+#include "funzioni_Alex/Gioco.h"
 using namespace constants;
 using namespace std;
 
@@ -29,8 +30,10 @@ protected:
     int current_id;
 public:
     int elimina_nemico_x = -1;
+
     Lista_proiettili(Mappa *map, Player *p);
 
+    
     // funzione che aggiunge un proiettile alla lista
     // la lista e' ordinata per righe, quindi la funzione si occupa di
     // aggiungere il proiettile nella posizione corretta

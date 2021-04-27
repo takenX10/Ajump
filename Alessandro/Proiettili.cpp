@@ -8,6 +8,7 @@
 #include "funzioni_alex/Alex_constants.hpp"
 #include "nemici.h"
 #include "Proiettili.h"
+#include "funzioni_alex/Gioco.h"
 using namespace constants;
 using namespace std;
 
@@ -44,12 +45,12 @@ void printfilee(ptr_nodo_proiettili lista){
 ///// end of debugging things ////////////////////////////
 
 
-
 Lista_proiettili::Lista_proiettili(Mappa *map, Player *p){
     this->head = NULL;
     this->current_id = 0;
     this->map = map;
     this->player = p;
+    
 }
 
 void Lista_proiettili::spara_player(void){
@@ -73,13 +74,12 @@ void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction, int who_
     nuovo_proiettile->id = this->current_id + 1;
     this->current_id++;
     //determinazione del danno del proiettile
-    if(who_shot == 4) nuovo_proiettile->damage = 50;
-    else if (who_shot == 3) nuovo_proiettile->damage = 5;
-    else if (who_shot == 2) nuovo_proiettile->damage = 20;
-    else if (who_shot == 1) nuovo_proiettile->damage = 10;
-    else if(who_shot == -1) nuovo_proiettile->damage = 0;
-    else nuovo_proiettile->damage = 200; //for bug purpose
-
+    if(who_shot == 4) nuovo_proiettile->damage = 50; //DANNO BOSS
+    else if (who_shot == 3) nuovo_proiettile->damage = 5; //DANNO TANK
+    else if (who_shot == 2) nuovo_proiettile->damage = 20; //DANNO ARTIGLIERE
+    else if (who_shot == 1) nuovo_proiettile->damage = 10; //DANNO SOLDADO SEMPLICE
+    else nuovo_proiettile->damage = 50; //DANNO CHE FA IL PLAYER QUANDO SPARA
+    
     // inserimento nella mappa del proiettile
     nuovo_proiettile->old_char = this->map->getRow(y)->row[x];
     this->map->setChar(x, y, PROIETTILE);
@@ -235,9 +235,17 @@ void Lista_proiettili::muovi_proiettili(void){
 
                 // controllo collisioni con altri proiettili o nemici
                 if((new_old_char == ENEMY_CHAR_ARTIGLIERE || new_old_char == ENEMY_CHAR_BOSS || new_old_char == ENEMY_CHAR_SOLD_SEMPLICE || new_old_char == ENEMY_CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico
+                    //Per capire contro che nemico sto devo scorrere la lista dei nemici e trovare quello che
+                    //si trova in coordinate tmp.x e tmp.y                  
+                                                                      
                     collision = true;
                     this->elimina_nemico_x = tmp->x;
                     this->elimina_proiettile(tmp->id);
+                    // Se voglio far assorbire il proiettile al nemico.
+                    //collision = true;
+                    //this->map->setChar(tmp->x, tmp->y, tmp->old_char);
+                    //this->elimina_proiettile(tmp->id);
+
                 }else if(tmp->direction == SOTTO){
                     aux = tmp->next;
                     while(aux != NULL && aux->y >= tmp->y && !collision){
@@ -350,4 +358,4 @@ void Lista_proiettili::muovi_proiettili(void){
         tmp->already_moved = false;
         tmp = tmp->next;
     }
-}
+   }

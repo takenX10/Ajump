@@ -19,7 +19,7 @@ public:
     int kind_of_enemy; // 1-> Soldato semplice | 2-> Artigliere | 3-> Tank | 4-> Boss
 
 public:
-    Nemico(int pos_x, int pos_y);
+    Nemico(int pos_x, int pos_, int kind_of_enemy);
     char char_of_enemy();
     /*
     * Questo metodo permette di modificare la salute attuale del nemico;
@@ -32,7 +32,7 @@ public:
     // Stesso discorso di change_health: value può essere sia positivo che negativo.
     void change_damage(int value);
     void update_position(int new_x, int new_y);
-    void decide_kindOfEnemy(int level);
+    int decide_kindOfEnemy(int level);
 
 };
 
@@ -48,7 +48,7 @@ struct nodo_nemici{
 typedef nodo_nemici *ptr_nodo_nemici;
 
 class Lista_nemici{
-protected:
+public:
     int current_id; // ultimo id nemico utilizzato
     int list_size; // dimensione della lista
     ptr_nodo_nemici head; // testa della lista

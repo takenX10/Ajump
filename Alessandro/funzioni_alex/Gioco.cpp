@@ -36,16 +36,18 @@ void Gioco::auto_print_map(){
     //Conviene procedere sottraendoli 10 ogni volta che si vuole aumentare la difficoltà
     int velocita_spawn = velocita_movimento + 100;
     int fire_rate = velocita_movimento_proiettili * 30; // o 30 o 10, sennò si bugga
-    //int difficulty = int ( this->mappa_gioco->getTotalHeight() / 50 );
-    //if (difficulty > 2){
-    //    fire_rate = velocita_movimento_proiettili * 10;
-    //}
-    //if(difficulty > 1){
-    //    velocita_spawn = (velocita_movimento + 20);
-    //}
+    int test = 50;
     while(!end_game){
-        Sleep(REFRESH_RATE);
+    if(this->p->getY() > 1){
+        if((this->p->getY() - 1) % test == 0 && velocita_spawn - 10 > velocita_movimento){
+        counter2 = 0;
+        velocita_spawn = (velocita_spawn - 10);
+        test += 50;
+        }
+    }
 
+        Sleep(REFRESH_RATE);
+        
         if(counter_movimento_proiettili == velocita_movimento_proiettili){
             this->proiettili->muovi_proiettili();
             if(this->proiettili->elimina_nemico_x != -1){
@@ -76,8 +78,8 @@ void Gioco::auto_print_map(){
         // decidi se far spawnare nemici, e in caso dagli le caratteristiche
         if(this->enemy_spawn() && counter2 == velocita_spawn){
             counter2 = 0;
-            Nemico enemy(this->nemici->calcola_spawnpos_X(), this->mappa_gioco->getTotalHeight());
-            enemy.decide_kindOfEnemy(this->mappa_gioco->getTotalHeight());
+            Nemico enemy(this->nemici->calcola_spawnpos_X(), this->mappa_gioco->getTotalHeight(), enemy.decide_kindOfEnemy(this->mappa_gioco->getTotalHeight()) );
+            //enemy.decide_kindOfEnemy(this->mappa_gioco->getTotalHeight());
             this->nemici->aggiungi_nemico(enemy);
         }   
     }

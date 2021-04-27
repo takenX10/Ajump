@@ -1,15 +1,16 @@
 #include <iostream>
-#include<chrono>
-#include<thread>
-#include "funzioni_alex/Mappa.h"
+#include <chrono>
+#include <thread>
+#include "funzioni_alex/Mappa.h" 
 #include "funzioni_alex/Player.h"
 #include "funzioni_alex/Alex_constants.hpp"
 #include "funzioni_alex/Gioco.h" 
 #include "funzioni_alex/print_functions.h"
 #include "Nemici.h"
 #include "Proiettili.h"
+#include <time.h>
 
-using namespace std;
+using namespace std; 
 using namespace constants;
 
 void endfunction(void){
@@ -17,7 +18,6 @@ void endfunction(void){
 }
 
 int main(void){
-
     Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
     Player p = Player(&m, STARTING_X, STARTING_Y);
     Lista_proiettili proiettili = Lista_proiettili(&m, &p);
