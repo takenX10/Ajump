@@ -1,1 +1,1 @@
-#include<thread>
+&m, &p, &ent, &proiettili

@@ -8,14 +8,14 @@
 using namespace std;
 using namespace constants;
 
-Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_points /* = 100*/, int damage /* = 10 */){
+Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_points /* = 100*/){
     this->x = x;
     this->y = y;
     this->ptr_mappa = m;
     this->health_points = health_points;
-    this->damage = damage;
+    this->damage = DANNO_PLAYER;
     if(this->ptr_mappa != NULL){
-        this->ptr_mappa->setChar(this->x, this->y , '@');
+        this->ptr_mappa->setChar(this->x, this->y , PLAYER);
     }
 }
 
@@ -33,7 +33,6 @@ bool Player::checkMovement(int direction){
                     return true;
                 }
             }
-            
         break;
 
         case SINISTRA:
@@ -65,11 +64,23 @@ void Player::move(int direction){
         switch(direction){
             case SOPRA:
                 oldchar = this->ptr_mappa->getRow(this->y+2)->row[this->x];
-                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar == ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == CHAR_ARTIGLIERE || oldchar == CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
-                this->ptr_mappa->setChar(this->x, this->y +2, '@');
-                this->ptr_mappa->setChar(this->x, this->y, ' ');
+                else if(oldchar == BONUS_SALUTE){
+                    esegui_bonus = COD_BONUS_SALUTE; 
+                }
+                else if(oldchar == BONUS_BOMBA){
+                    esegui_bonus = COD_BONUS_BOMBA;
+                }
+                else if(oldchar == MALUS_SALUTE){
+                    esegui_bonus = COD_MALUS_SALUTE;
+                }
+                else if(oldchar == BONUS_PROIETTILI_SPECIALI){
+                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                }
+                this->ptr_mappa->setChar(this->x, this->y + 2, PLAYER);
+                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
                 this->y += 2;
                 // aggiunta new line 
                 if(OFFSET < this->y && this->y - OFFSET + this->ptr_mappa->getHeight() >  this->ptr_mappa->getTotalHeight()){
@@ -80,31 +91,67 @@ void Player::move(int direction){
 
             case SOTTO:
                 oldchar = this->ptr_mappa->getRow(this->y-2)->row[this->x];
-                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
-                this->ptr_mappa->setChar(this->x, this->y -2, '@');
-                this->ptr_mappa->setChar(this->x, this->y, ' ');
+                else if(oldchar == BONUS_SALUTE){
+                   esegui_bonus = COD_BONUS_SALUTE; //Diamo il valore 1 al bonus salute aggiuntiva
+                }
+                else if(oldchar == BONUS_BOMBA){
+                    esegui_bonus = COD_BONUS_BOMBA;
+                }
+                else if(oldchar == MALUS_SALUTE){
+                    esegui_bonus = COD_MALUS_SALUTE;
+                }
+                else if(oldchar == BONUS_PROIETTILI_SPECIALI){
+                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                }
+                this->ptr_mappa->setChar(this->x, this->y -2, PLAYER);
+                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
                 this->y -= 2;
             break;
 
             case DESTRA:
                 oldchar = this->ptr_mappa->getRow(this->y)->row[this->x + 1];
-                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
-                this->ptr_mappa->setChar(this->x +1, this->y, '@');
-                this->ptr_mappa->setChar(this->x, this->y, ' ');
+                else if(oldchar == BONUS_SALUTE){
+                    esegui_bonus = COD_BONUS_SALUTE; //diamo il valore 1 al bonus salute aggiuntiva
+                }
+                else if(oldchar == BONUS_BOMBA){
+                    esegui_bonus = COD_BONUS_BOMBA;
+                }
+                else if(oldchar == MALUS_SALUTE){
+                    esegui_bonus = COD_MALUS_SALUTE;
+                }
+                else if(oldchar == BONUS_PROIETTILI_SPECIALI){
+                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                }
+                this->ptr_mappa->setChar(this->x +1, this->y, PLAYER);
+                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
                 this->x += 1;
             break;
 
             case SINISTRA:
                 oldchar = this->ptr_mappa->getRow(this->y)->row[this->x - 1];
-                if(oldchar == ENEMY_CHAR_ARTIGLIERE || oldchar==ENEMY_CHAR_BOSS || oldchar == ENEMY_CHAR_SOLD_SEMPLICE || oldchar == ENEMY_CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
-                this->ptr_mappa->setChar(this->x -1, this->y, '@');
-                this->ptr_mappa->setChar(this->x, this->y, ' ');
+                else if(oldchar == BONUS_SALUTE){
+                    esegui_bonus = COD_BONUS_SALUTE; //diamo il valore 1 al bonus salute aggiuntiva
+                }
+                else if(oldchar == BONUS_BOMBA){
+                    esegui_bonus = COD_BONUS_BOMBA;
+                }
+                else if(oldchar == MALUS_SALUTE){
+                    esegui_bonus = COD_MALUS_SALUTE;
+                }
+                else if(oldchar == BONUS_PROIETTILI_SPECIALI){
+                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                }
+                this->ptr_mappa->setChar(this->x -1, this->y, PLAYER);
+                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
                 this->x -= 1;
             break;
 
@@ -118,13 +165,22 @@ void Player::move(int direction){
 int Player::getX(void){ return this->x; }
 int Player::getY(void){ return this->y; }
 
-bool Player::is_dead(int value){
+//Modifica la vita del player. Restituisce True se il player è morto
+bool Player::change_health(int value){
+
+    //For debug purpose
     ofstream stats;
     stats.open("statsPlayer.txt");
-    stats << "Vita -> " << this->health_points << "\n Danno che sto per subire -> " << value << endl;
-    this->health_points = this->health_points - value;
-    stats << health_points;
+    stats << "Vita -> " << this->health_points << "\nDanno / Bonus / Malus che sto per subire -> " << value << endl;
+    //end of debug test
+
+    this->health_points = this->health_points + value;
+    
+    //Debug
+    stats << "Vita dopo l'ultima modifica -> " << health_points;
     stats.close();
+    //Ancora debug
     if (this->health_points <= 0) return true;
     else return false;
 }
+

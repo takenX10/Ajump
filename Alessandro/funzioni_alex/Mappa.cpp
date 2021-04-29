@@ -61,13 +61,13 @@ void Mappa::newRow(void){
                 int space_3 = rand() % 2 +1;
                 int i=0;
                 // riempimento riga
-                for(i=0; i<space_1; i++){ new_row->row[i] = ' '; }
+                for(i=0; i<space_1; i++){ new_row->row[i] = SPAZIO_VUOTO; }
                 for(i=i; i<space_1 + dim_1; i++){ new_row->row[i] = PIATTAFORMA; }
-                for(i=i; i<space_1 + dim_1 + space_2; i++){ new_row->row[i] = ' '; }
+                for(i=i; i<space_1 + dim_1 + space_2; i++){ new_row->row[i] = SPAZIO_VUOTO; }
                 for(i=i; i<space_1 + dim_1 + space_2 + dim_2; i++){ new_row->row[i] = PIATTAFORMA; }
-                for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3; i++){ new_row->row[i] = ' '; }
-                for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3 + dim_3; i++){ new_row->row[i] =PIATTAFORMA; }
-                for(i=i; i<ROW_DIM-1; i++){ new_row->row[i] = ' '; }
+                for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3; i++){ new_row->row[i] = SPAZIO_VUOTO; }
+                for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3 + dim_3; i++){ new_row->row[i] = PIATTAFORMA; }
+                for(i=i; i<ROW_DIM-1; i++){ new_row->row[i] = SPAZIO_VUOTO; }
             }
         }
         new_row->row[ROW_DIM-1] = '\0';

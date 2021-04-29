@@ -8,19 +8,19 @@ class Player{
         int x;
         int y;
         int health_points;
-        int damage;
         Mappa *ptr_mappa;
-
     public:
+        int damage; //Danno del Player
+        int esegui_bonus = -1; //Con questo paramentro comunico alla classe Bonus se ed eventualmente quale bonus eseguire nel momento in cui player ci passa sopra; -1 è default.
         bool deve_sparare = false;
-        Player(Mappa *m = NULL, int x = 0, int y = 1, int health_points = 100, int damage = 10);
+        Player(Mappa *m = NULL, int x = 0, int y = 1, int health_points = VITA_PLAYER);
         bool checkMovement(int direction);
         void move(int direction);
         int getX(void);
         int getY(void);
-        //Il seguente metodo sottrae value alla salute
-        //del player e ti dice se è morto o no
-        bool is_dead(int value);
+
+        //Modifica salute del player; restituisce True se player è morto.
+        bool change_health(int value);
 };
 #include "Player.cpp"
 #endif

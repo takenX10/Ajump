@@ -44,32 +44,27 @@ void printfile(ptr_nodo_nemici lista){
     }
     myfile.close();
 }
-/////
+/////End debug
 
 Nemico::Nemico(int pos_x = -1, int pos_y = -1, int kind_of_enemy = 1){
     this->x = pos_x;
     this->y = pos_y;
     this->kind_of_enemy = kind_of_enemy;
-    // Dal tipo di nemico posso già sapere vita e danno; inutile prenderli come ulteriori parametri.
-    if (kind_of_enemy == 1) { this->health = 100; this->damage = 10; }
-    else if (kind_of_enemy == 2) { this->health = 50; this->damage = 20; }
-    else if (kind_of_enemy == 3) { this->health = 150; this->damage = 5; }
-    else { this->health = 300; this->damage = 50;}
+    if (kind_of_enemy == COD_SOLD_SEMPLICE) { this->health = VITA_SOLD_SEMPLICE; this->damage = DANNO_SOLD_SEMPLICE; }
+    else if (kind_of_enemy == COD_ARTIGLIERE) { this->health = VITA_ARTIGLIERE; this->damage = DANNO_ARTIGLIERE; }
+    else if (kind_of_enemy == COD_TANK) { this->health = VITA_TANK; this->damage = DANNO_TANK; }
+    else /*COD_BOSS*/ { this->health = VITA_BOSS; this->damage = DANNO_BOSS; }
 }
 
 char Nemico::char_of_enemy(){
-    if (kind_of_enemy == 1) return ENEMY_CHAR_SOLD_SEMPLICE;
-    else if (kind_of_enemy == 2) return ENEMY_CHAR_ARTIGLIERE;
-    else if (kind_of_enemy == 3) return ENEMY_CHAR_TANK;
-    else return ENEMY_CHAR_BOSS;
+    if (kind_of_enemy == COD_SOLD_SEMPLICE) return CHAR_SOLD_SEMPLICE;
+    else if (kind_of_enemy == COD_ARTIGLIERE) return CHAR_ARTIGLIERE;
+    else if (kind_of_enemy == COD_TANK) return CHAR_TANK;
+    else return CHAR_BOSS;
 }
 
 void Nemico::change_health(int value){
     this->health += value;
-}
-
-void Nemico::change_damage(int value){
-    this->damage += value;
 }
 
 void Nemico::update_position(int new_x, int new_y){
@@ -79,13 +74,13 @@ void Nemico::update_position(int new_x, int new_y){
 //funzione beta per la determinazione del tipo di nemico.
 int Nemico::decide_kindOfEnemy(int level){
     srand(time(NULL));
-    if(level > 1000) this->kind_of_enemy = 4; //Se siamo ad un livello più avanazato spawnano sempre boss (?)
+    if(level > DIFFICOLTA_ESTREMA) this->kind_of_enemy = COD_BOSS; //Incremento notevole della difficoltà facendo spawnare sempre BOSS
     else{
-        int random_number = rand() % 9;
-        if(random_number == 0) this->kind_of_enemy = 4; //ho poco meno del 10% di possibilità che spawni il BOSS
-        else if (random_number > 0 && random_number < 4) this->kind_of_enemy = 3;
-        else if (random_number > 3 && random_number < 7) this->kind_of_enemy = 2;
-        else kind_of_enemy = 1;      
+        int random_number = rand() % 9; //In questo modo gestisco al meglio la frequenza con cui voglio che spawni un nemico piuttosto che un altro
+        if(random_number == 0) this->kind_of_enemy = COD_BOSS; //Ho circa il 10% di possibilità che spawni il BOSS
+        else if (random_number > 0 && random_number < 4) this->kind_of_enemy = COD_TANK;
+        else if (random_number > 3 && random_number < 7) this->kind_of_enemy = COD_ARTIGLIERE;
+        else kind_of_enemy = COD_SOLD_SEMPLICE;      
     }
     return this->kind_of_enemy;
 }
@@ -222,69 +217,63 @@ void Lista_nemici::muovi_nemici(void){
                 }     
                 else if(tmp->old_char == PLAYER){
                     end_game = true;
-                    tmp->old_char = ' ';
+                    tmp->old_char = SPAZIO_VUOTO;
                 }else if(tmp->old_char == PROIETTILE){
                     tmp->old_char = this->proiettili->set_and_retrieve(newX, newY, tmp->entity.char_of_enemy());
                 }
-                
-
-
-
-                if(this->map->getRow(newY+1)->row[newX] == 't'){
-                    this->map->setChar(newX, newY, 't');    
-                }else{
-                    this->map->setChar(newX, newY, tmp->entity.char_of_enemy());
-                }
-                //this->map->setChar(newX, newY, tmp->entity.char_of_enemy());
+                this->map->setChar(newX, newY, tmp->entity.char_of_enemy());
                 tmp->entity.update_position(newX, newY);
                 tmp = tmp->next;
             }
         }
     }
-    /*AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA*/
     // debug
     printfile(this->head);
     ///////
 }
 
 
-/** LEGGI QUI PER CAMBIARE IL DANNO DEL PLAYER AI NEMICI */
-//Prova a sfruttare questa funzione per rimuovere la vita al nemico ed eventualmente eliminarlo.
-//Puoi sfruttare anche questa stessa funzione per capire se il player fa un danno più elevato.
-//TI basterebbe mandare tipo come int x un 1003. così capisci che il danno è potenziato ed il nemico da eliminare/ far subire il danno è il 3.
-//(Questo si basa sul fatto che non ci saranno mai più di mille nemici nella stessa schermata)
-// elimina il nemico nella colonna x
-void Lista_nemici::elimina_nemico_x(int x){
+//Riduce la vita del nemico nella colonna X; Se la vita scende a 0 lo elimina.
+void Lista_nemici::danneggia_nemico_x(int x){
     ptr_nodo_nemici tmp = this->head;
     while(tmp != NULL && tmp->entity.x != x){ // vai avanti fino al nemico giusto
         tmp = tmp->next;
     }
-    
-    tmp->entity.change_health(-50);
-    //50 e' il danno che fa il Player ai nemici.
-
-    int vita = tmp->entity.health;
-    if(tmp->entity.health < 1){ 
-        if(tmp !=NULL){
-            this->list_size--;
-            if(tmp->prev != NULL){
-                tmp->prev->next = tmp->next;
-            }else{      // il nemico da eliminare e' in testa
-                this->head = tmp->next;
-            }
-            if(tmp->next != NULL){
-                tmp->next->prev = tmp->prev;
-            }
-            this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
-            free(tmp);
-            printfile(this->head);
-
+    if(tmp != NULL){
+        if(this->proiettili->proiettili_speciali > 0){
+            tmp->entity.change_health( -(DANNO_PROIETT_SPECIALE) );
+        }
+        else{
+            tmp->entity.change_health( -(this->player->damage) ); 
         }
     }
-    else{
-        this->map->setChar(tmp->entity.x, tmp->entity.y,tmp->entity.char_of_enemy()); 
-        printfile(this->head);
+    
+    if(tmp != NULL){
+        int vita = tmp->entity.health;
+        if(tmp->entity.health < 1){ 
+            if(tmp !=NULL){
+                this->list_size--;
+                if(tmp->prev != NULL){
+                    tmp->prev->next = tmp->next;
+                }else{      // il nemico da eliminare e' in testa
+                    this->head = tmp->next;
+                }
+                if(tmp->next != NULL){
+                    tmp->next->prev = tmp->prev;
+                }
+                this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
+                free(tmp);
+                //debug
+                printfile(this->head);
+            }
+        }
+        else{
+            this->map->setChar(tmp->entity.x, tmp->entity.y,tmp->entity.char_of_enemy()); 
+            //debug
+            printfile(this->head);
+        }
     }
+
 }
 
 // fa sparare tutti i nemici, posizionando il proiettile sotto il nemico

@@ -29,7 +29,8 @@ protected:
     Player *player;
     int current_id;
 public:
-    int elimina_nemico_x = -1;
+    int proiettili_speciali; //Numero di Proiettili speciali a disposizione; questi si ottengono con un Bonus
+    int danneggia_nemico_x = -1;
 
     Lista_proiettili(Mappa *map, Player *p);
 

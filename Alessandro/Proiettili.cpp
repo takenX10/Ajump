@@ -31,7 +31,7 @@ string wheree(int n){
     return "NON_LO_SO     ";
 }
 
-void printfilee(ptr_nodo_proiettili lista){
+void printfilee(ptr_nodo_proiettili lista, int speciali){
     ofstream myfile;
     myfile.open ("lista_proiettili.txt");
     int i = 0;
@@ -40,6 +40,7 @@ void printfilee(ptr_nodo_proiettili lista){
         i++;
         lista = lista->next;
     }
+    myfile << "Num. Proiettili speciali -> " << speciali << endl;
     myfile.close();
 }
 ///// end of debugging things ////////////////////////////
@@ -50,13 +51,14 @@ Lista_proiettili::Lista_proiettili(Mappa *map, Player *p){
     this->current_id = 0;
     this->map = map;
     this->player = p;
+    this->proiettili_speciali = 0;
     
 }
 
 void Lista_proiettili::spara_player(void){
     if(this->map->getRow(this->player->getY()+1)->row[this->player->getX()] != PROIETTILE){
         this->aggiungi_proiettile(this->player->getX(), this->player->getY()+1, SOPRA, -1);
-        //Attenzione: quando a sparare è il player la variabile "shotte from" viene settata
+        //Attenzione: quando a sparare è il player la variabile "who_shot" viene settata
         //di default a -1
     }
 }
@@ -74,11 +76,11 @@ void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction, int who_
     nuovo_proiettile->id = this->current_id + 1;
     this->current_id++;
     //determinazione del danno del proiettile
-    if(who_shot == 4) nuovo_proiettile->damage = 50; //DANNO BOSS
-    else if (who_shot == 3) nuovo_proiettile->damage = 5; //DANNO TANK
-    else if (who_shot == 2) nuovo_proiettile->damage = 20; //DANNO ARTIGLIERE
-    else if (who_shot == 1) nuovo_proiettile->damage = 10; //DANNO SOLDADO SEMPLICE
-    else nuovo_proiettile->damage = 50; //DANNO CHE FA IL PLAYER QUANDO SPARA
+    if(who_shot == COD_BOSS) nuovo_proiettile->damage = DANNO_BOSS; //DANNO BOSS
+    else if (who_shot == COD_TANK) nuovo_proiettile->damage = DANNO_TANK; //DANNO TANK
+    else if (who_shot == COD_ARTIGLIERE) nuovo_proiettile->damage = DANNO_ARTIGLIERE; //DANNO ARTIGLIERE
+    else if (who_shot == COD_SOLD_SEMPLICE) nuovo_proiettile->damage = DANNO_SOLD_SEMPLICE; //DANNO SOLDADO SEMPLICE
+    else nuovo_proiettile->damage = DANNO_PLAYER; //DANNO CHE FA IL PLAYER QUANDO SPARA
     
     // inserimento nella mappa del proiettile
     nuovo_proiettile->old_char = this->map->getRow(y)->row[x];
@@ -114,7 +116,7 @@ void Lista_proiettili::aggiungi_proiettile(int x, int y, int direction, int who_
         }
     }
     //debug
-    printfilee(this->head);
+    printfilee(this->head, this->proiettili_speciali);
     ////
 }
 //Funzione che si occupa di eleminare il proiettile con l'id passato
@@ -138,7 +140,7 @@ void Lista_proiettili::elimina_proiettile(int id){
         }
     }
     //debug
-    printfilee(this->head);
+    printfilee(this->head, this->proiettili_speciali);
     //////
 }
 // setta l'old_char del proiettile a coordinate x, y, e ne restituisce l'old_char prima di essere modificato
@@ -153,7 +155,7 @@ char Lista_proiettili::set_and_retrieve(int x, int y, int old_char){
         }
         tmp = tmp->next;
     }
-    return ' '; // non dovrebbe succedere
+    return SPAZIO_VUOTO; // non dovrebbe succedere
 }
 
 // funzione che si occupa di far muovere tutti i proiettili nelle giuste posizioni
@@ -179,21 +181,21 @@ void Lista_proiettili::muovi_proiettili(void){
     ptr_nodo_proiettili tmp = this->head;
     bool collision;
     bool proiettile_on_player = false;
-
     ptr_nodo_proiettili aux;
     while(tmp != NULL){
         // aggiorna posizione vecchia proiettile nella mappa
-        if(tmp->old_char != ENEMY_CHAR_ARTIGLIERE && tmp->old_char != ENEMY_CHAR_SOLD_SEMPLICE
-           && tmp->old_char != ENEMY_CHAR_TANK && tmp->old_char != ENEMY_CHAR_BOSS){
+        if(tmp->old_char != CHAR_ARTIGLIERE && tmp->old_char != CHAR_SOLD_SEMPLICE
+           && tmp->old_char != CHAR_TANK && tmp->old_char != CHAR_BOSS){
             this->map->setChar(tmp->x, tmp->y, tmp->old_char);
         }
         tmp->y += (tmp->direction == SOPRA ? 1 : -1);
         char new_old_char = this->map->getRow(tmp->y)->row[tmp->x];
         // controlli per capire cosa e' presente nella nuova posizione
         if(new_old_char == PLAYER){
-            if( player->is_dead(tmp->damage) == true ){
-            end_game = true;
-            tmp->old_char = DESTRUCT_PLAYER;                
+            //change health restituisce true se è il player è morto
+            if( player->change_health(- ( tmp->damage ) ) == true ){
+            tmp->old_char = DESTRUCT_PLAYER;
+            end_game = true;                
             }
             else{
                 tmp->old_char = PLAYER;
@@ -209,8 +211,7 @@ void Lista_proiettili::muovi_proiettili(void){
             tmp->old_char = new_old_char;
         }
 
-       if (proiettile_on_player == false) this->map->setChar(tmp->x, tmp->y, PROIETTILE);
-       
+       if (proiettile_on_player == false) this->map->setChar(tmp->x, tmp->y, PROIETTILE);      
        
         // elimina proiettili out of bounds
         if (proiettile_on_player == false){
@@ -233,18 +234,18 @@ void Lista_proiettili::muovi_proiettili(void){
                     next = next->next;
                 }
 
+                // Controllo collisioni con Bonus
+                if(new_old_char == COD_BONUS_SALUTE || new_old_char == COD_BONUS_BOMBA || new_old_char == COD_MALUS_SALUTE || new_old_char == COD_BONUS_PROIETTILI_SPECIALI){
+                    this->map->setChar(tmp->x, tmp->y, new_old_char);
+                }
+                //In questo modo il proiettile "passa sotto al Bonus"
+ 
+
                 // controllo collisioni con altri proiettili o nemici
-                if((new_old_char == ENEMY_CHAR_ARTIGLIERE || new_old_char == ENEMY_CHAR_BOSS || new_old_char == ENEMY_CHAR_SOLD_SEMPLICE || new_old_char == ENEMY_CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico
-                    //Per capire contro che nemico sto devo scorrere la lista dei nemici e trovare quello che
-                    //si trova in coordinate tmp.x e tmp.y                  
-                                                                      
+                if((new_old_char == CHAR_ARTIGLIERE || new_old_char == CHAR_BOSS || new_old_char == CHAR_SOLD_SEMPLICE || new_old_char == CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico                                               
                     collision = true;
-                    this->elimina_nemico_x = tmp->x;
+                    this->danneggia_nemico_x = tmp->x;
                     this->elimina_proiettile(tmp->id);
-                    // Se voglio far assorbire il proiettile al nemico.
-                    //collision = true;
-                    //this->map->setChar(tmp->x, tmp->y, tmp->old_char);
-                    //this->elimina_proiettile(tmp->id);
 
                 }else if(tmp->direction == SOTTO){
                     aux = tmp->next;
@@ -261,7 +262,6 @@ void Lista_proiettili::muovi_proiettili(void){
                             aux = aux->next;
                         }
                     }
-
                 }else{
                     aux = tmp->prev;
                     while(aux != NULL && aux->y <= tmp->y && !collision){
@@ -309,8 +309,6 @@ void Lista_proiettili::muovi_proiettili(void){
                             tmp->next = aux->next;
                             aux->next = tmp;
                             tmp->prev = aux;
-
-
                         }
                     }else{ // direction == SOTTO
                         if(tmp->prev != NULL){
@@ -351,7 +349,7 @@ void Lista_proiettili::muovi_proiettili(void){
         }
         proiettile_on_player = false;
         //debug
-        printfilee(this->head);
+        printfilee(this->head, this->proiettili_speciali);
     }
     tmp = this->head;
     while(tmp != NULL){
