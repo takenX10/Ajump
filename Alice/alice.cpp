@@ -5,30 +5,39 @@
     aumento di livello, statistiche e percentuali), 
     del main, 
     game over e classifica (8)
-- i bonus li iListaementa quello che ha meno roba da fare (ce ne accorgeremo sul momento)
-
 - schermata di inizio (premi invio per iniziare ecc....)
 - classifica
 - schermata game over
 */
 #include <iostream>
 #include <cstring>
+#include <string>
+#include <conio.h>
+#include <cstdio>
 #include <fstream>
-#include <stdlib.h> // per il file 
+#include <stdlib.h> // per interagire con il file .txt
 #include <stdio.h>
 #include <windows.h>
 #include <conio.h>
+#include <iomanip>
 #include "../Main/main.cpp"
-
+#include "../Alessandro/funzioni_alex/Alex_constants.hpp"
 using namespace std;
 
+//*********Costanti**********//
 #define ENTER 13
 #define SPACE 32
 #define ESC 27
 #define CHAR 30
 #define UNDERSCORE 95
-#define maxSaved 65*40 // 40 maxListaplayer salvati
+#define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
+    
+    // ** Costanti Stats ** //
+    #define HEART 03
+    #define EXP "xp"
+    #define DAMAGE "damage"
 
+//********************************
 struct lista_classifica{
     char nick[CHAR];
     int score;
@@ -47,11 +56,8 @@ class Classifica{
         }
         
         /*
-            - apro il file
+            - apro il file Leaderboard.txt
             - prendo i valori e li salvo in lista
-            - trovo il punto giusto dove inserire il nuovo punteggio delListaayer
-            - aggiungo ilList 
-            - stampo la Top(X) dove X num da settare in base a quanti giocatori vogliamo visualizzare
         */
         plista get_file(void){
             ifstream OpenFile;
@@ -63,11 +69,10 @@ class Classifica{
             int pass;
             string stringa;
             while (!OpenFile.eof()){
-                cout << "devo scannare" << endl;
                 getline(OpenFile, stringa, '\n');
                 strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-2).c_str());
                 tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')));
-                cout << "ho fatto tutti fscanf" << endl; //da togliere
+                
                 tmp2 = new lista_classifica;
                 tmp->next = tmp2;
                 tmp = tmp2;
@@ -78,7 +83,7 @@ class Classifica{
         }
         /* 
             aggiungo alla lista nel punto desiderato
-            - salvo la lista
+            - salvo in lista new_val i nuovi valori
             - scorro la lista e trovo il punto di inserimento
             - creo tmp aggiungo in testa il nuovo elemento
             - allaccio le liste
@@ -97,11 +102,12 @@ class Classifica{
             }else{
                 bool exit = false;
                 while (tmp->next != NULL && exit == false){
-                    if (tmp->next->score < new_val->score){
+                    if (tmp->next->score <= new_val->score){
                         new_val->next = tmp->next;
                         tmp->next = new_val;
                         exit = true;
                     }
+                    tmp = tmp->next;
                 }
                 if (exit == false){
                     tmp->next = new_val;
@@ -109,8 +115,10 @@ class Classifica{
                 }
             }
         }
-
-        void save_file(void){
+        /*
+            salvo nel file Leaderboard.txt la lista inserendo la posizione in classifica
+        */
+        void save_file(){
             plista tmp = this->head;
             ofstream myfile;
             cout<<this->filename;
@@ -121,6 +129,7 @@ class Classifica{
                 if(tmp->next != NULL){
                     myfile<<"\n";
                 }
+                myfile.flush();
                 tmp = tmp->next;
                 i++;
             }
@@ -140,49 +149,47 @@ class Classifica{
             return tmp;
         }
 };
+typedef Classifica* lista;
 
-void StartScreen();
-void GameOver(plista lista, int punti);
-void Leaderboard();
-int PrintMap(); //da cancellare QUASI
+//dichiarazione funzioni
+void StartScreen(Classifica lista);
+void GameOver(Classifica lista, int punti);
+void Leaderboard(Classifica lista);
+int PrintMap(Classifica lista); //da cancellare QUASI
+void printTop(Classifica lista);
 
-
+// ====== Main ======
 int main(){
     Classifica alice = Classifica("leaderboard.txt");
     color(Black, White);
-    plista aposessuale = alice.get_position(1);
-    cout<<aposessuale->score<<endl;
-    alice.add_value(20150, "pietrosmusi");
-    cout<<alice.get_position(2)->score<<endl;
-    alice.save_file();
-    //GameOver(alice, 883);
-   // StartScreen();  //decommentare
+   // GameOver(alice, 320);
+    StartScreen(alice);  //decommentare
     return 0;
 }
 
-// ====== Schermata iniziale: titolo & menù ======
-void StartScreen(){
+// ====== Schermata iniziale: titolo & menu' ======
+void StartScreen(Classifica LBoard){
     clearscreen();
     char key;
     color(Black, Yellow);
-  //  printfile("name.txt");
+    printfile("name.txt");
     color(Black, Bright_White);
-    cout << "\n       >> press ENTER toListaay" << endl;
+    cout << "\n       >> press ENTER to play" << endl;
     cout << "           >> press C to view the leaderboard" << endl;
     cout << "              >> press ESC to exit" << endl;
     color(Black, Light_Green);
     do{
         key=getch();
-        if (key==ENTER)PrintMap();
-        else if (key== 'C' || key=='c') Leaderboard();
+        if (key==ENTER)PrintMap(LBoard);
+        else if (key== 'C' || key=='c') Leaderboard(LBoard);
         else if (key==ESC){ clearscreen(); exit(0); }
         else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     }
     while (true);
 }
 
-// funzione di alex x fare partire il Gioco + cose
-int PrintMap(){
+// funzione di alex x fare partire il Gioco + navigabilità (se serve)
+int PrintMap(Classifica LBoard){
     clearscreen();
     char key;
     cout << "Sei in PrintMap u.u" << endl;
@@ -190,15 +197,18 @@ int PrintMap(){
     cout << "\n       >> press SPACE to return at home" << endl;
     do{
         key=getch();
-        if ((int)key == SPACE) StartScreen();
+        if ((int)key == SPACE) StartScreen(LBoard);
         else if ((int)key==ESC) clearscreen();
         else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     } while(true);
     return 0;
 }
 
-// ====== Game Over ======
-void GameOver(plista LBoard, int score){
+/* ====== Game Over ======
+    - salvataggio nuovo punteggio in classifica
+    - navigabilità 
+*/
+void GameOver(Classifica LBoard, int score){
     clearscreen();
     char key;
     char input[CHAR];
@@ -206,7 +216,7 @@ void GameOver(plista LBoard, int score){
     bool check = false;
     
     color(Red, Bright_White);
-  //  printfile("gameover.txt");  //da scommentare
+    printfile("gameover.txt");  //da scommentare
     color(Black, White);
     cout << "\nDo u want to save ur game? (y/n)" << endl;
 
@@ -217,15 +227,18 @@ void GameOver(plista LBoard, int score){
                 check = true;
                 cout << "Insert ur nick: ";
                 cin >> input;
-                    
-                // Salvo la lista ordinata in modo da stamparla giusta :D
+                //apro il file e salvo i valori vecchi
+                LBoard.get_file();
+                LBoard.add_value(score, input);
+                LBoard.save_file();
+                cout << "Ur score has been saved u.u"<< endl;
             }
             else if ((int)key == 'n' || (int)key == 'N') {
                 check = true;
                 cout << "\n\n       >> press SPACE to return at home" << endl;
                 do{
                     key=getch();
-                    if ((int)key == SPACE) StartScreen();
+                    if ((int)key == SPACE) StartScreen(LBoard);
                     else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;  
                 } while(true);
             }
@@ -238,24 +251,93 @@ void GameOver(plista LBoard, int score){
         cout << "\n\n       >> press SPACE to return at home" << endl;
         do{
             key=getch();
-            if ((int)key == SPACE) StartScreen();
-            else if ((int)key == 'c' || (int)key == 'C') Leaderboard();
+            if ((int)key == SPACE) StartScreen(LBoard);
+            else if ((int)key == 'c' || (int)key == 'C') Leaderboard(LBoard);
             else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
         } while(true);
     } while(true);
 }
 
-// ====== Classifica dei punteggi ======
-void Leaderboard(){
-    char key;
+/* ====== Classifica dei punteggi ======
+    - lettura file Leaderboard.txt
+    - stampa classifica di x posizioni
+    - evidenzia eventuale nuovo salvataggio
+*/
+void Leaderboard(Classifica classifica){
+    char key; //valore del tasto premuto dall'utente
     clearscreen();
     cout << "GG Sei nella classifica :D\n" << endl;
- //   printfile("leader-out.txt");
+    
+    classifica.get_file();
+    // print classifica con get_position
+    printTop(classifica);
+
     color(Black, White);
     cout << "\n\n       >> press SPACE to return at home" << endl;
     do{
         key=getch();
-        if ((int)key == SPACE) StartScreen();
+        if ((int)key == SPACE) StartScreen(classifica);
         else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     } while(true);
+}
+
+// stampa classifica di x posizioni
+void printTop(Classifica lista){
+    string aster = "*";
+    for (int i = 0; i <= TOPNUMBER; i++){
+        if (i%2==0) color(Black, Purple);
+        else color(Black, Red);
+        lista.get_position(i);
+        string tab = "\t";
+        /* vedi con gli asterischi: 1*  Nome    Punteggio | 2**   Nome    Punteggio ...
+        if (strlen(lista.head->nick)<=8) tab ="\t\t";
+        if (aster == "*****") aster ="*";
+        cout<< aster <<(i+1) <<") "<< lista.head->nick << tab << lista.head->score<< setw(5)<<"*"<<endl;
+        aster+="*";*/ 
+        
+        color(Black, Light_Red);
+        cout<<"[";
+        color(Black,White);
+        cout<<i;
+        color(Black, Light_Red);
+        cout<<"]"<<tab;
+        color(Black,Yellow);
+        cout<<lista.head->nick<<tab;
+        color(Black,Green);
+        cout<<lista.head->score<<endl;
+        
+        lista.head=lista.head->next;
+    }
+ }
+ /*  Stats:
+    impaginazione di Stats_Player e Stats_Enemy
+    Idea generale:
+    @ Player: 
+        XXX ♥
+        XXX xp
+        XXX damage
+ */
+ void Stats(){
+     
+    
+ }
+
+ /*  Stats Player:
+    - vita
+    - punteggio
+ */
+void PrintStats_Player(){
+    int XP_PLAYER=0;
+    cout << "@ Player:" << endl;
+    cout << "\t" << VITA_PLAYER << HEART << endl;
+    cout << "\t" << XP_PLAYER << EXP << endl;
+    cout << "\t" << DANNO_PLAYER << DAMAGE << endl;
+        
+}
+
+/*  Stats Enemy:
+    - vita
+ */
+void Stats_Enemy(){
+    
 }
