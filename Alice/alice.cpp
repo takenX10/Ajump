@@ -21,7 +21,7 @@
 #include <conio.h>
 #include <iomanip>
 #include "../Main/main.cpp"
-#include "../Alessandro/funzioni_alex/Alex_constants.hpp"
+
 using namespace std;
 
 //*********Costanti**********//
@@ -32,11 +32,6 @@ using namespace std;
 #define UNDERSCORE 95
 #define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
     
-    // ** Costanti Stats ** //
-    #define HEART 03
-    #define EXP "xp"
-    #define DAMAGE "damage"
-
 //********************************
 struct lista_classifica{
     char nick[CHAR];
@@ -159,11 +154,12 @@ int PrintMap(Classifica lista); //da cancellare QUASI
 void printTop(Classifica lista);
 
 // ====== Main ======
-int main(){
+int main(void){
     Classifica alice = Classifica("leaderboard.txt");
     color(Black, White);
-   // GameOver(alice, 320);
-    StartScreen(alice);  //decommentare
+    GameOver(alice, 320);
+    //StartScreen(alice);  //decommentare
+    
     return 0;
 }
 
@@ -171,7 +167,7 @@ int main(){
 void StartScreen(Classifica LBoard){
     clearscreen();
     char key;
-    color(Black, Yellow);
+    color(Black, Light_Yellow);
     printfile("name.txt");
     color(Black, Bright_White);
     cout << "\n       >> press ENTER to play" << endl;
@@ -268,7 +264,7 @@ void Leaderboard(Classifica classifica){
     clearscreen();
     cout << "GG Sei nella classifica :D\n" << endl;
     
-    classifica.get_file();
+   // classifica.get_file();
     // print classifica con get_position
     printTop(classifica);
 
@@ -295,49 +291,18 @@ void printTop(Classifica lista){
         cout<< aster <<(i+1) <<") "<< lista.head->nick << tab << lista.head->score<< setw(5)<<"*"<<endl;
         aster+="*";*/ 
         
-        color(Black, Light_Red);
+        color(Black, Purple);
         cout<<"[";
-        color(Black,White);
-        cout<<i;
-        color(Black, Light_Red);
+        color(Black,Bright_White);
+        cout<<i+1;
+        color(Black, Purple);
         cout<<"]"<<tab;
-        color(Black,Yellow);
+        color(Black,Light_Yellow);
         cout<<lista.head->nick<<tab;
-        color(Black,Green);
+        color(Black,Light_Aqua);
         cout<<lista.head->score<<endl;
         
         lista.head=lista.head->next;
     }
  }
- /*  Stats:
-    impaginazione di Stats_Player e Stats_Enemy
-    Idea generale:
-    @ Player: 
-        XXX ♥
-        XXX xp
-        XXX damage
- */
- void Stats(){
-     
-    
- }
-
- /*  Stats Player:
-    - vita
-    - punteggio
- */
-void PrintStats_Player(){
-    int XP_PLAYER=0;
-    cout << "@ Player:" << endl;
-    cout << "\t" << VITA_PLAYER << HEART << endl;
-    cout << "\t" << XP_PLAYER << EXP << endl;
-    cout << "\t" << DANNO_PLAYER << DAMAGE << endl;
-        
-}
-
-/*  Stats Enemy:
-    - vita
- */
-void Stats_Enemy(){
-    
-}
+ 

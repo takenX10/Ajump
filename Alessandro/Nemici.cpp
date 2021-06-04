@@ -144,6 +144,7 @@ void Lista_nemici::elimina_nemico(int id){
         tmp = tmp->next;
     }
     if(tmp !=NULL){
+        ID_NEMICO = tmp->id; // salvo id per il punteggio
         this->list_size--;
         if(tmp->prev != NULL){
             tmp->prev->next = tmp->next;

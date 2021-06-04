@@ -92,6 +92,10 @@ namespace constants{
     constexpr int VITA_BOSS = 300;
     constexpr int DANNO_BOSS = 50;
 
+    /* Punteggio */
+        bool CHECKPOINT = false;
+        int ID_NEMICO = 0;
+        int XP_PLAYER;
 }
 using namespace constants;
 #endif

@@ -44,6 +44,8 @@ void Mappa::newRow(void){
                 for(int i=0; i<this->map_width; i++) {     // piano "checkpoint" con piattaforma a larghezza max
                     new_row->row[i] = PIATTAFORMA;
                 }
+                //è arrivato un checkpoint e me lo salvo per il punteggio 
+                CHECKPOINT = true;
             }else{
                 /* avrei scelto un approccio piu estendibile, nella forma di
                 for(i = 0, i < NUM_PIATTAFORME; i++){
@@ -68,6 +70,8 @@ void Mappa::newRow(void){
                 for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3; i++){ new_row->row[i] = SPAZIO_VUOTO; }
                 for(i=i; i<space_1 + dim_1 + space_2 + dim_2 + space_3 + dim_3; i++){ new_row->row[i] = PIATTAFORMA; }
                 for(i=i; i<ROW_DIM-1; i++){ new_row->row[i] = SPAZIO_VUOTO; }
+                // non è arrivato un checkpoint e me lo salvo
+                CHECKPOINT = false;
             }
         }
         new_row->row[ROW_DIM-1] = '\0';
