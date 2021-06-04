@@ -23,37 +23,6 @@ int GetXP_Player(){
     }
     return XP_PLAYER;
 }
-/*
-/*  Stats Enemy:
-    - vita
-    - danni
- */
-void Stats_Enemy(ptr_nodo_nemici nemici){
-    while (nemici->next != NULL){
-        switch (nemici->entity.kind_of_enemy){
-            case 1: {
-                cout << CHAR_SOLD_SEMPLICE <<" Enemy:" <<endl;
-                cout << "\t" << nemici->entity.health << HEART << endl;
-                cout << "\t" << nemici->entity.damage << DAMAGE << endl;
-            }
-            case 2: {
-                cout << CHAR_ARTIGLIERE << " Enemy:" <<endl;
-                cout << "\t" << nemici->entity.health << HEART << endl;
-                cout << "\t" << nemici->entity.damage << DAMAGE << endl;
-            }
-            case 3: {
-                cout << CHAR_TANK<<" Enemy:" <<endl;
-                cout << "\t" << nemici->entity.health << HEART << endl;
-                cout << "\t" << nemici->entity.damage << DAMAGE << endl;
-            }
-            case 4: {
-                cout << CHAR_BOSS<<" Enemy:" <<endl;
-                cout << "\t" << nemici->entity.health << HEART << endl;
-                cout << "\t" << nemici->entity.damage << DAMAGE << endl;
-            }
-        }
-    } 
-}*/
 /* Stats:
     impaginazione delle Statistiche di Player e Nemici "attivi"
     Idea generale:
@@ -70,6 +39,4 @@ void Stats_Enemy(ptr_nodo_nemici nemici){
     cout << "\t" << GetXP_Player() << EXP << endl;
     cout << "\t" << DANNO_PLAYER << DAMAGE << endl;
     cout << "----------------"<< endl; // separatore
-    // Stampa Enemy
-    Stats_Enemy(nemici);
  }

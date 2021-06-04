@@ -65,7 +65,7 @@ class Classifica{
             string stringa;
             while (!OpenFile.eof()){
                 getline(OpenFile, stringa, '\n');
-                strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-2).c_str());
+                strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-1).c_str());
                 tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')));
                 
                 tmp2 = new lista_classifica;
@@ -154,14 +154,14 @@ int PrintMap(Classifica lista); //da cancellare QUASI
 void printTop(Classifica lista);
 
 // ====== Main ======
-int main(void){
+/*int main(){
     Classifica alice = Classifica("leaderboard.txt");
     color(Black, White);
     GameOver(alice, 320);
     //StartScreen(alice);  //decommentare
     
     return 0;
-}
+}*/
 
 // ====== Schermata iniziale: titolo & menu' ======
 void StartScreen(Classifica LBoard){

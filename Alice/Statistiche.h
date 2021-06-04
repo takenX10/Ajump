@@ -20,11 +20,6 @@ using namespace std;
  */
 int GetXP_Player(); //
 
-/*  Stats Enemy:
-    - vita
-    - danni
- */
-void Stats_Enemy(ptr_nodo_nemici nemici);
 
 /*  Stats:
     impaginazione delle Statistiche di Player e Nemici "attivi"

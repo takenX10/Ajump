@@ -17,7 +17,7 @@ using namespace std;
 using namespace constants;
 
 void endfunction(Classifica leaderboard){
-    GameOver(leaderboard, XP_PLAYER);
+    cout<<"partita finita";
 }
 
 int main(void){
@@ -27,6 +27,9 @@ int main(void){
     Lista_nemici ent = Lista_nemici(&m, &p, &proiettili);
     Bonus bonus = Bonus(&m, &p, &ent, &proiettili);
     Gioco  g = Gioco(&m, &p, &proiettili, &ent, &bonus);
+
+    Classifica lboard = Classifica("leaderboard.txt");
+    StartScreen(lboard);
 
     hidecursor(); // per rendere il cursore invisibile
 
