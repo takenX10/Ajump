@@ -10,7 +10,7 @@
 #include "Nemici.h"
 #include "Proiettili.h"
 #include "../Alice/Statistiche.h"
-//#include "../Alice/alice.cpp"
+#include "../Alice/alice.cpp"
 #include <time.h>
 
 using namespace std;
@@ -18,24 +18,12 @@ using namespace constants;
 
 void endfunction(){
     cout<<"partita finita";
+    GameOver(XP_PLAYER);
 }
 
 int main(void){
-    Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
-    Player p = Player(&m, STARTING_X, STARTING_Y);
-    Lista_proiettili proiettili = Lista_proiettili(&m, &p);
-    Lista_nemici ent = Lista_nemici(&m, &p, &proiettili);
-    Bonus bonus = Bonus(&m, &p, &ent, &proiettili);
-    Gioco  g = Gioco(&m, &p, &proiettili, &ent, &bonus);
-
-    //Classifica lboard = Classifica("leaderboard.txt");
-    //StartScreen(lboard);
-
-    hidecursor(); // per rendere il cursore invisibile
-
-    thread print_map_thread(&Gioco::auto_print_map, g);
-    thread get_position(&Gioco::keyListener, g);
+    // la patch del file va modificata in base a dove si runna 
+    Classifica lboard = Classifica("C:\\Users\\alice\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt");
+    StartScreen(lboard);
     
-    print_map_thread.join();
-    get_position.join();
-}
+}  

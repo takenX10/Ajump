@@ -22,6 +22,20 @@
 #include <iomanip>
 #include "../Main/main.cpp"
 
+// include per far partire il gioco
+    
+#include <chrono>
+#include <thread>
+#include "../Alessandro/funzioni_alex/Mappa.h" 
+#include "../Alessandro/funzioni_alex/Player.h"
+#include "../Alessandro/funzioni_alex/Alex_constants.hpp"
+#include "../Alessandro/funzioni_alex/Gioco.h" 
+#include "../Alessandro/funzioni_alex/print_functions.h"
+#include "../Alessandro/bonus.h"
+#include "../Alessandro/Nemici.h"
+#include "../Alessandro/Proiettili.h"
+#include <time.h>
+
 using namespace std;
 
 //*********Costanti**********//
@@ -31,6 +45,7 @@ using namespace std;
 #define CHAR 30
 #define UNDERSCORE 95
 #define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
+#define patchFile "C:\\Users\\alice\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt"
     
 //********************************
 struct lista_classifica{
@@ -66,7 +81,7 @@ class Classifica{
             while (!OpenFile.eof()){
                 getline(OpenFile, stringa, '\n');
                 strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-1).c_str());
-                tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')));
+                tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')-1));
                 
                 tmp2 = new lista_classifica;
                 tmp->next = tmp2;
@@ -148,14 +163,14 @@ typedef Classifica* lista;
 
 //dichiarazione funzioni
 void StartScreen(Classifica lista);
-void GameOver(Classifica lista, int punti);
+void GameOver(int punti);
 void Leaderboard(Classifica lista);
-int PrintMap(Classifica lista); //da cancellare QUASI
+void PrintMap(Classifica lista); //da cancellare QUASI
 void printTop(Classifica lista);
 
 // ====== Main ======
 /*int main(){
-    Classifica alice = Classifica("leaderboard.txt");
+    Classifica alice = Classifica("C:\\Users\\alice\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt");
     color(Black, White);
     GameOver(alice, 320);
     //StartScreen(alice);  //decommentare
@@ -166,9 +181,9 @@ void printTop(Classifica lista);
 // ====== Schermata iniziale: titolo & menu' ======
 void StartScreen(Classifica LBoard){
     clearscreen();
-    char key;
+    char key; bool check= false;
     color(Black, Light_Yellow);
-    printfile("name.txt");
+    printfile("../Alice/name.txt");
     color(Black, Bright_White);
     cout << "\n       >> press ENTER to play" << endl;
     cout << "           >> press C to view the leaderboard" << endl;
@@ -176,41 +191,52 @@ void StartScreen(Classifica LBoard){
     color(Black, Light_Green);
     do{
         key=getch();
-        if (key==ENTER)PrintMap(LBoard);
-        else if (key== 'C' || key=='c') Leaderboard(LBoard);
-        else if (key==ESC){ clearscreen(); exit(0); }
+        if (key==ENTER){
+            check = true;
+           PrintMap(LBoard); 
+        } 
+        else if (key== 'C' || key=='c') {
+            check= true;
+            Leaderboard(LBoard);
+        }
+        else if (key==ESC){ check = true; clearscreen(); exit(0); }
         else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
     }
-    while (true);
+    while (check==false);
 }
 
 // funzione di alex x fare partire il Gioco + navigabilità (se serve)
-int PrintMap(Classifica LBoard){
+void PrintMap(Classifica LBoard){
     clearscreen();
-    char key;
-    cout << "Sei in PrintMap u.u" << endl;
     color(Black, White);
-    cout << "\n       >> press SPACE to return at home" << endl;
-    do{
-        key=getch();
-        if ((int)key == SPACE) StartScreen(LBoard);
-        else if ((int)key==ESC) clearscreen();
-        else cout << "ERROR: INSERT A CORRECT VALUE u.u" << endl;
-    } while(true);
-    return 0;
+    Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
+    Player p = Player(&m, STARTING_X, STARTING_Y);
+    Lista_proiettili proiettili = Lista_proiettili(&m, &p);
+    Lista_nemici ent = Lista_nemici(&m, &p, &proiettili);
+    Bonus bonus = Bonus(&m, &p, &ent, &proiettili);
+    Gioco  g = Gioco(&m, &p, &proiettili, &ent, &bonus);
+
+    hidecursor(); // per rendere il cursore invisibile
+
+    thread print_map_thread(&Gioco::auto_print_map, g);
+    thread get_position(&Gioco::keyListener, g);
+
+    print_map_thread.join();
+    get_position.join();
+  
 }
 
 /* ====== Game Over ======
     - salvataggio nuovo punteggio in classifica
     - navigabilità 
 */
-void GameOver(Classifica LBoard, int score){
+void GameOver(int score){
     clearscreen();
     char key;
     char input[CHAR];
     int id;
     bool check = false;
-    
+    Classifica LBoard = Classifica(patchFile);
     color(Red, Bright_White);
     printfile("gameover.txt");  //da scommentare
     color(Black, White);

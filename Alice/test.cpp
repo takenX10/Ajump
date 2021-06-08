@@ -37,7 +37,6 @@ class Classifica{
             strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-1).c_str());
             string num = stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')-1);
             int score = stoi(num);
-            cout << tmp->nick << " " << score << endl;
             
             tmp2 = new lista_classifica;
             tmp->next = tmp2;
@@ -51,8 +50,6 @@ class Classifica{
 
 
 int main(){
-    
     Classifica alice = Classifica();
-    alice.get_file();
     return 0;
 }
