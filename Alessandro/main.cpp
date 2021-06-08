@@ -10,13 +10,13 @@
 #include "Nemici.h"
 #include "Proiettili.h"
 #include "../Alice/Statistiche.h"
-#include "../Alice/alice.cpp"
+//#include "../Alice/alice.cpp"
 #include <time.h>
 
 using namespace std;
 using namespace constants;
 
-void endfunction(Classifica leaderboard){
+void endfunction(){
     cout<<"partita finita";
 }
 
@@ -28,8 +28,8 @@ int main(void){
     Bonus bonus = Bonus(&m, &p, &ent, &proiettili);
     Gioco  g = Gioco(&m, &p, &proiettili, &ent, &bonus);
 
-    Classifica lboard = Classifica("leaderboard.txt");
-    StartScreen(lboard);
+    //Classifica lboard = Classifica("leaderboard.txt");
+    //StartScreen(lboard);
 
     hidecursor(); // per rendere il cursore invisibile
 
