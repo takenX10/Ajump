@@ -45,7 +45,7 @@ using namespace std;
 #define CHAR 30
 #define UNDERSCORE 95
 #define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
-#define patchFile "C:\\Users\\alice\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt"
+#define patchFile "C:\\Users\\theas\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt"
     
 //********************************
 struct lista_classifica{
@@ -183,7 +183,7 @@ void StartScreen(Classifica LBoard){
     clearscreen();
     char key; bool check= false;
     color(Black, Light_Yellow);
-    printfile("../Alice/name.txt");
+    printfile("C:\\Users\\theas\\Documents\\GitHub\\Ajump\\Alice\\name.txt");
     color(Black, Bright_White);
     cout << "\n       >> press ENTER to play" << endl;
     cout << "           >> press C to view the leaderboard" << endl;

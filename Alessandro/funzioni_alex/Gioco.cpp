@@ -9,10 +9,15 @@
 #include "../Nemici.h"
 #include "../Proiettili.h"
 #include "../bonus.h"
+#include "../Alice/alice.cpp"
 
 using namespace std;
 using namespace constants;
 
+void endfunction(){
+    cout<<"partita finita";
+    GameOver(XP_PLAYER);
+}
 
 
 Gioco::Gioco(Mappa *m, Player *p, Lista_proiettili *proiettili, Lista_nemici *nemici, Bonus *bon){
@@ -104,7 +109,7 @@ void Gioco::keyListener(void){
     while(!end_game) {
         key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
         this->p->move(key);
-        if(this->p->deve_sparare){
+        if(this->p->deve_sparare && !end_game){
             this->p->deve_sparare = false;
             this->proiettili->spara_player();
             //Se sono attivi "proiettili speciali", ne scalo uno ad ogni colpo sparato. (Ogni tasto 'spazio' premuto)
@@ -113,5 +118,6 @@ void Gioco::keyListener(void){
             }
         }
     }
+    endfunction();
 }
 

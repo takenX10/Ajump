@@ -1,0 +1,3 @@
+Vita -> 140
+Danno / Bonus / Malus che sto per subire -> -5
+Vita dopo l'ultima modifica -> 135

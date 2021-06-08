@@ -64,8 +64,13 @@ void Player::move(int direction){
         switch(direction){
             case SOPRA:
                 oldchar = this->ptr_mappa->getRow(this->y+2)->row[this->x];
-                if(oldchar == CHAR_ARTIGLIERE || oldchar == CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == PROIETTILE){
+                    // non muoverti perche' e' presente un proiettile nella tua posizione
+                    return;
+                }
+                if(oldchar == CHAR_ARTIGLIERE || oldchar == CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK){
                     end_game = true;
+                    return;
                 }
                 else if(oldchar == BONUS_SALUTE){
                     esegui_bonus = COD_BONUS_SALUTE; 
