@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Mappa.h"
 #include "print_functions.h"
-#include "Alex_constants.hpp"
+#include "costanti.hpp"
 using namespace std;
 using namespace constants;
 

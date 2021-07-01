@@ -1,11 +1,11 @@
-#ifndef ALEX_CONSTANTS_HPP
-#define ALEX_CONSTANTS_HPP
+#ifndef costanti_HPP
+#define costanti_HPP
 /*
 per usare costanti:
 #include "path_to_this_file"
 using namespace constants;
 */
-bool end_game = false;
+bool end_game = false; // TODO: ATTENTO A STA VARIABILE GLOBALE
 namespace constants{
 
     /* Costanti mappa */

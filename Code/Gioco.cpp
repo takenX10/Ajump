@@ -2,14 +2,14 @@
 #include <windows.h>
 #include <conio.h>
 #include "Gioco.h"
-#include "Alex_constants.hpp"
+#include "costanti.hpp"
 #include "print_functions.h"
 #include "Mappa.h"
 #include "Player.h"
-#include "../Nemici.h"
-#include "../Proiettili.h"
-#include "../bonus.h"
-#include "../../Alice/alice.h"
+#include "Nemici.h"
+#include "Proiettili.h"
+#include "bonus.h"
+#include "alice.h"
 //#include "../Alice/alice.cpp"
 
 using namespace std;

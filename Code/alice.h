@@ -9,8 +9,8 @@ using namespace std;
 #define CHAR 30
 #define UNDERSCORE 95
 #define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
-#define patchFile "C:\\Users\\theas\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt"
-    
+#define patchFile "Documents\\leaderboard.txt"
+// TODO: Spostare le costanti in costanti.hpp
 //********************************
 struct lista_classifica{
     char nick[CHAR];
@@ -47,16 +47,6 @@ class Classifica{
         plista get_position(int position);
 };
 typedef Classifica* lista;
-
-// ====== Main ======
-/*int main(){
-    Classifica alice = Classifica("C:\\Users\\alice\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt");
-    color(Black, White);
-    GameOver(alice, 320);
-    //StartScreen(alice);  //decommentare
-    
-    return 0;
-}*/
 
 // ====== Schermata iniziale: titolo & menu' ======
 void StartScreen(Classifica LBoard);

@@ -5,9 +5,9 @@
 #include<iostream>
 #include<string>
 #include <ctime>
-#include "funzioni_alex/Mappa.h"
-#include "funzioni_alex/Player.h"
-#include "funzioni_alex/Alex_constants.hpp"
+#include "Mappa.h"
+#include "Player.h"
+#include "costanti.hpp"
 #include "Nemici.h"
 #include "Proiettili.h"
 

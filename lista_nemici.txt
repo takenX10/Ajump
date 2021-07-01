@@ -1,2 +1,0 @@
-0)  Movedir:SOTTO          X:28 Y:15 vita -> 50
-1)  Movedir:SOTTO          X:29 Y:25 vita -> 150

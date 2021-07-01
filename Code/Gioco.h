@@ -2,9 +2,9 @@
 #define GIOCO_H
 #include "Mappa.h"
 #include "Player.h"
-#include "../Nemici.h"
-#include "../Proiettili.h"
-#include "../bonus.h"
+#include "Nemici.h"
+#include "Proiettili.h"
+#include "bonus.h"
 void zioporco(void);
 class Gioco{
     private:

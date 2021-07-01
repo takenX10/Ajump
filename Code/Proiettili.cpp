@@ -3,12 +3,12 @@
 
 */
 #include<iostream>
-#include "funzioni_alex/Mappa.h"
-#include "funzioni_alex/Player.h"
-#include "funzioni_alex/Alex_constants.hpp"
+#include "Mappa.h"
+#include "Player.h"
+#include "costanti.hpp"
 #include "nemici.h"
 #include "Proiettili.h"
-#include "funzioni_alex/Gioco.h"
+#include "Gioco.h"
 using namespace constants;
 using namespace std;
 

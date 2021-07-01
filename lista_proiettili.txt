@@ -1,5 +1,0 @@
-0)  ID:105 X:29 Y:23
-1)  ID:104 X:28 Y:13
-2)  ID:103 X:29 Y:9 
-3)  ID:102 X:28 Y:1 
-Num. Proiettili speciali -> 0

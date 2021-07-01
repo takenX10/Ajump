@@ -2,13 +2,13 @@
 #define BONUS_H
 
 #include <iostream>
-#include "funzioni_alex/Mappa.h"
-#include "funzioni_alex/Player.h"
+#include "Mappa.h"
+#include "Player.h"
 #include "Proiettili.h"
 #include "Nemici.h"
 #include "time.h"
-#include "funzioni_alex/Alex_constants.hpp"
-#include "funzioni_Alex/Gioco.h"
+#include "costanti.hpp"
+#include "Gioco.h"
 
 using namespace constants;
 using namespace std;

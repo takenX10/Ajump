@@ -1,6 +1,6 @@
 #ifndef MAPPA_H
 #define MAPPA_H
-#include "Alex_constants.hpp"
+#include "costanti.hpp"
 using namespace constants;
 struct Map{
     char row[ROW_DIM];

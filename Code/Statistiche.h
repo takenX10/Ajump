@@ -3,14 +3,14 @@
 
 #include <iostream>
 #include <windows.h>
-#include "../Alessandro/funzioni_alex/Mappa.h" 
-#include "../Alessandro/funzioni_alex/Player.h"
-#include "../Alessandro/funzioni_alex/Alex_constants.hpp"
-#include "../Alessandro/funzioni_alex/Gioco.h" 
-#include "../Alessandro/funzioni_alex/print_functions.h"
-#include "../Alessandro/bonus.h"
-#include "../Alessandro/Nemici.h"
-#include "../Alessandro/Proiettili.h"
+#include "Mappa.h" 
+#include "Player.h"
+#include "costanti.hpp"
+#include "Gioco.h" 
+#include "print_functions.h"
+#include "bonus.h"
+#include "Nemici.h"
+#include "Proiettili.h"
 
 using namespace std;
 

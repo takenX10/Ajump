@@ -1,41 +1,6 @@
-/* 
-@ Author: Alice Benatti
-
-- uno che si occupa del game design (
-    aumento di livello, statistiche e percentuali), 
-    del main, 
-    game over e classifica (8)
-- schermata di inizio (premi invio per iniziare ecc....)
-- classifica
-- schermata game over
-*/
-#include <iostream>
 #include <cstring>
-#include <string>
-#include <conio.h>
-#include <cstdio>
 #include <fstream>
-#include <stdlib.h> // per interagire con il file .txt
-#include <stdio.h>
-#include <windows.h>
-#include <conio.h>
-#include <iomanip>
-#include "../Main/main.cpp"
-
-// include per far partire il gioco
-    
-#include <chrono>
-#include <thread>
-#include "alice.h"
-#include "../Alessandro/funzioni_alex/Mappa.h" 
-#include "../Alessandro/funzioni_alex/Player.h"
-#include "../Alessandro/funzioni_alex/Alex_constants.hpp"
-#include "../Alessandro/funzioni_alex/Gioco.h" 
-#include "../Alessandro/funzioni_alex/print_functions.h"
-#include "../Alessandro/bonus.h"
-#include "../Alessandro/Nemici.h"
-#include "../Alessandro/Proiettili.h"
-#include <time.h>
+#include "screen_manager.h"
 
 using namespace std;
 
@@ -70,6 +35,7 @@ plista Classifica::get_file(void){
     OpenFile.close();
     return Lista;
 }
+// TODO: Fixare le funzioni per la classifica nei casi limite
 /* 
     aggiungo alla lista nel punto desiderato
     - salvo in lista new_val i nuovi valori
@@ -143,7 +109,7 @@ void StartScreen(Classifica LBoard){
     clearscreen();
     char key; bool check= false;
     color(Black, Light_Yellow);
-    printfile("C:\\Users\\theas\\Documents\\GitHub\\Ajump\\Alice\\name.txt");
+    printfile("Documents\\name.txt");
     color(Black, Bright_White);
     cout << "\n       >> press ENTER to play" << endl;
     cout << "           >> press C to view the leaderboard" << endl;
@@ -200,7 +166,7 @@ void GameOver(int score){
     Classifica LBoard = Classifica(patchFile);
     color(Red, Bright_White);
     char stringa[15];
-    strcpy(stringa, "gameover.txt");
+    strcpy(stringa, "Documents\\gameover.txt");
     printfile(stringa);
     color(Black, White);
     cout << "\nDo u want to save ur game? (y/n)" << endl;
