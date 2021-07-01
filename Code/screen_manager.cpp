@@ -1,29 +1,11 @@
-/*
-@ Authors: Alessandro Frau, Francesco Apollonio, Alice Benatti, Alex Lorenzato
-
-*/
 #include <iostream>
 #include <cstring>
 #include <conio.h>
+#include <windows.h>
+#include "screen_manager.h"
 using namespace std;
 
-//lista colori:
-#define Blue 1
-#define Green 2
-#define Aqua 3
-#define Red 4
-#define Purple 5
-#define Yellow 6
-#define White 7
-#define Gray 8
-#define Light_Blue 9
-#define Black 0
-#define Light_Green 10
-#define Light_Aqua 11
-#define Light_Red 12
-#define Light_Purple 13
-#define Light_Yellow 14
-#define Bright_White 15
+
 
 //pulisce lo schermo
 // questa funzione e' molto lezza, grulla, orripilante, proprio brutta
