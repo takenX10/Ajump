@@ -5,6 +5,7 @@
 #include "../Nemici.h"
 #include "../Proiettili.h"
 #include "../bonus.h"
+void zioporco(void);
 class Gioco{
     private:
         Mappa *mappa_gioco;

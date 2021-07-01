@@ -26,6 +26,7 @@
     
 #include <chrono>
 #include <thread>
+#include "alice.h"
 #include "../Alessandro/funzioni_alex/Mappa.h" 
 #include "../Alessandro/funzioni_alex/Player.h"
 #include "../Alessandro/funzioni_alex/Alex_constants.hpp"
@@ -38,145 +39,104 @@
 
 using namespace std;
 
-//*********Costanti**********//
-#define ENTER 13
-#define SPACE 32
-#define ESC 27
-#define CHAR 30
-#define UNDERSCORE 95
-#define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
-#define patchFile "C:\\Users\\theas\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt"
-    
-//********************************
-struct lista_classifica{
-    char nick[CHAR];
-    int score;
-    struct lista_classifica *next;
-};
-typedef struct lista_classifica *plista;
+Classifica::Classifica(char filename[]){
+    strcpy(this->filename, filename);
+    this->head = this->get_file();
+}
 
-class Classifica{
-    public:
-        plista head;
-        char filename[30];
-    public:
-        Classifica(char filename[]){
-            strcpy(this->filename, filename);
-            this->head = this->get_file();
-        }
+/*
+    - apro il file Leaderboard.txt
+    - prendo i valori e li salvo in lista
+*/
+plista Classifica::get_file(void){
+    ifstream OpenFile;
+    OpenFile.open(this->filename,ios::in);
+    int c;
+    plista Lista = new lista_classifica;
+    plista tmp = Lista;
+    plista tmp2 = NULL;
+    int pass;
+    string stringa;
+    while (!OpenFile.eof()){
+        getline(OpenFile, stringa, '\n');
+        strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-1).c_str());
+        tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')-1));
         
-        /*
-            - apro il file Leaderboard.txt
-            - prendo i valori e li salvo in lista
-        */
-        plista get_file(void){
-            ifstream OpenFile;
-            OpenFile.open(this->filename,ios::in);
-            int c;
-            plista Lista = new lista_classifica;
-            plista tmp = Lista;
-            plista tmp2 = NULL;
-            int pass;
-            string stringa;
-            while (!OpenFile.eof()){
-                getline(OpenFile, stringa, '\n');
-                strcpy(tmp->nick, stringa.substr(stringa.find(' ')+1, stringa.find(' ', 2)-1).c_str());
-                tmp->score = stoi(stringa.substr(stringa.find(' ', 2)+1, stringa.find('\n')-1));
-                
-                tmp2 = new lista_classifica;
-                tmp->next = tmp2;
-                tmp = tmp2;
-                tmp->next = NULL;
+        tmp2 = new lista_classifica;
+        tmp->next = tmp2;
+        tmp = tmp2;
+        tmp->next = NULL;
+    }
+    OpenFile.close();
+    return Lista;
+}
+/* 
+    aggiungo alla lista nel punto desiderato
+    - salvo in lista new_val i nuovi valori
+    - scorro la lista e trovo il punto di inserimento
+    - creo tmp aggiungo in testa il nuovo elemento
+    - allaccio le liste
+*/
+void Classifica::add_value(int score, char nick[]){
+    plista tmp = this->head;
+    plista new_val = new lista_classifica;
+    new_val->score = score;
+    strcpy(new_val->nick, nick);
+    if (tmp == NULL){
+        new_val->next = NULL;
+        this->head = new_val;
+    }else if (tmp->score < new_val->score ){
+        this->head = new_val;
+        new_val->next = tmp;
+    }else{
+        bool exit = false;
+        while (tmp->next != NULL && exit == false){
+            if (tmp->next->score <= new_val->score){
+                new_val->next = tmp->next;
+                tmp->next = new_val;
+                exit = true;
             }
-            OpenFile.close();
-            return Lista;
+            tmp = tmp->next;
         }
-        /* 
-            aggiungo alla lista nel punto desiderato
-            - salvo in lista new_val i nuovi valori
-            - scorro la lista e trovo il punto di inserimento
-            - creo tmp aggiungo in testa il nuovo elemento
-            - allaccio le liste
-        */
-        void add_value(int score, char nick[]){
-            plista tmp = this->head;
-            plista new_val = new lista_classifica;
-            new_val->score = score;
-            strcpy(new_val->nick, nick);
-            if (tmp == NULL){
-                new_val->next = NULL;
-                this->head = new_val;
-            }else if (tmp->score < new_val->score ){
-                this->head = new_val;
-                new_val->next = tmp;
-            }else{
-                bool exit = false;
-                while (tmp->next != NULL && exit == false){
-                    if (tmp->next->score <= new_val->score){
-                        new_val->next = tmp->next;
-                        tmp->next = new_val;
-                        exit = true;
-                    }
-                    tmp = tmp->next;
-                }
-                if (exit == false){
-                    tmp->next = new_val;
-                    new_val->next = NULL;
-                }
-            }
+        if (exit == false){
+            tmp->next = new_val;
+            new_val->next = NULL;
         }
-        /*
-            salvo nel file Leaderboard.txt la lista inserendo la posizione in classifica
-        */
-        void save_file(){
-            plista tmp = this->head;
-            ofstream myfile;
-            cout<<this->filename;
-            myfile.open(this->filename);
-            int i = 1;
-            while (tmp != NULL){         
-                myfile<<i<<" "<<tmp->nick<<" "<<tmp->score;
-                if(tmp->next != NULL){
-                    myfile<<"\n";
-                }
-                myfile.flush();
-                tmp = tmp->next;
-                i++;
-            }
-            myfile.close();
+    }
+}
+/*
+    salvo nel file Leaderboard.txt la lista inserendo la posizione in classifica
+*/
+void Classifica::save_file(){
+    plista tmp = this->head;
+    ofstream myfile;
+    cout<<this->filename;
+    myfile.open(this->filename);
+    int i = 1;
+    while (tmp != NULL){         
+        myfile<<i<<" "<<tmp->nick<<" "<<tmp->score;
+        if(tmp->next != NULL){
+            myfile<<"\n";
         }
-        
-        plista get_position(int position){
-            plista tmp = this->head;
-            int i = 1;
-            while(i < position && tmp != NULL){
-                tmp = tmp->next;
-                i++;
-            }
-            if(i != position){
-                return NULL;
-            }
-            return tmp;
-        }
-};
-typedef Classifica* lista;
+        myfile.flush();
+        tmp = tmp->next;
+        i++;
+    }
+    myfile.close();
+}
 
-//dichiarazione funzioni
-void StartScreen(Classifica lista);
-void GameOver(int punti);
-void Leaderboard(Classifica lista);
-void PrintMap(Classifica lista); //da cancellare QUASI
-void printTop(Classifica lista);
-
-// ====== Main ======
-/*int main(){
-    Classifica alice = Classifica("C:\\Users\\alice\\Documents\\GitHub\\Ajump\\Alice\\leaderboard.txt");
-    color(Black, White);
-    GameOver(alice, 320);
-    //StartScreen(alice);  //decommentare
-    
-    return 0;
-}*/
+plista Classifica::get_position(int position){
+    plista tmp = this->head;
+    int i = 1;
+    while(i < position && tmp != NULL){
+        tmp = tmp->next;
+        i++;
+    }
+    if(i != position){
+        return NULL;
+    }
+    return tmp;
+}
 
 // ====== Schermata iniziale: titolo & menu' ======
 void StartScreen(Classifica LBoard){
@@ -193,7 +153,9 @@ void StartScreen(Classifica LBoard){
         key=getch();
         if (key==ENTER){
             check = true;
-           PrintMap(LBoard); 
+            PrintMap(LBoard);
+            cout<<"ciarriva";
+            cout<<"sium";
         } 
         else if (key== 'C' || key=='c') {
             check= true;
@@ -222,8 +184,7 @@ void PrintMap(Classifica LBoard){
     thread get_position(&Gioco::keyListener, g);
 
     print_map_thread.join();
-    get_position.join();
-  
+    GameOver(10); //TODO: passare il parametro giusto
 }
 
 /* ====== Game Over ======
@@ -238,13 +199,15 @@ void GameOver(int score){
     bool check = false;
     Classifica LBoard = Classifica(patchFile);
     color(Red, Bright_White);
-    printfile("gameover.txt");  //da scommentare
+    char stringa[15];
+    strcpy(stringa, "gameover.txt");
+    printfile(stringa);
     color(Black, White);
     cout << "\nDo u want to save ur game? (y/n)" << endl;
 
     do{
-        do {
-            key=getch();
+        do{
+            cin>>key;
             if ((int)key == 'y' || (int)key == 'Y') {
                 check = true;
                 cout << "Insert ur nick: ";
@@ -304,7 +267,7 @@ void Leaderboard(Classifica classifica){
 }
 
 // stampa classifica di x posizioni
-void printTop(Classifica lista){
+void printTop(Classifica lista){ // TODO: fare in modo che la classifica si possa visualizzare anche se le persone sono meno di 5
     string aster = "*";
     for (int i = 0; i <= TOPNUMBER; i++){
         if (i%2==0) color(Black, Purple);

@@ -9,16 +9,11 @@
 #include "../Nemici.h"
 #include "../Proiettili.h"
 #include "../bonus.h"
-#include "../Alice/alice.cpp"
+#include "../../Alice/alice.h"
+//#include "../Alice/alice.cpp"
 
 using namespace std;
 using namespace constants;
-
-void endfunction(){
-    cout<<"partita finita";
-    GameOver(XP_PLAYER);
-}
-
 
 Gioco::Gioco(Mappa *m, Player *p, Lista_proiettili *proiettili, Lista_nemici *nemici, Bonus *bon){
     this->mappa_gioco = m;
@@ -104,6 +99,13 @@ void Gioco::auto_print_map(){
         }   
     }
 }
+
+void zioporco(void){
+    cout<<"ZIOPORCO!"<<endl;
+    system("PAUSE");
+
+}
+
 void Gioco::keyListener(void){
     int key;
     while(!end_game) {
@@ -118,6 +120,5 @@ void Gioco::keyListener(void){
             }
         }
     }
-    endfunction();
 }
 

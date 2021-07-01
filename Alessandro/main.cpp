@@ -10,12 +10,16 @@
 #include "Nemici.h"
 #include "Proiettili.h"
 #include "../Alice/Statistiche.h"
-#include "../Alice/alice.cpp"
+#include "../Alice/alice.h"
 #include <time.h>
 
 using namespace std;
 using namespace constants;
 
+void endfunction(){
+    cout<<"partita finita";
+    GameOver(XP_PLAYER);
+}
 
 int main(void){
     
