@@ -1,0 +1,1 @@
+0)  Movedir:SOTTO_DESTRA   X:6  Y:25 vita -> 100

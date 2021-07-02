@@ -10,7 +10,7 @@
 #define TANK_XP 50
 #define BOSS_XP 100
 
-int GetXP_Player(){
+int GetXP_Player(void){
     if (CHECKPOINT == true){
         XP_PLAYER += CHECKPOINT_XP;
     }

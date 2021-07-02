@@ -20,7 +20,7 @@ class Mappa{
     public:
         Mappa(int map_height = 0, int map_width = 0);
         void newRow(void);
-        void printMap(int top_line);
+        void printMap(int top_line, int vita, int altezza_totale, int proiettili);
         ptr_Map getRow(int n);
         void setChar(int x, int y, char c);
         int getWidth(void);

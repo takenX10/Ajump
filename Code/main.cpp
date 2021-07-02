@@ -15,10 +15,10 @@
 
 using namespace std;
 using namespace constants;
-
+// TODO: se hai tempo fixa bug trattini che rimangono in giro 
 void endfunction(){
     cout<<"partita finita";
-    GameOver(XP_PLAYER);
+ //   GameOver((m.getTotalHeight()-29)/2);
 }
 
 int main(void){

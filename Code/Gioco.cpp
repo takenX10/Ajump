@@ -75,7 +75,7 @@ void Gioco::auto_print_map(){
         counter_movimento_proiettili++;
         counter_fire++;
 
-        this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0) );
+        this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0), this->p->get_health(), (this->mappa_gioco->getTotalHeight()-29)/2, this->proiettili->get_proiettili_speciali());
 
         //Spawn e movimento dei bonus
         int altezza = this->p->getY(); //Prendo la posizione del player

@@ -85,7 +85,7 @@ void Mappa::newRow(void){
     PARAMETRI: puntatore alla testa della mappa (row numero 0), posizione giocatore
     RETURN: void    
 */
-void Mappa::printMap(int top_line){
+void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili){
     ptr_Map map = this->map_tail;
     if(this->map_tail->num_row + 1< top_line){
         cout<<this->map_tail->num_row<<"<= "<<top_line - 1<<endl;
@@ -102,7 +102,22 @@ void Mappa::printMap(int top_line){
                 cout << map->row[j];
             }
         }
-        cout << MURO << " " << map->num_row;
+        cout << MURO << " ";
+        switch(i){
+            case 2:
+                cout<<" Vita player: "<<vita<<"           "; // gli spazi vuoti servono per fare l'override dei caratteri rimasti precedentemente
+                break;
+            case 4:
+                cout<<" Punteggio Totale: "<<altezza_totale<<"         "; // come sopra.
+                break;
+            case 6:
+                if(proiettili > 0){
+                    cout<<" Proiettili speciali rimanenti: "<<proiettili<<"         "; // come sopra.
+                }else{
+                    cout<<"                                                        ";
+                }
+                break;
+        }
         map = map->prev;
     }
 }

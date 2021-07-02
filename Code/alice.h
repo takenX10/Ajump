@@ -1,19 +1,11 @@
 #ifndef ALICE_H_
 #define ALICE_H_
+#include "costanti.hpp"
 using namespace std;
 
-//*********Costanti**********//
-#define ENTER 13
-#define SPACE 32
-#define ESC 27
-#define CHAR 30
-#define UNDERSCORE 95
-#define TOPNUMBER 4    //valore di x+1 righe stampate della classifica
-#define patchFile "Documents\\leaderboard.txt"
-// TODO: Spostare le costanti in costanti.hpp
 //********************************
 struct lista_classifica{
-    char nick[CHAR];
+    char nick[CHAR_VALUE];
     int score;
     struct lista_classifica *next;
 };

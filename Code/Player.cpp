@@ -169,6 +169,7 @@ void Player::move(int direction){
 
 int Player::getX(void){ return this->x; }
 int Player::getY(void){ return this->y; }
+int Player::get_health(void){ return this->health_points;}
 
 //Modifica la vita del player. Restituisce True se il player è morto
 bool Player::change_health(int value){

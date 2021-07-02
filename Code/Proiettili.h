@@ -56,6 +56,7 @@ public:
     // la lista e' ordinata per righe
 
     void muovi_proiettili(void);
+    int get_proiettili_speciali(void);
 
 };
 

@@ -357,3 +357,7 @@ void Lista_proiettili::muovi_proiettili(void){
         tmp = tmp->next;
     }
    }
+
+int Lista_proiettili::get_proiettili_speciali(void){
+       return this->proiettili_speciali;
+}

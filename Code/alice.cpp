@@ -1,7 +1,7 @@
 #include <cstring>
 #include <fstream>
 #include "screen_manager.h"
-
+#include "costanti.hpp"
 using namespace std;
 
 Classifica::Classifica(char filename[]){
@@ -150,7 +150,7 @@ void PrintMap(Classifica LBoard){
     thread get_position(&Gioco::keyListener, g);
 
     print_map_thread.join();
-    GameOver(10); //TODO: passare il parametro giusto
+    GameOver((m.getTotalHeight()-29)/2); // TODO: Eliminare le funzioni legate all'obrobrio globale XP_PLAYER e getXP_PLAYER...
 }
 
 /* ====== Game Over ======
@@ -160,10 +160,10 @@ void PrintMap(Classifica LBoard){
 void GameOver(int score){
     clearscreen();
     char key;
-    char input[CHAR];
+    char input[CHAR_VALUE];
     int id;
     bool check = false;
-    Classifica LBoard = Classifica(patchFile);
+    Classifica LBoard = Classifica("Documents\\leaderboard.txt");
     color(Red, Bright_White);
     char stringa[15];
     strcpy(stringa, "Documents\\gameover.txt");

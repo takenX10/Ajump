@@ -18,7 +18,7 @@ class Player{
         void move(int direction);
         int getX(void);
         int getY(void);
-
+        int get_health(void);
         //Modifica salute del player; restituisce True se player è morto.
         bool change_health(int value);
 };

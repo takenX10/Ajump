@@ -14,7 +14,6 @@ namespace constants{
     constexpr int REFRESH_RATE = 1;     // durata della sleep tra un print e l'altro
     constexpr int CHECKPOINT_ROW = 50;   // frequenza con cui si trova il piano con piattaforma a larghezza ROW_DIM
 
-
     /* Caratteri e Codici */
 
         //Caratteri mappa
@@ -25,17 +24,16 @@ namespace constants{
         //Caratteri personaggi e proiettile
         constexpr char PLAYER = '@';
         constexpr char DESTRUCT_PLAYER = '#';
-        constexpr char CHAR_ARTIGLIERE = 'A';
-        constexpr char CHAR_SOLD_SEMPLICE = 'S';
-        constexpr char CHAR_TANK = 'T';
-        constexpr char CHAR_BOSS = 'B';
+        constexpr char CHAR_ARTIGLIERE = (char)31; // Triangolo
+        constexpr char CHAR_SOLD_SEMPLICE = (char)190;// y con trattini
+        constexpr char CHAR_TANK = (char)220; // quadrato
+        constexpr char CHAR_BOSS = (char)207; // tartarughina potentissima
         constexpr char PROIETTILE = '+';
-
         //Caratteri Bonus
-        constexpr char BONUS_SALUTE = 'H'; //Il bonus incrementa la salute del player  
-        constexpr char MALUS_SALUTE = 'M'; //Il malus diminuisce la salute del player
-        constexpr char BONUS_BOMBA = 'O'; //Il bonus distrugge tutti i nemici presenti nella mappa
-        constexpr char BONUS_PROIETTILI_SPECIALI = 'P'; //Il bonus da al player tot proiettili MOLTO più potenti
+        constexpr char BONUS_SALUTE = (char)3; // cuore //Il bonus incrementa la salute del player  
+        constexpr char MALUS_SALUTE = (char)157; //O con trattino in mezzo //Il malus diminuisce la salute del player
+        constexpr char BONUS_BOMBA = (char)208;// x con cerchio sotto //Il bonus distrugge tutti i nemici presenti nella mappa
+        constexpr char BONUS_PROIETTILI_SPECIALI = (char)127; //casetta //Il bonus da al player tot proiettili MOLTO più potenti
 
         //Codici Nemici & Bonus (Non modificare)
         constexpr int  COD_SOLD_SEMPLICE = 1;
@@ -57,6 +55,12 @@ namespace constants{
         constexpr int SPAZIO = 32;
         constexpr int SOTTO_DESTRA = -1; // questo valore non e' influente, basta che sia diverso da tutte le altre direzioni
         constexpr int SOTTO_SINISTRA = -2; // stessa cosa scritta sopra
+        constexpr int ENTER = 13;
+        constexpr int SPACE = 32;
+        constexpr int ESC = 27;
+        constexpr int CHAR_VALUE = 30;
+        constexpr int UNDERSCORE =95;
+        constexpr int TOPNUMBER =4;    //valore di x+1 righe stampate della classifica
 
     
     /* Parametri di gioco */
@@ -68,7 +72,7 @@ namespace constants{
 
     // Bonus
     constexpr int VALORE_BONUS_SALUTE = 100;
-    constexpr int VALORE_MALUS_SALUTE = -200;
+    constexpr int VALORE_MALUS_SALUTE = -100;
     constexpr int NUMERO_PROIETTILI_SPECIALI = 20;
     constexpr int DANNO_PROIETT_SPECIALE = 300; //Con questo danno one shotto chiunque
 
