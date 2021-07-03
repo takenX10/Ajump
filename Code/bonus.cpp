@@ -4,7 +4,7 @@
 using namespace constants;
 using namespace std;
 
-Bonus::Bonus(Mappa *map, Player *player, Lista_nemici *nemici, Lista_proiettili *proiettili){
+Bonus::Bonus(Mappa *map, Player *player, Lista_nemici *nemici, BulletList *proiettili){
     this->map = map;
     this->player = player;
     this->nemico = nemici;
@@ -133,7 +133,7 @@ void Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
        }
     }
     else if(kind_of_bonus == COD_BONUS_PROIETTILI_SPECIALI){
-        this->proiettili->proiettili_speciali = NUMERO_PROIETTILI_SPECIALI;
+        this->proiettili->special_bullet = NUMERO_PROIETTILI_SPECIALI;
     }
     
     //Elimino il bonus dalla lista di quelli esistenti.

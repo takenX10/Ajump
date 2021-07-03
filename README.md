@@ -75,3 +75,54 @@ A = 5 + 2,5+
 - due che si occupano delle entita' e dove esse devono spawnare, e come esse devono interagire. (9 ++)@Apo @takenX10
 - uno che si occupa del game design (aumento di livello, statistiche e percentuali), del main, game over e classifica (8) @ali-benny
 - i bonus li implementa quello che ha meno roba da fare (ce ne accorgeremo sul momento)
+
+
+
+## Formato codice
+
+- Ogni classe ha il suo file unico e il suo header
+- Le classsi non hanno trattini bassi nei nomi
+- Le classi iniziano con una maiuscola
+- i cicli li scriviamo in questo formato:
+```c++ 
+  if(conditions){
+    // do stuff...
+  }else{
+    // do stuff...
+  }
+
+  while(conditions){
+    // do stuff...
+  }
+
+  for(i = 0; i<n; i++){
+    // do stuff...
+  }
+
+  switch(i){
+    case 1:
+      // do stuff...
+      break;
+    case 2:
+      // do stuff...
+      break;
+    default:
+      // do stuff...
+  }
+
+```
+- i nomi delle variabili tutti minuscoli con **trattini bassi.**
+- **Ogni** funzione deve avere un commento di spiegazione in questo formato:
+```c++
+/*  Author:       ...
+    Parameters:   ...
+    Return value: ...
+    Comments:     ...
+*/
+```
+
+ - Il commento va messo sia nell'header che nel file cpp
+ - I nomi delle variabili **in inglese**
+ - Tutte le funzioni ausiliarie non legate alla classe vanno nel main o nel file `ExternalFunctions.cpp`
+ - I nomi delle funzioni tutti in minuscolo con trattini bassi
+

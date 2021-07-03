@@ -1,3 +1,0 @@
-0)  ID:7  X:18 Y:82
-1)  ID:6  X:21 Y:69
-Num. Proiettili speciali -> 0

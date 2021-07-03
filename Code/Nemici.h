@@ -8,7 +8,7 @@
 #include "Mappa.h"
 #include "Player.h"
 #include "costanti.hpp"
-#include "Proiettili.h"
+#include "Bullet.h"
 using namespace constants;
 using namespace std;
 class Nemico{
@@ -47,13 +47,13 @@ public:
     ptr_nodo_nemici head; // testa della lista
     Mappa *map;  // puntatore alla mappa
     Player *player;  // puntatore al player
-    Lista_proiettili *proiettili;
+    BulletList *proiettili;
 
     // aggiorna il valore della variabile "move_direction" di ogni entita della lista
     void nuove_direzioni(void);
 
 public:
-    Lista_nemici(Mappa *map, Player *p, Lista_proiettili *proiettili);
+    Lista_nemici(Mappa *map, Player *p, BulletList *proiettili);
 
     // risulta sempre ordinata per righe, in testa l'elemento piu a sinistra
     // e in coda quello piu a destra

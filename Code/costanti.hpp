@@ -96,10 +96,30 @@ namespace constants{
     constexpr int VITA_BOSS = 300;
     constexpr int DANNO_BOSS = 50;
 
+    // TODO: Toglierli
     /* Punteggio */
-        bool CHECKPOINT = false;
-        int ID_NEMICO = 0;
-        int XP_PLAYER;
+    bool CHECKPOINT = false;
+    int ID_NEMICO = 0;
+    int XP_PLAYER;
+
+    /* Colori */
+    constexpr int Blue = 1;
+    constexpr int Green =2;
+    constexpr int Aqua =3;
+    constexpr int Red =4;
+    constexpr int Purple =5;
+    constexpr int Yellow =6;
+    constexpr int White =7;
+    constexpr int Gray =8;
+    constexpr int Light_Blue =9;
+    constexpr int Black =0;
+    constexpr int Light_Green =10;
+    constexpr int Light_Aqua =11;
+    constexpr int Light_Red =12;
+    constexpr int Light_Purple =13;
+    constexpr int Light_Yellow =14;
+    constexpr int Bright_White =15;
+
 }
 using namespace constants;
 #endif

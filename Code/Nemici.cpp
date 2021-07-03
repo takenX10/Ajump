@@ -9,7 +9,7 @@
 #include "Player.h"
 #include "costanti.hpp"
 #include "Nemici.h"
-#include "Proiettili.h"
+#include "Bullet.h"
 
 using namespace constants;
 using namespace std;
@@ -33,6 +33,7 @@ string where(int n){
     return "NON_LO_SO     ";
 }
 
+// TODO: Toglierlo
 void printfile(ptr_nodo_nemici lista){
     ofstream myfile;
     myfile.open ("lista_nemici.txt");
@@ -85,7 +86,7 @@ int Nemico::decide_kindOfEnemy(int level){
     return this->kind_of_enemy;
 }
 
-Lista_nemici::Lista_nemici(Mappa *map, Player *p, Lista_proiettili *proiettili){
+Lista_nemici::Lista_nemici(Mappa *map, Player *p, BulletList *proiettili){
     this->head = NULL;
     this->map = map;
     this->player = p;
@@ -131,8 +132,8 @@ void Lista_nemici::aggiungi_nemico(Nemico enemy){
             new_enemy->next = NULL;
         }
     }
-    // debug
-    printfile(this->head);
+    // TODO: Toglierlo
+    // printfile(this->head);
     ///////
 }
 
@@ -157,7 +158,9 @@ void Lista_nemici::elimina_nemico(int id){
         this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
         free(tmp);
     }
-    printfile(this->head);
+    // TODO: Toglierlo
+    //printfile(this->head);
+    //
 }
 
 // da chiamare ogni volta che si vogliono far muovere i nemici
@@ -165,9 +168,11 @@ void Lista_nemici::elimina_nemico(int id){
 void Lista_nemici::muovi_nemici(void){
     this->nuove_direzioni();        // calcola le nuove direzioni degli elementi
     ptr_nodo_nemici tmp = this->head;
-    //debug
-    printfile(this->head);
+    
+    // TODO: Toglierlo
+    //printfile(this->head);
     /////
+    
     while(tmp!=NULL){
         if(tmp->just_spawned == true){  // nemico appena spawnato
             tmp->old_char = this->map->getRow(tmp->entity.y)->row[tmp->entity.x];
@@ -228,8 +233,8 @@ void Lista_nemici::muovi_nemici(void){
             }
         }
     }
-    // debug
-    printfile(this->head);
+    // TODO: Toglierlo
+    // printfile(this->head);
     ///////
 }
 
@@ -241,7 +246,7 @@ void Lista_nemici::danneggia_nemico_x(int x){
         tmp = tmp->next;
     }
     if(tmp != NULL){
-        if(this->proiettili->proiettili_speciali > 0){
+        if(this->proiettili->special_bullet > 0){
             tmp->entity.change_health( -(DANNO_PROIETT_SPECIALE) );
         }
         else{
@@ -264,14 +269,16 @@ void Lista_nemici::danneggia_nemico_x(int x){
                 }
                 this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
                 free(tmp);
-                //debug
-                printfile(this->head);
+                // TODO: Toglierlo
+                //printfile(this->head);
+                //
             }
         }
         else{
             this->map->setChar(tmp->entity.x, tmp->entity.y,tmp->entity.char_of_enemy()); 
-            //debug
-            printfile(this->head);
+            // TODO: Toglierlo
+            // printfile(this->head);
+            //
         }
     }
 
@@ -285,7 +292,7 @@ void Lista_nemici::spara(void){
         if(tmp->entity.y >2){
             char oldchar = this->map->getRow(tmp->entity.y - 1)->row[tmp->entity.x];
             if(oldchar != PROIETTILE && oldchar != PLAYER){
-                this->proiettili->aggiungi_proiettile(tmp->entity.x, tmp->entity.y - 1, SOTTO, tmp->entity.kind_of_enemy);
+                this->proiettili->add_bullet(tmp->entity.x, tmp->entity.y - 1, SOTTO, tmp->entity.kind_of_enemy);
             }else{
                 if(oldchar == PLAYER){
                     end_game = true;

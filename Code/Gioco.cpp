@@ -1,13 +1,13 @@
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
-#include "Gioco.h"
+#include "ExternalFunctions.h"
 #include "costanti.hpp"
-#include "print_functions.h"
+#include "Gioco.h"
 #include "Mappa.h"
 #include "Player.h"
 #include "Nemici.h"
-#include "Proiettili.h"
+#include "Bullet.h"
 #include "bonus.h"
 #include "alice.h"
 //#include "../Alice/alice.cpp"
@@ -15,7 +15,7 @@
 using namespace std;
 using namespace constants;
 
-Gioco::Gioco(Mappa *m, Player *p, Lista_proiettili *proiettili, Lista_nemici *nemici, Bonus *bon){
+Gioco::Gioco(Mappa *m, Player *p, BulletList *proiettili, Lista_nemici *nemici, Bonus *bon){
     this->mappa_gioco = m;
     this->p = p;
     this->proiettili = proiettili;
@@ -49,14 +49,13 @@ void Gioco::auto_print_map(){
             difficolta += STEP_DIFFICOLTA;
             }
         }
-
         Sleep(REFRESH_RATE);
         
         if(counter_movimento_proiettili == velocita_movimento_proiettili){
-            this->proiettili->muovi_proiettili();
-            if(this->proiettili->danneggia_nemico_x != -1){
-                this->nemici->danneggia_nemico_x(this->proiettili->danneggia_nemico_x);
-                this->proiettili->danneggia_nemico_x = -1;
+            this->proiettili->move_bullet();
+            if(this->proiettili->damage_enemy_x != -1){
+                this->nemici->danneggia_nemico_x(this->proiettili->damage_enemy_x);
+                this->proiettili->damage_enemy_x = -1;
             }
             counter_movimento_proiettili = -1;
         }
@@ -75,7 +74,7 @@ void Gioco::auto_print_map(){
         counter_movimento_proiettili++;
         counter_fire++;
 
-        this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0), this->p->get_health(), (this->mappa_gioco->getTotalHeight()-29)/2, this->proiettili->get_proiettili_speciali());
+        this->mappa_gioco->printMap(this->p->getY() + this->mappa_gioco->getHeight() - OFFSET + (OFFSET > this->p->getY() ? OFFSET - this->p->getY() : 0), this->p->get_health(), (this->mappa_gioco->getTotalHeight()-29)/2, this->proiettili->get_special_bullet());
 
         //Spawn e movimento dei bonus
         int altezza = this->p->getY(); //Prendo la posizione del player
@@ -113,10 +112,10 @@ void Gioco::keyListener(void){
         this->p->move(key);
         if(this->p->deve_sparare && !end_game){
             this->p->deve_sparare = false;
-            this->proiettili->spara_player();
+            this->proiettili->shoot_bullet();
             //Se sono attivi "proiettili speciali", ne scalo uno ad ogni colpo sparato. (Ogni tasto 'spazio' premuto)
-            if(this->proiettili->proiettili_speciali > 0){
-                this->proiettili->proiettili_speciali --;
+            if(this->proiettili->special_bullet > 0){
+                this->proiettili->special_bullet --;
             }
         }
     }

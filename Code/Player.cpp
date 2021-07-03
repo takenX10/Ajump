@@ -1,6 +1,6 @@
 
+#include "ExternalFunctions.h"
 #include "Player.h"
-#include "print_functions.h"
 #include "costanti.hpp"
 #include "Mappa.h"
 #include <fstream>

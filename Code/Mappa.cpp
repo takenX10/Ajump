@@ -1,6 +1,6 @@
 #include <iostream>
+#include "ExternalFunctions.h"
 #include "Mappa.h"
-#include "print_functions.h"
 #include "costanti.hpp"
 using namespace std;
 using namespace constants;
@@ -97,8 +97,8 @@ void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili)
     }
     for(int i=0; i<this->map_height; i++){
         for(int j=0; j<this->map_width; j++){
-            if(findChar(j,i) != map->row[j]){
-                moveCursor(j,i);
+            if(find_char(j,i) != map->row[j]){
+                move_cursor(j,i);
                 cout << map->row[j];
             }
         }

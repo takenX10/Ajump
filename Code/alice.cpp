@@ -1,16 +1,18 @@
 #include <cstring>
 #include <fstream>
-#include "screen_manager.h"
+#include <thread>
+#include "ExternalFunctions.h"
 #include "costanti.hpp"
+#include "Gioco.h"
+#include "Mappa.h"
+#include "Player.h"
+#include "bonus.h"
+#include "Nemici.h"
 using namespace std;
 
 Classifica::Classifica(char filename[]){
     strcpy(this->filename, filename);
     this->head = this->get_file();
-}
-
-bool is_file_empty(std::ifstream& pFile){
-    return pFile.peek() == std::ifstream::traits_type::eof();
 }
 
 /*
@@ -39,8 +41,7 @@ plista Classifica::get_file(void){
                 head = tmp;
                 aux = tmp;
                 tmp = NULL;
-            }
-            else{
+            }else{
                 aux->next = tmp;
                 aux = aux->next;
                 tmp = NULL;
@@ -51,10 +52,11 @@ plista Classifica::get_file(void){
     }
     this->registered_scores = count;
     aux->next = NULL;
-   //OpenFile.close();
+    OpenFile.close();
     this->head = head;
     return head;
 }
+
 // TODO: Fixare le funzioni per la classifica nei casi limite
 /* 
     aggiungo alla lista nel punto desiderato
@@ -162,12 +164,12 @@ void PrintMap(Classifica LBoard){
     color(Black, White);
     Mappa  m = Mappa(MAP_HEIGHT, ROW_DIM);
     Player p = Player(&m, STARTING_X, STARTING_Y);
-    Lista_proiettili proiettili = Lista_proiettili(&m, &p);
+    BulletList proiettili = BulletList(&m, &p);
     Lista_nemici ent = Lista_nemici(&m, &p, &proiettili);
     Bonus bonus = Bonus(&m, &p, &ent, &proiettili);
     Gioco  g = Gioco(&m, &p, &proiettili, &ent, &bonus);
 
-    hidecursor(); // per rendere il cursore invisibile
+    hide_cursor(); // per rendere il cursore invisibile
 
     thread print_map_thread(&Gioco::auto_print_map, g);
     thread get_position(&Gioco::keyListener, g);

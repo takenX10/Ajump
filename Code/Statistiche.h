@@ -3,14 +3,14 @@
 
 #include <iostream>
 #include <windows.h>
+#include "ExternalFunctions.h"
+#include "costanti.hpp"
 #include "Mappa.h" 
 #include "Player.h"
-#include "costanti.hpp"
 #include "Gioco.h" 
-#include "print_functions.h"
 #include "bonus.h"
 #include "Nemici.h"
-#include "Proiettili.h"
+#include "Bullet.h"
 
 using namespace std;
 

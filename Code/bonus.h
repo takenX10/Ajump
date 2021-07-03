@@ -4,7 +4,7 @@
 #include <iostream>
 #include "Mappa.h"
 #include "Player.h"
-#include "Proiettili.h"
+#include "Bullet.h"
 #include "Nemici.h"
 #include "time.h"
 #include "costanti.hpp"
@@ -30,13 +30,13 @@ protected:
     Mappa *map;
     Player *player;
     Lista_nemici *nemico;
-    Lista_proiettili *proiettili;
+    BulletList *proiettili;
     int current_id;
 
 public:
     //Parametro utile per evitare lo spawn di più bonus nello stesso momento ( punto della mappa )
     int last_spawn_height;
-    Bonus(Mappa *map, Player *player, Lista_nemici *nemici, Lista_proiettili *proiettili);
+    Bonus(Mappa *map, Player *player, Lista_nemici *nemici, BulletList *proiettili);
 
     //aggiunge un bonus in lista
     void aggiungi_bonus();
