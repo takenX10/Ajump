@@ -5,6 +5,11 @@
 using namespace std;
 using namespace constants;
 
+/*  Author:         Alex Lorenzato
+    Parameters:     larghezza e altezza mappa (inteso come righe da visualizzare nella singola schermata)
+    Return value:   none
+    Comments:       inizializzazione mappa, vengono riempiti i primi map_height piani con dele piattaforme
+*/
 Mappa::Mappa(int map_height /*= 0*/, int map_width /*= 0*/){
     //ptr_Map tmp = map_head;  // uso tmp perché map verrà aggiornato e non punterà più alla riga 0
     this->map_height = map_height;
@@ -17,14 +22,19 @@ Mappa::Mappa(int map_height /*= 0*/, int map_width /*= 0*/){
     }
 }
 
+/*  Author:         Alex Lorenzato
+    Parameters:     none
+    Return value:   none
+    Comments:       crea un piano riempiendolo con le piattaforme, distingue i casi checkpoint/ground floor/riga vuota/riga con piattaforme
+*/
 void Mappa::newRow(void){
-    if(this->map_head == NULL){
+    if(this->map_head == NULL){         // caso mappa vuota
         this->map_head = new Map;
         this->map_head->next = NULL;
         this->map_head->prev = NULL;
         this->map_head->num_row = 0;
 
-        for(int i=0; i < this->map_width-1; i++){ 
+        for(int i=0; i < this->map_width-1; i++){       //  ground floor
             this->map_head->row[i] = PIATTAFORMA; 
         }
         this->map_head->row[this->map_width-1] = '\0';
@@ -37,7 +47,7 @@ void Mappa::newRow(void){
         new_row->prev = this->map_tail; 
         new_row->next = NULL;
         
-        if(new_row->num_row % 2 != 0){ // caso riga in cui NON vanno inserite piattaforme
+        if(new_row->num_row % 2 != 0){      // caso riga in cui NON vanno inserite piattaforme
             for(int i=0; i<this->map_width-1; i++) { new_row->row[i] = ' '; }
         }else{
             if(new_row->num_row % CHECKPOINT_ROW == 0){
@@ -47,14 +57,6 @@ void Mappa::newRow(void){
                 //è arrivato un checkpoint e me lo salvo per il punteggio 
                 CHECKPOINT = true;
             }else{
-                /* avrei scelto un approccio piu estendibile, nella forma di
-                for(i = 0, i < NUM_PIATTAFORME; i++){
-                    dim[i] = ...;
-                    space[i] = ...;
-                }
-                fai_cose(dim, space);
-                */
-                // FALLO.
                 int dim_1 = rand() % (ROW_DIM/4) +1; // dimensioni piattaforme
                 int dim_2 = rand() % (ROW_DIM/4) +2;
                 int dim_3 = rand() % (ROW_DIM/4) +2;
@@ -80,10 +82,11 @@ void Mappa::newRow(void){
     }
 }
 
-/*  
-    INFO: stampa di una "schermata", ovvero di MAP_HEIGHT piani
-    PARAMETRI: puntatore alla testa della mappa (row numero 0), posizione giocatore
-    RETURN: void    
+
+/*  Author:         Alex Lorenzato
+    Parameters:     vita giocatore, 
+    Return value:   none
+    Comments:       gestione della stampa della mappa
 */
 void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili){
     ptr_Map map = this->map_tail;
@@ -95,8 +98,8 @@ void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili)
     while(map->num_row + 1 > top_line){
         map = map->prev;
     }
-    for(int i=0; i<this->map_height; i++){
-        for(int j=0; j<this->map_width; j++){
+    for(int i=0; i<this->map_height; i++){      // la mappa non viene stampata a ogni richiamo della funzione, ma vengono solo sostituiti i caratteri
+        for(int j=0; j<this->map_width; j++){   // che differiscono dal "frame" precedente
             if(find_char(j,i) != map->row[j]){
                 move_cursor(j,i);
                 cout << map->row[j];
@@ -122,10 +125,15 @@ void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili)
     }
 }
 
+/*  Author:         Alex Lorenzato
+    Parameters:     numero riga cercata
+    Return value:   puntatore alla riga cercata
+    Comments:       getter di una riga
+*/
 ptr_Map Mappa::getRow(int n){
     ptr_Map tmp = this->map_tail;
-    if(n > tmp->num_row){
-        cout << "ERROR: LA RIGA NON ESISTE";
+    if(n > tmp->num_row){                       // map_tail corrisponde alla riga che contraddistingue la temporanea fine della mappa, quindi non posso cercare
+        cout << "ERROR: LA RIGA NON ESISTE";    // righe con un num_row superiore
         return NULL;
     }
     while(tmp->num_row > n){
@@ -134,6 +142,11 @@ ptr_Map Mappa::getRow(int n){
     return tmp;
 }
 
+/*  Author:         Alex Lorenzato
+    Parameters:     carattere da scrivere e posizione in cui scriverlo
+    Return value:   none
+    Comments:       scrive un carattere in una posizione della mappa
+*/
 void Mappa::setChar(int x, int y, char c){
     ptr_Map tmp = this->map_tail;
     
@@ -146,6 +159,8 @@ void Mappa::setChar(int x, int y, char c){
         tmp->row[x] = c;
     }
 }
+
+// getter
 int Mappa::getWidth(void){ return this->map_width; }
 int Mappa::getHeight(void){ return this->map_height; }
 int Mappa::getTotalHeight(void){return this->total_height;}

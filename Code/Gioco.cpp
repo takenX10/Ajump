@@ -99,11 +99,6 @@ void Gioco::auto_print_map(){
     }
 }
 
-void zioporco(void){
-    cout<<"ZIOPORCO!"<<endl;
-    system("PAUSE");
-
-}
 
 void Gioco::keyListener(void){
     int key;

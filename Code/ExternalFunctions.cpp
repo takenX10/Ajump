@@ -6,6 +6,11 @@
 #include "ExternalFunctions.h"
 using namespace std;
 
+/*  Author:         Alessandro Frau
+    Parameters:     
+    Return value:   
+    Comments:       
+*/
 char find_char(int column, int line){
     char buf[1];
     COORD coord;
@@ -17,6 +22,11 @@ char find_char(int column, int line){
     return buf[0];
 }
 
+/*  Author:         Alessandro Frau
+    Parameters:     
+    Return value:   
+    Comments:       
+*/
 void move_cursor(int column, int line){
     COORD coord;
     coord.X = column;
@@ -27,6 +37,11 @@ void move_cursor(int column, int line){
     }
 }
 
+/*  Author:         Alessandro Frau
+    Parameters:     
+    Return value:   
+    Comments:       
+*/
 void hide_cursor(void){
    HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
    CONSOLE_CURSOR_INFO info;

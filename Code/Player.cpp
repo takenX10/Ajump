@@ -8,6 +8,11 @@
 using namespace std;
 using namespace constants;
 
+/*  Author:         Alex Lorenzato
+    Parameters:     mappa, posizione giocatore, punti vita iniziali
+    Return value:   none
+    Comments:       inizializzazione giocatore
+*/
 Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_points /* = 100*/){
     this->x = x;
     this->y = y;
@@ -19,6 +24,11 @@ Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_poi
     }
 }
 
+/*  Author:         Alex Lorenzato
+    Parameters:     direzione definita dal tasto premuto 
+    Return value:   true sse il movimento è permesso
+    Comments:       controllo  e gestione del movimento giocatore
+*/
 bool Player::checkMovement(int direction){
     switch(direction){
         case SOPRA:
