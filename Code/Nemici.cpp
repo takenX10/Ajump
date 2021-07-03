@@ -1,7 +1,7 @@
-/*
-@ Author: Alessandro Frau
+    /*  Author:         Alessandro Frau -> Spawn, movimento, gestione delle stats.
+                        Francesco Apollonio -> Gestione delle stats, tipologia di nemici.
 
-*/
+    */
 #include<iostream>
 #include<string>
 #include <ctime>
@@ -15,37 +15,6 @@ using namespace constants;
 using namespace std;
 
 #include <fstream>
-///// debug
-// Queste funzioni servono per visualizzare meglio la lista di nemici
-// salvandola in un file
-string where(int n){
-    switch(n){
-        case SOTTO:
-            return "SOTTO         ";
-            break;
-        case SOTTO_DESTRA:
-            return "SOTTO_DESTRA  ";
-        case SOTTO_SINISTRA:
-            return "SOTTO_SINISTRA";
-        default:
-            return "NON_LO_SO     ";
-    }
-    return "NON_LO_SO     ";
-}
-
-// TODO: Toglierlo
-void printfile(ptr_nodo_nemici lista){
-    ofstream myfile;
-    myfile.open ("lista_nemici.txt");
-    int i = 0;
-    while(lista!=NULL){
-        myfile << to_string(i) << ") "<<(i>9?"":" ")<<"Movedir:"<<where(lista->move_direction)<<" X:"<<to_string(lista->entity.x)<<(lista->entity.x>9?"":" ")<<" Y:"<<to_string(lista->entity.y)<<(lista->entity.y>9?"":" ")<< " vita -> " << lista->entity.health<<endl;
-        i++;
-        lista = lista->next;
-    }
-    myfile.close();
-}
-/////End debug
 
 Nemico::Nemico(int pos_x = -1, int pos_y = -1, int kind_of_enemy = 1){
     this->x = pos_x;
@@ -79,7 +48,8 @@ int Nemico::decide_kindOfEnemy(int level){
     else{
         int random_number = rand() % 9; //In questo modo gestisco al meglio la frequenza con cui voglio che spawni un nemico piuttosto che un altro
         if(random_number == 0) this->kind_of_enemy = COD_BOSS; //Ho circa il 10% di possibilità che spawni il BOSS
-        else if (random_number > 0 && random_number < 4) this->kind_of_enemy = COD_TANK;
+        //Ho il 33% circa di probabilità che spawni oguno degli altri nemici.
+        else if (random_number > 0 && random_number < 4) this->kind_of_enemy = COD_TANK; 
         else if (random_number > 3 && random_number < 7) this->kind_of_enemy = COD_ARTIGLIERE;
         else kind_of_enemy = COD_SOLD_SEMPLICE;      
     }
@@ -246,7 +216,7 @@ void Lista_nemici::danneggia_nemico_x(int x){
         tmp = tmp->next;
     }
     if(tmp != NULL){
-        if(this->proiettili->special_bullet > 0){
+        if(proiettili->get_special_bullet() > 0){
             tmp->entity.change_health( -(DANNO_PROIETT_SPECIALE) );
         }
         else{

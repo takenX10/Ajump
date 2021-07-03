@@ -153,7 +153,17 @@ int BulletList::get_special_bullet(void){
        return this->special_bullet;
 }
 
+void BulletList::set_special_bullet(int number){
+    this->special_bullet = number;
+}
 
+int BulletList::get_damage_enemy_x(void){
+    return this->damage_enemy_x;
+}
+
+void BulletList::set_damage_enemy_x(int x){
+    this->damage_enemy_x = x;
+}
 
 /*  Author:         Alessandro Frau (Parte logica), Francesco Apollonio (Parte legata al danno in base al tipo di nemico)
     Parameters:     void
@@ -243,7 +253,7 @@ void BulletList::move_bullet(void){
  
 
                 // controllo collisioni con altri proiettili o nemici
-                if((new_old_char == CHAR_ARTIGLIERE || new_old_char == CHAR_BOSS || new_old_char == CHAR_SOLD_SEMPLICE || new_old_char == CHAR_TANK) && tmp->direction == SOPRA){ // proiettile personaggio sul nemico                                               
+                if((new_old_char == CHAR_ARTIGLIERE || new_old_char == CHAR_BOSS || new_old_char == CHAR_SOLD_SEMPLICE || new_old_char == CHAR_TANK) && tmp->direction == SOPRA){ // proiettile del player sul nemico                                               
                     collision = true;
                     this->damage_enemy_x = tmp->x;
                     this->delete_bullet(tmp->id);

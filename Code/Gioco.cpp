@@ -53,9 +53,9 @@ void Gioco::auto_print_map(){
         
         if(counter_movimento_proiettili == velocita_movimento_proiettili){
             this->proiettili->move_bullet();
-            if(this->proiettili->damage_enemy_x != -1){
-                this->nemici->danneggia_nemico_x(this->proiettili->damage_enemy_x);
-                this->proiettili->damage_enemy_x = -1;
+            if(this->proiettili->get_damage_enemy_x() != -1){
+                this->nemici->danneggia_nemico_x(this->proiettili->get_damage_enemy_x());
+                this->proiettili->set_damage_enemy_x(-1);
             }
             counter_movimento_proiettili = -1;
         }
@@ -80,9 +80,9 @@ void Gioco::auto_print_map(){
         int altezza = this->p->getY(); //Prendo la posizione del player
         int deve_spawnare = (altezza - 1) % FREQ_SPAWN_BONUS; //In base alla suddetta decido se è il momento di far spawnare un bonus o meno
         
-        if(altezza > 1 && deve_spawnare == 0 && this->bonus->last_spawn_height != altezza){
+        if(altezza > 1 && deve_spawnare == 0 && bonus->get_last_spawn_height() != altezza){
             this->bonus->aggiungi_bonus();
-            this->bonus->last_spawn_height = altezza; //Questo controllo serve per evitare lo spawn di più di un bonus quando mi trovo alla stessa altezza per più tempo
+            bonus->set_last_spawn_height(altezza); //Questo controllo serve per evitare lo spawn di più di un bonus quando mi trovo alla stessa altezza per più tempo
         }
         
         if(this->p->esegui_bonus != -1){ 
@@ -99,6 +99,11 @@ void Gioco::auto_print_map(){
     }
 }
 
+void zioporco(void){
+    cout<<"ZIOPORCO!"<<endl;
+    system("PAUSE");
+
+}
 
 void Gioco::keyListener(void){
     int key;
@@ -109,8 +114,9 @@ void Gioco::keyListener(void){
             this->p->deve_sparare = false;
             this->proiettili->shoot_bullet();
             //Se sono attivi "proiettili speciali", ne scalo uno ad ogni colpo sparato. (Ogni tasto 'spazio' premuto)
-            if(this->proiettili->special_bullet > 0){
-                this->proiettili->special_bullet --;
+            int num_spec_bull = proiettili->get_special_bullet();
+            if(num_spec_bull > 0){
+                proiettili->set_special_bullet(--num_spec_bull);
             }
         }
     }

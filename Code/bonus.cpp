@@ -15,37 +15,43 @@ Bonus::Bonus(Mappa *map, Player *player, Lista_nemici *nemici, BulletList *proie
 }
 
 char Bonus::char_of_bonus(int kind_of_bonus){
-    switch (kind_of_bonus)
-    {
+    switch (kind_of_bonus) {
     case COD_BONUS_SALUTE:
         return BONUS_SALUTE;
         break;
+
     case COD_MALUS_SALUTE:
         return MALUS_SALUTE;
         break;
+
     case COD_BONUS_BOMBA:
         return BONUS_BOMBA;
         break;
+
     case COD_BONUS_PROIETTILI_SPECIALI:
         return BONUS_PROIETTILI_SPECIALI;
         break;
+
     default:
         return BONUS_SALUTE;
     } 
 }
 
 void Bonus::aggiungi_bonus(){
-    srand(time(NULL));
+    srand(time(NULL)); 
     ptr_bonus nuovo_bonus = new nodo_bonus;
-    nuovo_bonus->kind_of_bonus = (rand() % BONUS_TOTALI ) + 1; //Decisione bonus da far spawnare
-    int spawn_x = ROW_DIM / 2; //centro della mappa
-    int spawn_y = this->player->getY() + 24; //24esima riga: riga esistente ma non 'inquadrata' dalla mappa. 
+    nuovo_bonus->kind_of_bonus = (rand() % BONUS_TOTALI ) + 1; //Decisione del bonus da far spawnare
+    int spawn_x = ROW_DIM / 2; //Centro della mappa, utile nell'algoritmo subito in basso.
+    int spawn_y = this->player->getY() + 24; //Il 24 serve a determinare l'altezza rispetto alla posizione del player in cui spawnerà il bonus.
+                                             //24 posizioni sopra il player, ovvero l'ultima riga generata della mappa (e NON ancora visibile al player).
     bool left = false;
     int shift = 1;
 
-    /*Con il seguente while, partendo dal centro, mi sposto prima a destra e poi a sinistra finchè non
-    trovo una zona della mappa che soddisfi i miei parametri per lo spawn del bonus;
-    ovvero uno spazio vuoto con sotto almeno due basi (in modo che il player possa arrivarci)
+    /*
+        Spiegazione intuitiva dell'algoritmo che determina la posizione dello spawn del bonus:
+        Partendo dal centro, mi sposto prima a destra e poi a sinistra finchè non
+        trovo una zona della mappa che soddisfi i miei parametri per lo spawn del bonus;
+        uno spazio vuoto con sotto almeno due basi (in modo che il player possa arrivarci agevolmente)
     */
 
     while( ! (this->map->getRow(spawn_y)->row[spawn_x] == SPAZIO_VUOTO && this->map->getRow(spawn_y-1)->row[spawn_x] == PIATTAFORMA && this->map->getRow(spawn_y-3)->row[spawn_x] == PIATTAFORMA)){
@@ -67,12 +73,12 @@ void Bonus::aggiungi_bonus(){
     //Aggiungo il bonus appena creato alla lista.
     //Il bonus in testa è il primo ad essere spawnato, quello in coda l'ultimo.
 
-    if(this->head == NULL){ //Lista vuota
+    if(this->head == NULL){ //Caso in cui la lista è vuota
         this->head = nuovo_bonus;
         nuovo_bonus->next = NULL;
         nuovo_bonus->prev = NULL;
     }
-    else{ //La lista non è vuota
+    else{ //Caso in cui la lista non è vuota
         ptr_bonus tmp = this->head;
         while(tmp->next != NULL){
             tmp = tmp->next;
@@ -117,6 +123,7 @@ void Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
         this->player->change_health(VALORE_BONUS_SALUTE); 
     }
     else if(kind_of_bonus == COD_BONUS_BOMBA){ 
+
         //Elimino tutti i nemici presenti nella mappa (NON i loro proiettili)
         ptr_nodo_nemici tmp = this->nemico->head;
         if(tmp != NULL){
@@ -133,10 +140,10 @@ void Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
        }
     }
     else if(kind_of_bonus == COD_BONUS_PROIETTILI_SPECIALI){
-        this->proiettili->special_bullet = NUMERO_PROIETTILI_SPECIALI;
+        proiettili->set_special_bullet(NUMERO_PROIETTILI_SPECIALI);
     }
     
-    //Elimino il bonus dalla lista di quelli esistenti.
+    //Elimino il bonus dalla lista di quelli esistenti, in cui è salvato.
     ptr_bonus tmp = this->head;
     while( !(tmp->x == x && tmp->y == y) ){
         tmp = tmp->next;
@@ -147,3 +154,11 @@ void Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
     
 }
 
+
+void Bonus::set_last_spawn_height(int value){
+    this->last_spawn_height = value;
+}
+
+int Bonus::get_last_spawn_height(void){
+    return this->last_spawn_height;
+}
