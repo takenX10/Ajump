@@ -27,7 +27,7 @@ Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_poi
 /*  Author:         Alex Lorenzato
     Parameters:     direzione definita dal tasto premuto 
     Return value:   true sse il movimento è permesso
-    Comments:       controllo  e gestione del movimento giocatore
+    Comments:       controllo se il movimento è permesso
 */
 bool Player::checkMovement(int direction){
     switch(direction){
@@ -67,6 +67,7 @@ bool Player::checkMovement(int direction){
     }
     return false;
 }
+
 
 void Player::move(int direction){
     char oldchar;
