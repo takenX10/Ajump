@@ -11,7 +11,6 @@ using namespace constants;
     Comments:       inizializzazione mappa, vengono riempiti i primi map_height piani con dele piattaforme
 */
 Mappa::Mappa(int map_height /*= 0*/, int map_width /*= 0*/){
-    //ptr_Map tmp = map_head;  // uso tmp perché map verrà aggiornato e non punterà più alla riga 0
     this->map_height = map_height;
     this->map_width = map_width;
     this->map_head = NULL;

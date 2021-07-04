@@ -4,6 +4,10 @@
 using namespace constants;
 using namespace std;
 
+/*
+NB. Commenti tecnici possono essere trovati nel file "bonus.h"
+*/
+
 Bonus::Bonus(Mappa *map, Player *player, Lista_nemici *nemici, BulletList *proiettili){
     this->map = map;
     this->player = player;

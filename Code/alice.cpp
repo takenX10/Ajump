@@ -16,9 +16,12 @@ Classifica::Classifica(char filename[]){
 }
 
 /*
-    - apro il file Leaderboard.txt
-    - prendo i valori e li salvo in lista
+    Author: Alice Benatti
+    Parameters: void
+    Return value: Lista contenente nomi e punteggi dei player in scoreboard.
+    Comments: Leggo le stringhe del file finchè non giungo alla fine dello stesso.
 */
+
 plista Classifica::get_file(void){
     ifstream OpenFile;
     OpenFile.open(this->filename,ios::in);
@@ -27,8 +30,8 @@ plista Classifica::get_file(void){
     plista aux = NULL;
     plista tmp = NULL;
     int pass;
-    string stringa;
-    int count = 1; // Inserisco un count affinchè non vengano letti più di 9 elementi. Per qualche motivo sennò si bugga in stoi.
+    string stringa; // TODO: rimuovi questo
+    int count = 1;  
     while (!is_file_empty(OpenFile) &&!OpenFile.eof() && count < 10){
         tmp = new lista_classifica;
         getline(OpenFile, stringa, '\n');
@@ -56,14 +59,17 @@ plista Classifica::get_file(void){
     return head;
 }
 
-// TODO: Fixare le funzioni per la classifica nei casi limite
-/* 
-    aggiungo alla lista nel punto desiderato
-    - salvo in lista new_val i nuovi valori
-    - scorro la lista e trovo il punto di inserimento
-    - creo tmp aggiungo in testa il nuovo elemento
-    - allaccio le liste
+
+
+/*
+    Author: Alice Benatti
+    Parameters: score -> punteggio fatto dal player.
+                nick -> nome del player.
+    Return value: void
+    Comments: Cerco nella lista il punto esatto in cui inserire il punteggio.
+              L'obiettivo è ovviamente quello di mantenere una lista ordinata decrescentemente.
 */
+
 void Classifica::add_value(int score, char nick[]){
     plista tmp = this->head;
     plista new_val = new lista_classifica;
@@ -92,9 +98,14 @@ void Classifica::add_value(int score, char nick[]){
     }
 }
 
+
 /*
-    salvo nel file Leaderboard.txt la lista inserendo la posizione in classifica
+    Author: Alice Benatti
+    Parameters: void
+    Return value: void
+    Comments: salvo nel file Leaderboard.txt la lista appena aggiornata.
 */
+
 
 void Classifica::save_file(){
     plista tmp = this->head;
@@ -114,6 +125,12 @@ void Classifica::save_file(){
 }
 
 
+/*
+    Author: Alice Benatti
+    Parameters: position -> posizione in classifica di un elemento.
+    Return value: Puntatore all'elemento cercato nella lista in cui sono salvati gli elementi in classifica.
+    Comments: Scorro la lista di 'position' ottenendo l'elemento da me cercato. 
+*/
 plista Classifica::get_position(int position){
     plista tmp = this->head;
     int i = 1;
@@ -127,7 +144,15 @@ plista Classifica::get_position(int position){
     return tmp;
 }
 
-// ====== Schermata iniziale: titolo & menu' ======
+
+
+/*
+    Author: Alice Benatti
+    Parameters: LBoard -> Scoreboard
+    Return value: void
+    Comments: Schermata iniziale del gioco. Permette la visualizzazione della classifica e di iniziare la partita.
+*/
+
 void StartScreen(Classifica LBoard){
     clearscreen();
     char key; bool check= false;
@@ -154,7 +179,18 @@ void StartScreen(Classifica LBoard){
     while (check==false);
 }
 
-// funzione di alex x fare partire il Gioco + navigabilità (se serve)
+
+/*
+    Author: Alice Benatti(?)
+    Parameters: LBoard -> Scoreboard 
+    Return value: void
+    Comments: La funzione permette l'avvio del gioco.
+*/
+
+//TODO: si potrebbe fare un file a parte per questa printmap(?) Essendo praticamente il vero main del gioco.
+//TODO: ma passare il parametro LBoard è necessario(?) Non saprei come spiegarne il senso.
+
+
 void PrintMap(Classifica LBoard){
     clearscreen();
     color(Black, White);
@@ -165,19 +201,26 @@ void PrintMap(Classifica LBoard){
     Bonus bonus = Bonus(&m, &p, &ent, &proiettili);
     Gioco  g = Gioco(&m, &p, &proiettili, &ent, &bonus);
 
-    hide_cursor(); // per rendere il cursore invisibile
+    hide_cursor(); // Rende il cursore invisibile
 
     thread print_map_thread(&Gioco::auto_print_map, g);
     thread get_position(&Gioco::keyListener, g);
 
     print_map_thread.join();
-    GameOver((m.getTotalHeight()-29)/2); // TODO: Eliminare le funzioni legate all'obrobrio globale XP_PLAYER e getXP_PLAYER...
+    GameOver((m.getTotalHeight()-29)/2);
 }
 
-/* ====== Game Over ======
-    - salvataggio nuovo punteggio in classifica
-    - navigabilità 
+
+/*
+    Author: Alice Benatti
+    Parameters: score -> punteggio ottenuto dal player che ha appena terminato la partita.
+    Return value: void
+    Comments: La funzione viene chiamata al termine della partita. 
+              Permette di salvare il punteggio nella leaderboard, aggiornarla, e visualizzarla.
+              L'utente può anche scegliere di non salvare il punteggio, uscendo così dal gioco.
 */
+
+
 void GameOver(int score){
     clearscreen();
     char key;
@@ -211,7 +254,7 @@ void GameOver(int score){
                 cout << "\n\n       >> Okay! Press SPACE to exit the game" << endl;
                 do{
                     key=getch();
-                    if ((int)key == SPACE) exit(0); //StartScreen(LBoard);
+                    if ((int)key == SPACE) exit(0);
                     
                     else cout << "ERROR: INSERT A CORRECT VALUE" << endl;  
                 } while(true);
@@ -226,24 +269,25 @@ void GameOver(int score){
         cout << "\n\n       >> press SPACE to exit the game "<< endl;
         do{
             key=getch();
-            if ((int)key == SPACE) exit(0); //StartScreen(LBoard);
+            if ((int)key == SPACE) exit(0);
             else cout << "ERROR: INSERT A CORRECT VALUE" << endl;
         } while(true);
     } while(true);
 }
 
-/* ====== Classifica dei punteggi ======
-    - lettura file Leaderboard.txt
-    - stampa classifica di x posizioni
-    - evidenzia eventuale nuovo salvataggio
-*/
-void Leaderboard(Classifica classifica){
-    char key; //valore del tasto premuto dall'utente
-    clearscreen();
-   // classifica.get_file();
-    // print classifica con get_position
-    printTop(classifica);
 
+
+/*
+    Author: Alice Benatti
+    Parameters: classifica -> lista contenente la classifica.
+    Return value: void
+    Comments: Pulisce lo schermo e chiama una funzione che stamperà la classifica.
+*/
+
+void Leaderboard(Classifica classifica){
+    char key; //valore del tasto che premerà l'utente
+    clearscreen();
+    printTop(classifica);
     color(Black, White);
     cout << "\n\n       >> press SPACE to return at home" << endl;
     do{
@@ -253,11 +297,17 @@ void Leaderboard(Classifica classifica){
     } while(true);
 }
 
-// stampa classifica di x posizioni
+
+/*
+    Author: Alice Benatti
+    Parameters: lista -> lista contenente gli elementi salvati nella scoreboard.
+    Return value: void
+    Comments: Scorre la lista e stampa gli elementi contenuti in essa.
+*/
+
 void printTop(Classifica lista){
     cout << "\n\nHere is the scoreboard of our BEST player!\nAre you a part of it?\n\n";
     string aster = "*";
-    //for (int i = 0; i <= lista.get_scoreboard_lenght()-2; i++){ 
         int i = 0;
         while(lista.head != NULL && i < 9){
         if (i%2==0) color(Black, Purple);

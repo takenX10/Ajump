@@ -18,49 +18,104 @@ class Classifica{
     public:
         Classifica(char filename[]);
         
+        
         /*
-            - apro il file Leaderboard.txt
-            - prendo i valori e li salvo in lista
+            Author: Alice Benatti
+            Parameters: void
+            Return value: Lista contenente nomi e punteggi dei player in scoreboard.
+            Comments: Leggo le stringhe del file finchè non giungo alla fine dello stesso.
         */
+
         plista get_file(void);
-        /* 
-            aggiungo alla lista nel punto desiderato
-            - salvo in lista new_val i nuovi valori
-            - scorro la lista e trovo il punto di inserimento
-            - creo tmp aggiungo in testa il nuovo elemento
-            - allaccio le liste
-        */
-        void add_value(int score, char nick[]);
+
+
         /*
-            salvo nel file Leaderboard.txt la lista inserendo la posizione in classifica
+            Author: Alice Benatti
+            Parameters: score -> punteggio fatto dal player.
+                        nick -> nome del player.
+            Return value: void
+            Comments: Cerco nella lista il punto esatto in cui inserire il punteggio.
+                      L'obiettivo è ovviamente quello di mantenere una lista ordinata decrescentemente.
         */
+
+        void add_value(int score, char nick[]);
+
+        /*
+            Author: Alice Benatti
+            Parameters: void
+            Return value: void
+            Comments: salvo nel file Leaderboard.txt la lista appena aggiornata.
+        */
+
         void save_file();
 
-        
+        /*
+            Author: Alice Benatti
+            Parameters: position -> posizione in classifica di un elemento.
+            Return value: Puntatore all'elemento cercato nella lista in cui sono salvati gli elementi in classifica.
+            Comments: Scorro la lista di 'position' ottenendo l'elemento da me cercato. 
+        */
+
         plista get_position(int position);
 };
 typedef Classifica* lista;
 
-// ====== Schermata iniziale: titolo & menu' ======
+/*
+    Author: Alice Benatti
+    Parameters: LBoard -> Scoreboard
+    Return value: void
+    Comments: Schermata iniziale del gioco. Permette la visualizzazione della classifica e di iniziare la partita.
+*/
+
 void StartScreen(Classifica LBoard);
 
-// funzione di alex x fare partire il Gioco + navigabilità (se serve)
+
+
+/*
+    Author: Alice Benatti
+    Parameters: LBoard -> Scoreboard 
+    Return value: void
+    Comments: La funzione permette l'avvio del gioco.
+*/
+
+//TODO: si potrebbe fare un file a parte per questa printmap(?) Essendo praticamente il vero main del gioco.
+//TODO: ma passare il parametro LBoard è necessario(?) Non saprei come spiegarne il senso.
+
 void PrintMap(Classifica LBoard);
 
-/* ====== Game Over ======
-    - salvataggio nuovo punteggio in classifica
-    - navigabilità 
+
+
+/*
+    Author: Alice Benatti
+    Parameters: score -> punteggio ottenuto dal player che ha appena terminato la partita.
+    Return value: void
+    Comments: La funzione viene chiamata al termine della partita. 
+              Permette di salvare il punteggio nella leaderboard, aggiornarla, e visualizzarla.
+              L'utente può anche scegliere di non salvare il punteggio, uscendo così dal gioco.
 */
+
 void GameOver(int score);
 
-/* ====== Classifica dei punteggi ======
-    - lettura file Leaderboard.txt
-    - stampa classifica di x posizioni
-    - evidenzia eventuale nuovo salvataggio
+
+
+/*
+    Author: Alice Benatti
+    Parameters: classifica -> lista contenente la classifica.
+    Return value: void
+    Comments: Pulisce lo schermo e chiama una funzione che stamperà la classifica.
 */
+
 void Leaderboard(Classifica classifica);
 
-// stampa classifica di x posizioni
+
+
+/*
+    Author: Alice Benatti
+    Parameters: lista -> lista contenente gli elementi salvati nella scoreboard.
+    Return value: void
+    Comments: Scorre la lista e stampa gli elementi contenuti in essa.
+*/
+
 void printTop(Classifica lista);
  
 

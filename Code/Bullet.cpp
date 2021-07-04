@@ -148,18 +148,49 @@ void BulletList::shoot_bullet(void){
     }
 }
 
-// TODO: da commentare
+
+/*  Author:         Francesco Apollonio 
+    Parameters:     void
+    Return value:   int
+    Comments:       Funzione che restituisce il numero di proiettili speaciali disponibili.
+*/
+
+
 int BulletList::get_special_bullet(void){
        return this->special_bullet;
 }
+
+/*  Author:         Francesco Apollonio 
+    Parameters:     int
+    Return value:   void
+    Comments:       Funzione che setta il numero di proiettili speaciali disponibili.
+                    Viene chiamata nel momento in cui il player prende il bonus "proiettili speciali"
+                    Il numero che viene settato è predefinito.
+*/
 
 void BulletList::set_special_bullet(int number){
     this->special_bullet = number;
 }
 
+    /*  Author:         Francesco Apollonio 
+        Parameters:     void
+        Return value:   int
+        Comments:       La funzione restituisce la colonna sulla quale è presente un nemico da danneggiare.
+                        Se nessun nemico dev'essere danneggiato il suo valore di default è -1.
+    */
+
 int BulletList::get_damage_enemy_x(void){
     return this->damage_enemy_x;
 }
+
+
+/*  Author:         Francesco Apollonio 
+    Parameters:     int
+    Return value:   void
+    Comments:       La funzione modifica il parametro identificando così una colonna sulla quale
+                    è presente un nemico da danneggiare.
+*/
+
 
 void BulletList::set_damage_enemy_x(int x){
     this->damage_enemy_x = x;

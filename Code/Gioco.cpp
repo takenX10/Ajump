@@ -23,25 +23,21 @@ Gioco::Gioco(Mappa *m, Player *p, BulletList *proiettili, Lista_nemici *nemici, 
     this->bonus = bon;
 }
 void Gioco::auto_print_map(){
-    
-    // debug generale, non abbiamo ancora valutato con che criterio
-    // far spawnare i nemici quindi usiamo counter1 per il movimento e counter2 per 
-    // il tempo che impiegano a nascere
+
     int counter = 0; // serve per decidere quando far muovere i nemici
-    int counter2 = 0;
+    int counter2 = 0; // tempo che impiegano i nemici a nascere
     int counter_movimento_proiettili = 0;
     int counter_fire = 0;
     int velocita_movimento_proiettili = 1;
     int velocita_movimento = velocita_movimento_proiettili * 10;
-    //I due parametri seguenti possono essere modificati
-    //per aumentare la difficoltà del gioco gradualmente
+    //I due parametri seguenti possono essere modificati per aumentare la difficoltà del gioco gradualmente
     int velocita_spawn_nemici = velocita_movimento + 100;
-    int fire_rate_nemici = velocita_movimento_proiettili * 30; // o 30 o 10, sennò si bugga
+    int fire_rate_nemici = velocita_movimento_proiettili * 30;
     int difficolta = STEP_DIFFICOLTA; //Questo variabile stabilisce ogni quante righe viene aumentato il livello di difficoltà
     while(!end_game){       
 
         //Il seguente IF permette l'aumento graduale della difficoltà, andando a modificare
-        //la velocità di spawn dei nemici, e quindi il numero di nem da affrontare in contemporanea.
+        //la velocità di spawn dei nemici, e quindi il numero di nem da affrontare contemporaneamente.
         if(this->p->getY() > 1){
             if((this->p->getY() - 1) % difficolta == 0 && velocita_spawn_nemici - 10 > velocita_movimento){
             counter2 = 0;
@@ -82,7 +78,7 @@ void Gioco::auto_print_map(){
         
         if(altezza > 1 && deve_spawnare == 0 && bonus->get_last_spawn_height() != altezza){
             this->bonus->aggiungi_bonus();
-            bonus->set_last_spawn_height(altezza); //Questo controllo serve per evitare lo spawn di più di un bonus quando mi trovo alla stessa altezza per più tempo
+            bonus->set_last_spawn_height(altezza); //Questo controllo serve per evitare lo spawn di più bonus quando rimango alla stessa altezza per più tempo
         }
         
         if(this->p->esegui_bonus != -1){ 
@@ -99,11 +95,6 @@ void Gioco::auto_print_map(){
     }
 }
 
-void zioporco(void){
-    cout<<"ZIOPORCO!"<<endl;
-    system("PAUSE");
-
-}
 
 void Gioco::keyListener(void){
     int key;

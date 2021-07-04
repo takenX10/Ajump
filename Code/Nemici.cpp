@@ -23,7 +23,7 @@ Nemico::Nemico(int pos_x = -1, int pos_y = -1, int kind_of_enemy = 1){
     if (kind_of_enemy == COD_SOLD_SEMPLICE) { this->health = VITA_SOLD_SEMPLICE; this->damage = DANNO_SOLD_SEMPLICE; }
     else if (kind_of_enemy == COD_ARTIGLIERE) { this->health = VITA_ARTIGLIERE; this->damage = DANNO_ARTIGLIERE; }
     else if (kind_of_enemy == COD_TANK) { this->health = VITA_TANK; this->damage = DANNO_TANK; }
-    else /*COD_BOSS*/ { this->health = VITA_BOSS; this->damage = DANNO_BOSS; }
+    else { this->health = VITA_BOSS; this->damage = DANNO_BOSS; }
 }
 
 char Nemico::char_of_enemy(){
@@ -41,7 +41,7 @@ void Nemico::update_position(int new_x, int new_y){
     this->x = new_x;
     this->y = new_y;
 }
-//funzione beta per la determinazione del tipo di nemico.
+//funzione per la determinazione del tipo di nemico.
 int Nemico::decide_kindOfEnemy(int level){
     srand(time(NULL));
     if(level > DIFFICOLTA_ESTREMA) this->kind_of_enemy = COD_BOSS; //Incremento notevole della difficoltà facendo spawnare sempre BOSS
@@ -102,9 +102,7 @@ void Lista_nemici::aggiungi_nemico(Nemico enemy){
             new_enemy->next = NULL;
         }
     }
-    // TODO: Toglierlo
-    // printfile(this->head);
-    ///////
+
 }
 
 // elimina il nemico con l'id passato
@@ -128,9 +126,6 @@ void Lista_nemici::elimina_nemico(int id){
         this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
         free(tmp);
     }
-    // TODO: Toglierlo
-    //printfile(this->head);
-    //
 }
 
 // da chiamare ogni volta che si vogliono far muovere i nemici
@@ -138,10 +133,6 @@ void Lista_nemici::elimina_nemico(int id){
 void Lista_nemici::muovi_nemici(void){
     this->nuove_direzioni();        // calcola le nuove direzioni degli elementi
     ptr_nodo_nemici tmp = this->head;
-    
-    // TODO: Toglierlo
-    //printfile(this->head);
-    /////
     
     while(tmp!=NULL){
         if(tmp->just_spawned == true){  // nemico appena spawnato
@@ -203,9 +194,6 @@ void Lista_nemici::muovi_nemici(void){
             }
         }
     }
-    // TODO: Toglierlo
-    // printfile(this->head);
-    ///////
 }
 
 
@@ -239,16 +227,10 @@ void Lista_nemici::danneggia_nemico_x(int x){
                 }
                 this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
                 free(tmp);
-                // TODO: Toglierlo
-                //printfile(this->head);
-                //
             }
         }
         else{
             this->map->setChar(tmp->entity.x, tmp->entity.y,tmp->entity.char_of_enemy()); 
-            // TODO: Toglierlo
-            // printfile(this->head);
-            //
         }
     }
 
