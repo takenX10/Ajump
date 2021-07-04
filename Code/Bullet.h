@@ -28,10 +28,11 @@ protected:
     Mappa *map;
     Player *player;
     int current_id;
-public:
-    // TODO: Implementare i getter e setter di questi due parametri e metterli a protected.
     int special_bullet; //Numero di Proiettili speciali a disposizione; questi si ottengono con un Bonus
-    int damage_enemy_x = -1;
+    int damage_enemy_x = -1; // Questo parametro varia indicando la colonna nella quale è presente un nemico da danneggaire.
+
+
+public:
 
     /*  Author:         Alessandro Frau
         Parameters:     map -> puntatore alla mappa
@@ -41,7 +42,7 @@ public:
     */
     BulletList(Mappa *map, Player *p);
    
-    /*  Author:         Alessandro Frau (Parte logica), Francesco apollonio (Parte di who_shot)
+    /*  Author:         Alessandro Frau (Parte logica), Francesco Apollonio (Parte di who_shot)
         Parameters:     x -> cordinata x in cui deve uscire il proiettile
                         y -> cordinata y in cui deve uscire il proiettile
                         direction -> la direzione in cui si sposta il proiettile (SOPRA o SOTTO)
@@ -76,7 +77,46 @@ public:
     */
     void shoot_bullet(void);
 
+    /*  Author:         Francesco Apollonio 
+        Parameters:     void
+        Return value:   int
+        Comments:       Funzione che restituisce il numero di proiettili speaciali disponibili.
+    */
+
     int get_special_bullet(void);
+
+
+    /*  Author:         Francesco Apollonio 
+        Parameters:     int
+        Return value:   void
+        Comments:       Funzione che setta il numero di proiettili speaciali disponibili.
+                        Viene chiamata nel momento in cui il player prende il bonus "proiettili speciali"
+                        Il numero che viene settato è predefinito.
+    */
+
+    void set_special_bullet(int number);
+
+
+    /*  Author:         Francesco Apollonio 
+        Parameters:     void
+        Return value:   int
+        Comments:       La funzione restituisce la colonna sulla quale è presente un nemico da danneggiare.
+                        Se nessun nemico dev'essere danneggiato il suo valore di default è -1.
+    */
+
+    int get_damage_enemy_x(void);
+
+
+
+    /*  Author:         Francesco Apollonio 
+        Parameters:     int
+        Return value:   void
+        Comments:       La funzione modifica il parametro identificando così una colonna sulla quale
+                        è presente un nemico da danneggiare.
+    */
+
+    void set_damage_enemy_x(int x);
+
 
     /*  Author:         Alessandro Frau (Parte logica), Francesco Apollonio (Parte legata al danno in base al tipo di nemico)
         Parameters:     void

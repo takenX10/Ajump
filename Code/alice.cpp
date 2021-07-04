@@ -24,7 +24,7 @@ plista Classifica::get_file(void){
     OpenFile.open(this->filename,ios::in);
     int c;
     plista head = NULL;
-    plista aux;
+    plista aux = NULL;
     plista tmp = NULL;
     int pass;
     string stringa;
@@ -50,7 +50,6 @@ plista Classifica::get_file(void){
         }   
 
     }
-    this->registered_scores = count;
     aux->next = NULL;
     OpenFile.close();
     this->head = head;
@@ -114,9 +113,6 @@ void Classifica::save_file(){
     myfile.close();
 }
 
-int Classifica::get_scoreboard_lenght(){
-    return this->registered_scores;
-}
 
 plista Classifica::get_position(int position){
     plista tmp = this->head;
@@ -150,10 +146,10 @@ void StartScreen(Classifica LBoard){
         } 
         else if (key== 'C' || key=='c') {
             check= true;
-            Leaderboard(LBoard, LBoard.get_scoreboard_lenght());
+            Leaderboard(LBoard);
         }
         else if (key==ESC){ check = true; clearscreen(); exit(0); }
-        else cout << "ERROR: INSERT A CORRECT VALUE" << endl;
+        else cout << "\nERROR: INSERT A CORRECT VALUE" << endl;
     }
     while (check==false);
 }
@@ -208,7 +204,6 @@ void GameOver(int score){
                 LBoard.get_file();
                 LBoard.add_value(score, input);
                 LBoard.save_file();
-                socreboard_lenght = LBoard.get_scoreboard_lenght();
                 cout << "Ur score has been saved"<< endl;
             }
             else if ((int)key == 'n' || (int)key == 'N') {
@@ -227,14 +222,11 @@ void GameOver(int score){
             }
 
         }while (check==false);
-        cout << "\n\nHere is the scoreboard of our BEST player!\n Are you here? :P \n\n";
-        printTop(LBoard, socreboard_lenght+1);
-        //cout << "           >> press C to view the leaderboard" << endl;
+        printTop(LBoard);
         cout << "\n\n       >> press SPACE to exit the game "<< endl;
         do{
             key=getch();
             if ((int)key == SPACE) exit(0); //StartScreen(LBoard);
-            else if ((int)key == 'c' || (int)key == 'C') Leaderboard(LBoard, socreboard_lenght+1); // +1 perchè sennò compare une elem in meno in leaderboard
             else cout << "ERROR: INSERT A CORRECT VALUE" << endl;
         } while(true);
     } while(true);
@@ -245,13 +237,12 @@ void GameOver(int score){
     - stampa classifica di x posizioni
     - evidenzia eventuale nuovo salvataggio
 */
-void Leaderboard(Classifica classifica, int scoreboard_lenght){
+void Leaderboard(Classifica classifica){
     char key; //valore del tasto premuto dall'utente
     clearscreen();
-    cout << "GG Sei nella classifica :D\n" << endl;
    // classifica.get_file();
     // print classifica con get_position
-    printTop(classifica, scoreboard_lenght);
+    printTop(classifica);
 
     color(Black, White);
     cout << "\n\n       >> press SPACE to return at home" << endl;
@@ -263,19 +254,16 @@ void Leaderboard(Classifica classifica, int scoreboard_lenght){
 }
 
 // stampa classifica di x posizioni
-void printTop(Classifica lista, int scoreboard_lenght){ // TODO: fare in modo che la classifica si possa visualizzare anche se le persone sono meno di 5
+void printTop(Classifica lista){
+    cout << "\n\nHere is the scoreboard of our BEST player!\nAre you a part of it?\n\n";
     string aster = "*";
-    for (int i = 0; i <= scoreboard_lenght-2; i++){ 
+    //for (int i = 0; i <= lista.get_scoreboard_lenght()-2; i++){ 
+        int i = 0;
+        while(lista.head != NULL && i < 9){
         if (i%2==0) color(Black, Purple);
         else color(Black, Red);
         lista.get_position(i);
-        string tab = "\t";
-        /* vedi con gli asterischi: 1*  Nome    Punteggio | 2**   Nome    Punteggio ...
-        if (strlen(lista.head->nick)<=8) tab ="\t\t";
-        if (aster == "*****") aster ="*";
-        cout<< aster <<(i+1) <<") "<< lista.head->nick << tab << lista.head->score<< setw(5)<<"*"<<endl;
-        aster+="*";*/ 
-        
+        string tab = "\t";       
         color(Black, Purple);
         cout<<"[";
         color(Black,Bright_White);
@@ -287,6 +275,7 @@ void printTop(Classifica lista, int scoreboard_lenght){ // TODO: fare in modo ch
         color(Black,Light_Aqua);
         cout<<lista.head->score<<endl;
         lista.head=lista.head->next;
+        i++;
     }
  }
  

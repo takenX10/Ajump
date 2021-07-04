@@ -15,7 +15,6 @@ class Classifica{
     public:
         plista head;
         char filename[100];
-        int registered_scores; // Numero di elementi salvati.
     public:
         Classifica(char filename[]);
         
@@ -37,7 +36,6 @@ class Classifica{
         */
         void save_file();
 
-        int get_scoreboard_lenght(void);
         
         plista get_position(int position);
 };
@@ -60,10 +58,10 @@ void GameOver(int score);
     - stampa classifica di x posizioni
     - evidenzia eventuale nuovo salvataggio
 */
-void Leaderboard(Classifica classifica, int scoreboard_lenght);
+void Leaderboard(Classifica classifica);
 
 // stampa classifica di x posizioni
-void printTop(Classifica lista, int scoreboard_lenght);
+void printTop(Classifica lista);
  
 
 #include "alice.cpp"

@@ -1,9 +1,9 @@
 #ifndef NEMICI_H
 #define NEMICI_H
-/*
-@ Author: Alessandro Frau
+    /*  Author:         Alessandro Frau -> Spawn, movimento, gestione delle stats.
+                        Francesco Apollonio -> Gestione delle stats, gestione delle varie tipologie di nemici.
 
-*/
+    */
 #include<iostream>
 #include "Mappa.h"
 #include "Player.h"
@@ -23,8 +23,18 @@ public:
     char char_of_enemy();
     //Modifica la salute del nemico, se questa è minore di zero il nemico muore.
     void change_health(int value);
-    //void change_damage(int value); //Mi sa mai usato questo metodo (?) controlla
+    
     void update_position(int new_x, int new_y);
+
+
+    /*  Author:         Francesco Apollonio
+        Parameters:     level -> Livello attuale del gioco. 
+                        Return value:   int -> ritorna il codice della tipologia di nemico che è spawnato. In questo modo posso sapere il carattere che lo rappresenterà da stampare.
+        Comments:       In base al livello del gioco l'algoritmo determina la tipologia di nemico da far spawnare.
+                        Se il livello supera una soglia definita "difficoltà estrema" spawnarenna soltanto nemici di tipologia "BOSS"
+
+    */
+
     int decide_kindOfEnemy(int level);
 
 };
@@ -70,7 +80,6 @@ public:
     // da chiamare ogni volta che si vogliono far muovere i nemici
     // massimo una volta a "tick"
     void muovi_nemici(void);
-
 
     // fa sparare tutti i nemici, posizionando il proiettile sotto il nemico
     void spara(void);
