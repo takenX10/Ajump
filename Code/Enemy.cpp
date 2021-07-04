@@ -183,7 +183,6 @@ void EnemyList::delete_enemy(int id){
         tmp = tmp->next;
     }
     if(tmp !=NULL){
-        ID_NEMICO = tmp->id; // salvo id per il punteggio
         this->list_size--;
         if(tmp->prev != NULL){
             tmp->prev->next = tmp->next;

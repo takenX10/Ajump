@@ -148,8 +148,6 @@ void BulletList::shoot_bullet(void){
     Return value:   int
     Comments:       Funzione che restituisce il numero di proiettili speaciali disponibili.
 */
-
-
 int BulletList::get_special_bullet(void){
        return this->special_bullet;
 }
@@ -161,18 +159,16 @@ int BulletList::get_special_bullet(void){
                     Viene chiamata nel momento in cui il player prende il bonus "proiettili speciali"
                     Il numero che viene settato è predefinito.
 */
-
 void BulletList::set_special_bullet(int number){
     this->special_bullet = number;
 }
 
-    /*  Author:         Francesco Apollonio 
-        Parameters:     void
-        Return value:   int
-        Comments:       La funzione restituisce la colonna sulla quale è presente un nemico da danneggiare.
-                        Se nessun nemico dev'essere danneggiato il suo valore di default è -1.
-    */
-
+/*  Author:         Francesco Apollonio 
+    Parameters:     void
+    Return value:   int
+    Comments:       La funzione restituisce la colonna sulla quale è presente un nemico da danneggiare.
+                    Se nessun nemico dev'essere danneggiato il suo valore di default è -1.
+*/
 int BulletList::get_damage_enemy_x(void){
     return this->damage_enemy_x;
 }
@@ -184,8 +180,6 @@ int BulletList::get_damage_enemy_x(void){
     Comments:       La funzione modifica il parametro identificando così una colonna sulla quale
                     è presente un nemico da danneggiare.
 */
-
-
 void BulletList::set_damage_enemy_x(int x){
     this->damage_enemy_x = x;
 }
@@ -223,38 +217,50 @@ bool BulletList::move_bullet(void){
     while(tmp != NULL){
         // aggiorna posizione vecchia proiettile nella mappa
         if(tmp->old_char != CHAR_ARTIGLIERE && tmp->old_char != CHAR_SOLD_SEMPLICE
-           && tmp->old_char != CHAR_TANK && tmp->old_char != CHAR_BOSS){
+           && tmp->old_char != CHAR_TANK && tmp->old_char != CHAR_BOSS && tmp->old_char != PROIETTILE){
             this->map->set_char(tmp->x, tmp->y, tmp->old_char);
         }
-        tmp->y += (tmp->direction == SOPRA ? 1 : -1);
-        char new_old_char = this->map->get_row(tmp->y)->row[tmp->x];
-        // controlli per capire cosa e' presente nella nuova posizione
-        if(new_old_char == PLAYER){
-            //change health restituisce true se è il player è morto
-            if( player->change_health(- ( tmp->damage ) ) == true ){
+        if(this->player->getX() == tmp->x && this->player->getY() == tmp->y){
+            if(player->change_health(- ( tmp->damage ) ) == true){
                 tmp->old_char = DESTRUCT_PLAYER;
                 end_game = true;                
             }else{
                 tmp->old_char = PLAYER;
-                //this->map->set_char(tmp->x, tmp->y, PLAYER);
+                this->map->set_char(tmp->x, tmp->y, tmp->old_char);
                 this->delete_bullet(tmp->id);          
                 tmp=this->head;    
                 bullet_on_player = true;                
             }
-
-        }else if(new_old_char == PROIETTILE){
-            tmp->old_char = this->set_and_retrieve(tmp->x, tmp->y, tmp->old_char);
-        }else{
-            tmp->old_char = new_old_char;
         }
-
+        char new_old_char;
+        if(!bullet_on_player){
+            tmp->y += (tmp->direction == SOPRA ? 1 : -1);
+            new_old_char = this->map->get_row(tmp->y)->row[tmp->x];
+            // controlli per capire cosa e' presente nella nuova posizione
+            if(new_old_char == PLAYER){
+                //change health restituisce true se è il player è morto
+                if(player->change_health(- ( tmp->damage ) ) == true){
+                    tmp->old_char = DESTRUCT_PLAYER;
+                    end_game = true;                
+                }else{
+                    tmp->old_char = PLAYER;
+                    this->delete_bullet(tmp->id);          
+                    tmp=this->head;    
+                    bullet_on_player = true;                
+                }
+            }else if(new_old_char == PROIETTILE){
+                tmp->old_char = this->set_and_retrieve(tmp->x, tmp->y, tmp->old_char);
+            }else{
+                tmp->old_char = new_old_char;
+            }
+        }
        if (bullet_on_player == false) this->map->set_char(tmp->x, tmp->y, PROIETTILE);      
        
         // elimina proiettili out of bounds
         if (bullet_on_player == false){
             this->map->set_char(tmp->x, tmp->y, PROIETTILE);
         
-            if( (tmp->y < 1 || tmp->y > this->map->get_total_height() - 1 ) ){ // non so se eliminare i proiettili se sono sotto al player
+            if( (tmp->y < 1 || tmp->y > this->map->get_total_height() - 1 ) ){ 
                 this->map->set_char(tmp->x, tmp->y, tmp->old_char);
                 if(tmp->next == NULL){
                     this->delete_bullet(tmp->id);
@@ -287,7 +293,7 @@ bool BulletList::move_bullet(void){
                 }else if(tmp->direction == SOTTO){
                     aux = tmp->next;
                     while(aux != NULL && aux->y >= tmp->y && !collision){
-                        if(tmp->y == aux->y && tmp->x == aux->x){
+                        if((tmp->y == aux->y ||tmp->y == aux->y-1) && tmp->x == aux->x){
                             if(aux->direction == SOPRA){
                                 this->map->set_char(aux->x, aux->y, aux->old_char);
                                 this->delete_bullet(tmp->id);
@@ -304,7 +310,7 @@ bool BulletList::move_bullet(void){
                     while(aux != NULL && aux->y <= tmp->y && !collision){
                         if(tmp->y == aux->y && tmp->x == aux->x){
                             if(aux->direction == SOTTO){
-                                this->map->set_char(aux->x, aux->y, aux->old_char);
+                                this->map->set_char(aux->x, aux->y, tmp->old_char);
                                 this->delete_bullet(tmp->id);
                                 this->delete_bullet(aux->id);
                                 collision = true;

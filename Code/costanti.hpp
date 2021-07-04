@@ -95,12 +95,6 @@ namespace constants{
     constexpr int VITA_BOSS = 300;
     constexpr int DANNO_BOSS = 50;
 
-    // TODO: Toglierli
-    /* Punteggio */
-    bool CHECKPOINT = false;
-    int ID_NEMICO = 0;
-    int XP_PLAYER;
-
     /* Colori */
     constexpr int Blue = 1;
     constexpr int Green =2;

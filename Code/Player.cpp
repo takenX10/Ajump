@@ -112,7 +112,7 @@ bool Player::move(int direction){
 
             case SOTTO:
                 oldchar = this->ptr_mappa->get_row(this->y-2)->row[this->x];
-                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK){
                     end_game = true;
                 }
                 else if(oldchar == BONUS_SALUTE){
@@ -134,7 +134,7 @@ bool Player::move(int direction){
 
             case DESTRA:
                 oldchar = this->ptr_mappa->get_row(this->y)->row[this->x + 1];
-                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
+                if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK){
                     end_game = true;
                 }
                 else if(oldchar == BONUS_SALUTE){
