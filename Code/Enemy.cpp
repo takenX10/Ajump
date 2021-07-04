@@ -1,22 +1,21 @@
-    /*  Author:         Alessandro Frau -> Spawn, movimento, gestione delle stats.
-                        Francesco Apollonio -> Gestione delle stats, tipologia di nemici.
-
-    */
-#include<iostream>
-#include<string>
 #include <ctime>
-#include "Mappa.h"
+#include "Enemy.h"
+#include "Map.h"
 #include "Player.h"
 #include "costanti.hpp"
-#include "Nemici.h"
 #include "Bullet.h"
 
 using namespace constants;
 using namespace std;
 
-#include <fstream>
-
-Nemico::Nemico(int pos_x = -1, int pos_y = -1, int kind_of_enemy = 1){
+/*  Author:         Alessandro Frau
+    Parameters:     pos_x -> cordinata x del nemico
+                    pos_y -> cordinata y del nemico
+                    kind_of_enemy -> tipo di nemico (COD_TANK, COD_ARTIGLIERE, ....)
+    Return value:   void
+    Comments:       Costruttore della classe Enemy
+*/
+Enemy::Enemy(int pos_x = -1, int pos_y = -1, int kind_of_enemy = 1){
     this->x = pos_x;
     this->y = pos_y;
     this->kind_of_enemy = kind_of_enemy;
@@ -26,23 +25,44 @@ Nemico::Nemico(int pos_x = -1, int pos_y = -1, int kind_of_enemy = 1){
     else { this->health = VITA_BOSS; this->damage = DANNO_BOSS; }
 }
 
-char Nemico::char_of_enemy(){
+/*  Author:         Francesco Apollonio
+    Parameters:     void
+    Return value:   carattere del nemico 
+    Comments:       Restituisce il carattere legato al nemico
+*/
+char Enemy::char_of_enemy(void){
     if (kind_of_enemy == COD_SOLD_SEMPLICE) return CHAR_SOLD_SEMPLICE;
     else if (kind_of_enemy == COD_ARTIGLIERE) return CHAR_ARTIGLIERE;
     else if (kind_of_enemy == COD_TANK) return CHAR_TANK;
     else return CHAR_BOSS;
 }
 
-void Nemico::change_health(int value){
+/*  Author:         Francesco Apollonio
+    Parameters:     value -> valore da aggiungere alla vita del nemico
+    Return value:   void
+    Comments:       Aggiunge il valore passato alla vita del nemico
+*/
+void Enemy::change_health(int value){
     this->health += value;
 }
 
-void Nemico::update_position(int new_x, int new_y){
+/*  Author:         Alessandro Frau
+    Parameters:     new_x -> nuova cordinata x del nemico
+                    new_y -> nuova cordinata y del nemico
+    Return value:   void
+    Comments:       Cambia le cordinate del nemico con quelle passate
+*/
+void Enemy::update_position(int new_x, int new_y){
     this->x = new_x;
     this->y = new_y;
 }
-//funzione per la determinazione del tipo di nemico.
-int Nemico::decide_kindOfEnemy(int level){
+
+/*  Author:         Francesco Apollonio
+    Parameters:     level -> il livello corrente, serve per determinare la difficolta
+    Return value:   Tipo di nemico estratto
+    Comments:       Funzione che si occupa di restituire il tipo di nemico far spawnare
+*/
+int Enemy::decide_kind_of_enemy(int level){
     srand(time(NULL));
     if(level > DIFFICOLTA_ESTREMA) this->kind_of_enemy = COD_BOSS; //Incremento notevole della difficoltà facendo spawnare sempre BOSS
     else{
@@ -56,7 +76,50 @@ int Nemico::decide_kindOfEnemy(int level){
     return this->kind_of_enemy;
 }
 
-Lista_nemici::Lista_nemici(Mappa *map, Player *p, BulletList *proiettili){
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   this->x
+    Comments:       funzione che restituisce la cordinata x del nemico
+*/
+int Enemy::get_x(void){
+    return this->x;
+}
+
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   this->y
+    Comments:       funzione che restituisce la cordinata y del nemico
+*/
+int Enemy::get_y(void){
+    return this->y;
+}
+
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   this->health
+    Comments:       funzione che restituisce la vita del nemico
+*/
+int Enemy::get_health(void){
+    return this->health;
+}
+
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   this->kind_of_enemy
+    Comments:       funzione che restituisce il tipo del nemico
+*/
+int Enemy::get_kind_of_enemy(void){
+    return this->kind_of_enemy;
+}
+
+/*  Author:         Alessandro Frau
+    Parameters:     map -> puntatore alla mappa
+                    p -> puntatore al player
+                    proiettili -> puntatore alla classe che gestisce la lista di proiettili
+    Return value:   void
+    Comments:       Costruttore della classe EnemyList
+*/
+EnemyList::EnemyList(Map *map, Player *p, BulletList *proiettili){
     this->head = NULL;
     this->map = map;
     this->player = p;
@@ -65,14 +128,17 @@ Lista_nemici::Lista_nemici(Mappa *map, Player *p, BulletList *proiettili){
     this->proiettili = proiettili;
 }
 
-// aggiunta mantenendo ordine per colonne (in testa il nemico piu a sinistra e in coda quello piu a destra)
-// si da per scontato che non sia presente nessun altro nemico
-// nella colonna in cui e' situato enemy
-// per decidere la coordinata x di enemy e' opportuno usare la funzione
-// get_spawnpos_X di questa classe
-void Lista_nemici::aggiungi_nemico(Nemico enemy){
+/*  Author:         Alessandro Frau
+    Parameters:     enemy -> Classe nemico da aggiungere
+    Return value:   void
+    Comments:       Aggiunge un nemico alla lista di nemici, mantenendo delle caratteristiche:
+                    - La lista e' ordinata per colonne (in testa il nemico piu a sinistra e in coda quello piu a destra)
+                    - Si da per scontato che nella colonna non sia presente nessun altro nemico, questo perche'
+                      per decidere la cordinata x del nemico si deve utilizzare la funzione get_spawnpos_x().
+*/
+void EnemyList::add_enemy(Enemy enemy){
     this->list_size++;
-    ptr_nodo_nemici new_enemy = new nodo_nemici;
+    ptr_enemy_node new_enemy = new enemy_node;
     new_enemy->entity = enemy;
     new_enemy->id = this->current_id;
     this->current_id++;
@@ -80,11 +146,11 @@ void Lista_nemici::aggiungi_nemico(Nemico enemy){
         this->head = new_enemy;
         new_enemy->next = new_enemy->prev = NULL;
     }else{
-        ptr_nodo_nemici tmp = this->head;
-        while(tmp->next != NULL && tmp->entity.x < new_enemy->entity.x){ // vai avanti fino al punto giusto
+        ptr_enemy_node tmp = this->head;
+        while(tmp->next != NULL && tmp->entity.get_x() < new_enemy->entity.get_x()){ // vai avanti fino al punto giusto
             tmp = tmp->next;
         }
-        if(tmp->entity.x > new_enemy->entity.x){
+        if(tmp->entity.get_x() > new_enemy->entity.get_x()){
             if(tmp->prev == NULL){      // primo elemento
                 this->head = new_enemy;
                 new_enemy->prev = NULL;
@@ -105,10 +171,14 @@ void Lista_nemici::aggiungi_nemico(Nemico enemy){
 
 }
 
-// elimina il nemico con l'id passato
-// se l'id non e' presente non avviene nulla
-void Lista_nemici::elimina_nemico(int id){
-    ptr_nodo_nemici tmp = this->head;
+/*  Author:         Alessandro Frau
+    Parameters:     id -> id del nemico da eliminare
+    Return value:   void
+    Comments:       Elimina dalla lista di nemici quello con l'id passato, se non e' presente neanche un nemico con quell'id
+                    non elimina nulla.
+*/
+void EnemyList::delete_enemy(int id){
+    ptr_enemy_node tmp = this->head;
     while(tmp != NULL && tmp->id != id){ // vai avanti fino al nemico giusto
         tmp = tmp->next;
     }
@@ -123,21 +193,70 @@ void Lista_nemici::elimina_nemico(int id){
         if(tmp->next != NULL){
             tmp->next->prev = tmp->prev;
         }
-        this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
+        this->map->set_char(tmp->entity.get_x(), tmp->entity.get_y(), tmp->old_char);    // cancella il nemico dalla mappa
         free(tmp);
     }
 }
 
-// da chiamare ogni volta che si vogliono far muovere i nemici
-// massimo una volta a "tick"
-void Lista_nemici::muovi_nemici(void){
-    this->nuove_direzioni();        // calcola le nuove direzioni degli elementi
-    ptr_nodo_nemici tmp = this->head;
+/*  Author:         Francesco Apollonio
+    Parameters:     cordinata x del nemico
+    Return value:   void
+    Comments:       Funzione che riduce la vita del nemico alla cordinata x passata, in base al danno del proiettile del player.
+*/
+void EnemyList::damage_enemy_x(int x){
+    ptr_enemy_node tmp = this->head;
+    while(tmp != NULL && tmp->entity.get_x() != x){ // vai avanti fino al nemico giusto
+        tmp = tmp->next;
+    }
+    if(tmp != NULL){
+        if(proiettili->get_special_bullet() > 0){
+            tmp->entity.change_health( -(DANNO_PROIETT_SPECIALE) );
+        }
+        else{
+            tmp->entity.change_health( -(this->player->damage) ); 
+        }
+    }
+    
+    if(tmp != NULL){
+        int vita = tmp->entity.get_health();
+        if(tmp->entity.get_health() < 1){ 
+            if(tmp !=NULL){
+                this->list_size--;
+                if(tmp->prev != NULL){
+                    tmp->prev->next = tmp->next;
+                }else{      // il nemico da eliminare e' in testa
+                    this->head = tmp->next;
+                }
+                if(tmp->next != NULL){
+                    tmp->next->prev = tmp->prev;
+                }
+                this->map->set_char(tmp->entity.get_x(), tmp->entity.get_y(), tmp->old_char);    // cancella il nemico dalla mappa
+                free(tmp);
+            }
+        }
+        else{
+            this->map->set_char(tmp->entity.get_x(), tmp->entity.get_y(),tmp->entity.char_of_enemy()); 
+        }
+    }
+
+}
+
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   restituisce il valore di end_game
+    Comments:       Funzione che fa muovere tutti i nemici all'unisono verso il player, facendo in
+                    modo che nessun nemico sia nella stessa colonna dell'altro. Questa funzione deve
+                    venire chiamata massimo una volta a tick.
+*/
+bool EnemyList::move_enemy(void){
+    bool end_game = false;
+    this->new_directions();        // calcola le nuove direzioni degli elementi
+    ptr_enemy_node tmp = this->head;
     
     while(tmp!=NULL){
         if(tmp->just_spawned == true){  // nemico appena spawnato
-            tmp->old_char = this->map->getRow(tmp->entity.y)->row[tmp->entity.x];
-            this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->entity.char_of_enemy());
+            tmp->old_char = this->map->get_row(tmp->entity.get_y())->row[tmp->entity.get_x()];
+            this->map->set_char(tmp->entity.get_x(), tmp->entity.get_y(), tmp->entity.char_of_enemy());
             tmp->just_spawned = false;
             tmp = tmp->next;
         }else{
@@ -158,27 +277,27 @@ void Lista_nemici::muovi_nemici(void){
             */
 
             if(tmp->prev == NULL){
-                this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
+                this->map->set_char(tmp->entity.get_x(), tmp->entity.get_y(), tmp->old_char);
             }else{
-                if(tmp->prev->move_direction != SOTTO_DESTRA || tmp->prev->entity.x != tmp->entity.x || tmp->prev->entity.y != tmp->entity.y){
-                    this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);
+                if(tmp->prev->move_direction != SOTTO_DESTRA || tmp->prev->entity.get_x() != tmp->entity.get_x() || tmp->prev->entity.get_y() != tmp->entity.get_y()){
+                    this->map->set_char(tmp->entity.get_x(), tmp->entity.get_y(), tmp->old_char);
                 }
             }
 
-            int newX = tmp->entity.x + (tmp->move_direction == SOTTO_DESTRA?1:0) - (tmp->move_direction == SOTTO_SINISTRA?1:0);
-            int newY = tmp->entity.y - 1; // perche' i nemici vanno sempre e comunque sotto
+            int newX = tmp->entity.get_x() + (tmp->move_direction == SOTTO_DESTRA?1:0) - (tmp->move_direction == SOTTO_SINISTRA?1:0);
+            int newY = tmp->entity.get_y() - 1; // perche' i nemici vanno sempre e comunque sotto
 
             if(newY < 1 || newY < this->player->getY() - OFFSET){
                 // il nemico e' in una posizione inferiore all'altezza del player o a quella della mappa quindi deve essere distrutto
                 if(tmp->next != NULL){
                     tmp = tmp->next;
-                    this->elimina_nemico(tmp->prev->id);
+                    this->delete_enemy(tmp->prev->id);
                 }else{
-                    this->elimina_nemico(tmp->id);
+                    this->delete_enemy(tmp->id);
                     tmp = NULL;
                 }
             }else{  // muovi nemico
-                tmp->old_char = this->map->getRow(newY)->row[newX];
+                tmp->old_char = this->map->get_row(newY)->row[newX];
                 if(tmp->old_char == tmp->entity.char_of_enemy()){
                     tmp->old_char = tmp->next->old_char;
                 }     
@@ -188,74 +307,45 @@ void Lista_nemici::muovi_nemici(void){
                 }else if(tmp->old_char == PROIETTILE){
                     tmp->old_char = this->proiettili->set_and_retrieve(newX, newY, tmp->entity.char_of_enemy());
                 }
-                this->map->setChar(newX, newY, tmp->entity.char_of_enemy());
+                this->map->set_char(newX, newY, tmp->entity.char_of_enemy());
                 tmp->entity.update_position(newX, newY);
                 tmp = tmp->next;
             }
         }
     }
+    return end_game;
 }
 
-
-//Riduce la vita del nemico nella colonna X; Se la vita scende a 0 lo elimina.
-void Lista_nemici::danneggia_nemico_x(int x){
-    ptr_nodo_nemici tmp = this->head;
-    while(tmp != NULL && tmp->entity.x != x){ // vai avanti fino al nemico giusto
-        tmp = tmp->next;
-    }
-    if(tmp != NULL){
-        if(proiettili->get_special_bullet() > 0){
-            tmp->entity.change_health( -(DANNO_PROIETT_SPECIALE) );
-        }
-        else{
-            tmp->entity.change_health( -(this->player->damage) ); 
-        }
-    }
-    
-    if(tmp != NULL){
-        int vita = tmp->entity.health;
-        if(tmp->entity.health < 1){ 
-            if(tmp !=NULL){
-                this->list_size--;
-                if(tmp->prev != NULL){
-                    tmp->prev->next = tmp->next;
-                }else{      // il nemico da eliminare e' in testa
-                    this->head = tmp->next;
-                }
-                if(tmp->next != NULL){
-                    tmp->next->prev = tmp->prev;
-                }
-                this->map->setChar(tmp->entity.x, tmp->entity.y, tmp->old_char);    // cancella il nemico dalla mappa
-                free(tmp);
-            }
-        }
-        else{
-            this->map->setChar(tmp->entity.x, tmp->entity.y,tmp->entity.char_of_enemy()); 
-        }
-    }
-
-}
-
-// fa sparare tutti i nemici, posizionando il proiettile sotto il nemico
-
-void Lista_nemici::spara(void){
-    ptr_nodo_nemici tmp = this->head;
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   restituisce il valore di end_game
+    Comments:       Fa sparare a tutti i nemici all'unisono un proiettile
+*/
+bool EnemyList::shoot(void){
+    bool end_game = false;
+    ptr_enemy_node tmp = this->head;
     while(tmp!=NULL){
-        if(tmp->entity.y >2){
-            char oldchar = this->map->getRow(tmp->entity.y - 1)->row[tmp->entity.x];
+        if(tmp->entity.get_y() >2){
+            char oldchar = this->map->get_row(tmp->entity.get_y() - 1)->row[tmp->entity.get_x()];
             if(oldchar != PROIETTILE && oldchar != PLAYER){
-                this->proiettili->add_bullet(tmp->entity.x, tmp->entity.y - 1, SOTTO, tmp->entity.kind_of_enemy);
+                this->proiettili->add_bullet(tmp->entity.get_x(), tmp->entity.get_y() - 1, SOTTO, tmp->entity.get_kind_of_enemy());
             }else{
                 if(oldchar == PLAYER){
                     end_game = true;
+
                 }
             }
         }
         tmp = tmp->next;
     }
+    return end_game;
 }
 
-// aggiorna il valore della variabile "move_direction" di ogni entita della lista
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   void
+    Comments:       Aggiorna il valore della variabile move_direction per ogni nemico della lista
+*/
 /* Spiegazione intuitiva algoritmo
 tutti i nemici devono muoversi verso la posizione del player, con alcuni vincoli:
 - ci puo essere massimo un nemico per colonna, quindi se il nemico nella colonna il nemico corrente si vuole spostare
@@ -280,22 +370,22 @@ I casi in cui i nemici si muovono verso il basso sono:
     - la colonna in cui il nemico si vuole spostare e' occupata da un
       altro nemico che va in basso, quindi non la libera. (quelli che si muovono per secondi)
 */
-void Lista_nemici::nuove_direzioni(void){
-    ptr_nodo_nemici tmp = this->head;
+void EnemyList::new_directions(void){
+    ptr_enemy_node tmp = this->head;
     if(tmp != NULL){
         int playerX = player->getX();
-        while(tmp->next != NULL && tmp->next->entity.x < playerX){  // vai avanti fino al nemico piu vicino alla sinistra del player
+        while(tmp->next != NULL && tmp->next->entity.get_x() < playerX){  // vai avanti fino al nemico piu vicino alla sinistra del player
             tmp = tmp->next;
         }
-        ptr_nodo_nemici left = tmp;
+        ptr_enemy_node left = tmp;
         int fdir;   // direzione dei nemici che si muovono per "primi", 1 = destra, 0 = sinistra
-        ptr_nodo_nemici right;
-        ptr_nodo_nemici first;
-        ptr_nodo_nemici second;
-        if(tmp->next == NULL && tmp->entity.x <= playerX){  // setta left e right
+        ptr_enemy_node right;
+        ptr_enemy_node first;
+        ptr_enemy_node second;
+        if(tmp->next == NULL && tmp->entity.get_x() <= playerX){  // setta left e right
             left = tmp;
             right = NULL;
-        }else if(tmp->prev == NULL && tmp->entity.x > playerX){
+        }else if(tmp->prev == NULL && tmp->entity.get_x() > playerX){
             left = NULL;
             right = tmp;
         }else{
@@ -310,7 +400,7 @@ void Lista_nemici::nuove_direzioni(void){
             first = right;
             second = NULL;
             fdir = 0;
-        }else if(left->entity.y > right->entity.y){
+        }else if(left->entity.get_y() > right->entity.get_y()){
             first = right;
             second = left;
             fdir = 0;
@@ -320,8 +410,8 @@ void Lista_nemici::nuove_direzioni(void){
             fdir = 1;
         }
         while(first != NULL){ // decide la direzione dei nemici che si muovono per "primi"
-            ptr_nodo_nemici next_node = (fdir == 1 ? first->next : first->prev); // il primo nemico nella direzione in cui il nodo corrente vuole spostarsi
-            if(first->entity.x == playerX){
+            ptr_enemy_node next_node = (fdir == 1 ? first->next : first->prev); // il primo nemico nella direzione in cui il nodo corrente vuole spostarsi
+            if(first->entity.get_x() == playerX){
                 first->move_direction = SOTTO;
             }else{
                 int newdir = (fdir == 1 ? SOTTO_DESTRA : SOTTO_SINISTRA);
@@ -329,8 +419,8 @@ void Lista_nemici::nuove_direzioni(void){
                     first->move_direction = newdir;
                 }else if(first->just_spawned == true){  // i nemici appena spawnati vanno sempre verso il basso
                     first->move_direction = SOTTO;
-                }else if(next_node->entity.x == first->entity.x + (fdir == 1 ? 1 : -1)){
-                    if(next_node->entity.x == playerX){ // questo controllo serve nel caso il PRIMO nemico controllato
+                }else if(next_node->entity.get_x() == first->entity.get_x() + (fdir == 1 ? 1 : -1)){
+                    if(next_node->entity.get_x() == playerX){ // questo controllo serve nel caso il PRIMO nemico controllato
                         // sia esattamente affianco al nemico sopra al player
                         first->move_direction = SOTTO;
                     }else if(next_node->move_direction == SOTTO){
@@ -345,21 +435,21 @@ void Lista_nemici::nuove_direzioni(void){
             first = (fdir == 1 ? first->prev : first->next);
         }
         while(second != NULL){  // intuitivamente molto simile a first, con qualche controllo in piu per colpa delle minori priorita
-            ptr_nodo_nemici next_node = (fdir == 1 ? second->prev : second->next);
+            ptr_enemy_node next_node = (fdir == 1 ? second->prev : second->next);
             int newdir = (fdir == 1 ? SOTTO_SINISTRA : SOTTO_DESTRA);
-            if(second->entity.x == playerX){
+            if(second->entity.get_x() == playerX){
                 second->move_direction = SOTTO;
             }else if(second->just_spawned == true){
                 second->move_direction = SOTTO;
             }else if(next_node != NULL){
-                if(next_node->entity.x == second->entity.x + (fdir == 1 ? -2 : 2)){ // questo controllo serve per mantenere le priorita nel caso
+                if(next_node->entity.get_x() == second->entity.get_x() + (fdir == 1 ? -2 : 2)){ // questo controllo serve per mantenere le priorita nel caso
                     // con due nemici che vanno nella stessa colonna
                     if(next_node->move_direction == SOTTO || next_node->move_direction == newdir){
                         second->move_direction = newdir;
                     }else{
                         second->move_direction = SOTTO;
                     }
-                }else if(next_node->entity.x == second->entity.x + (fdir == 1 ? -1 : 1)){
+                }else if(next_node->entity.get_x() == second->entity.get_x() + (fdir == 1 ? -1 : 1)){
                     if(next_node->move_direction == newdir){
                         second->move_direction = newdir;
                     }else{
@@ -377,8 +467,11 @@ void Lista_nemici::nuove_direzioni(void){
     }
 }
 
-// restituisce la cordinata X in cui il nemico puo spawnare
-// se non ci sono spazi restituisce -1
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   Cordinata in cui il nemico puo spawnare 
+    Comments:       Restituisce la cordinata x in cui il nemico puo spawnare, -1 se non ci sono spazi disponibili
+*/
 /* Spiegazione intuitiva algoritmo
     Conta quanti spazi vuoti sono liberi, e ne decide uno random in cui inserire il nemico
     Esempio:
@@ -390,24 +483,24 @@ void Lista_nemici::nuove_direzioni(void){
     finche' non trova l'offset giusto, quindi lo restituisce
 
 */
-int Lista_nemici::calcola_spawnpos_X(void){
+int EnemyList::calculate_spawnpos_x(void){
     if(this->list_size < ROW_DIM - 1){ // il -1 e' per il \0
         int num_free_spaces = ROW_DIM - this->list_size - 1;
         int spawnpos = (rand() % num_free_spaces) + 1;  // il +1 e' perche' ∀a>=b, a%b restituisce valori da 0 a b-1,
         // ma a noi interessano da 1 a b, perche' spawnpos corrisponde all' nesimo spazio libero
-        ptr_nodo_nemici tmp = this->head;
+        ptr_enemy_node tmp = this->head;
         int numero_spazi = 0;       // numero di spazi gia superati
         int finalX = -1;
         while(tmp != NULL && finalX == -1){
             if(tmp->prev == NULL){          // primo elemento della lista
-                numero_spazi += tmp->entity.x;
+                numero_spazi += tmp->entity.get_x();
             }else{
-                numero_spazi += tmp->entity.x - tmp->prev->entity.x - 1;
+                numero_spazi += tmp->entity.get_x() - tmp->prev->entity.get_x() - 1;
             }
             if(numero_spazi >= spawnpos){
-                finalX = tmp->entity.x - (numero_spazi - spawnpos) - 1;
+                finalX = tmp->entity.get_x() - (numero_spazi - spawnpos) - 1;
             }else if(tmp->next == NULL){
-                finalX = tmp->entity.x + (spawnpos - numero_spazi);
+                finalX = tmp->entity.get_x() + (spawnpos - numero_spazi);
             }
             tmp = tmp->next;
         }
@@ -422,4 +515,13 @@ int Lista_nemici::calcola_spawnpos_X(void){
         // non puo spawnare niente perche' non c'e' spazio
         return -1;
     }
+}
+
+/*  Author:         Alessandro Frau
+    Parameters:     void
+    Return value:   this->head
+    Comments:       funzione che restituisce testa della lista
+*/
+ptr_enemy_node EnemyList::get_head(void){
+    return this->head;
 }

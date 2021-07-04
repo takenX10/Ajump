@@ -2,13 +2,13 @@
 #define BONUS_H
 
 #include <iostream>
-#include "Mappa.h"
+#include "Map.h"
 #include "Player.h"
 #include "Bullet.h"
-#include "Nemici.h"
+#include "Enemy.h"
 #include "time.h"
 #include "costanti.hpp"
-#include "Gioco.h"
+#include "Game.h"
 
 using namespace constants;
 using namespace std;
@@ -27,9 +27,9 @@ typedef nodo_bonus *ptr_bonus;
 class Bonus{
 protected:
     ptr_bonus head;
-    Mappa *map;
+    Map *map;
     Player *player;
-    Lista_nemici *nemico;
+    EnemyList *nemico;
     BulletList *proiettili;
     int current_id;
     int last_spawn_height;    //Parametro utile ad evitare lo spawn di più bonus nello stesso punto (livello) della mappa.
@@ -44,7 +44,7 @@ public:
         Comments:       Costruttore.
     */
 
-    Bonus(Mappa *map, Player *player, Lista_nemici *nemici, BulletList *proiettili);
+    Bonus(Map *map, Player *player, EnemyList *nemici, BulletList *proiettili);
 
 
 
@@ -77,11 +77,11 @@ public:
     /*  Author:         Francesco Apollonio
         Parameters:     kind_of_bonus -> Tipologia del bonus da eseguire; Ogni bonus ha un codice corrispondente utile ad identificarlo.
                         x, y -> Parametri indicanti la posizione del bonus.
-        Return value:   void
+        Return value:   restituisce il valore di end_game
         Comments:       La funzione esegue il bonus, eseguendo gli 'effetti' corrispondenti; Quindi elimina il bonus dalla mappa e della lista (richiamando la funzione di cui sopra)
     */
 
-    void esegui_bonus(int kind_of_bonus, int x, int y);
+    bool esegui_bonus(int kind_of_bonus, int x, int y);
 
 
 

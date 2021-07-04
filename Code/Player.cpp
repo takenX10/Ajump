@@ -2,7 +2,7 @@
 #include "ExternalFunctions.h"
 #include "Player.h"
 #include "costanti.hpp"
-#include "Mappa.h"
+#include "Map.h"
 #include <fstream>
 
 using namespace std;
@@ -13,14 +13,14 @@ using namespace constants;
     Return value:   none
     Comments:       inizializzazione giocatore
 */
-Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_points /* = 100*/){
+Player::Player(Map *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_points /* = 100*/){
     this->x = x;
     this->y = y;
     this->ptr_mappa = m;
     this->health_points = health_points;
     this->damage = DANNO_PLAYER;
     if(this->ptr_mappa != NULL){
-        this->ptr_mappa->setChar(this->x, this->y , PLAYER);
+        this->ptr_mappa->set_char(this->x, this->y , PLAYER);
     }
 }
 
@@ -29,17 +29,17 @@ Player::Player(Mappa *m /*= NULL*/, int x/* = 0*/, int y/* = 1*/, int health_poi
     Return value:   true sse il movimento è permesso
     Comments:       controllo se il movimento è permesso
 */
-bool Player::checkMovement(int direction){
+bool Player::check_movement(int direction){
     switch(direction){
         case SOPRA:
-            if(this->ptr_mappa->getRow(this->y + 1)->row[this->x] == PIATTAFORMA){
+            if(this->ptr_mappa->get_row(this->y + 1)->row[this->x] == PIATTAFORMA){
                 return true;
             }
         break;
 
         case SOTTO:
             if(this->y > 2){
-                if(this->ptr_mappa->getRow(this->y - 3)->row[this->x] == PIATTAFORMA){
+                if(this->ptr_mappa->get_row(this->y - 3)->row[this->x] == PIATTAFORMA){
                     return true;
                 }
             }
@@ -47,15 +47,15 @@ bool Player::checkMovement(int direction){
 
         case SINISTRA:
             if(this->x-1 >=0){
-                if(this->ptr_mappa->getRow(this->y -1)->row[this->x -1] == PIATTAFORMA){
+                if(this->ptr_mappa->get_row(this->y -1)->row[this->x -1] == PIATTAFORMA){
                     return true;
                 }
             }
         break;
 
         case DESTRA:
-            if(this->x+1<this->ptr_mappa->getWidth()){
-                if(this->ptr_mappa->getRow(this->y -1)->row[this->x +1] == PIATTAFORMA){
+            if(this->x+1<this->ptr_mappa->get_width()){
+                if(this->ptr_mappa->get_row(this->y -1)->row[this->x +1] == PIATTAFORMA){
                     return true;
                 }
             }
@@ -68,135 +68,151 @@ bool Player::checkMovement(int direction){
     return false;
 }
 
-
-void Player::move(int direction){
+/*  Author:         Alex Lorenzato (Parte logica), Francesco Apollonio (Parte legata ai bonus)
+    Parameters:     direction -> direzione in cui deve avvenire il movimento
+    Return value:   restituisce il valore di end_game
+    Comments:       Si occupa di muovere il player, cambiargli le cordinate e settare il nuovo carattere nella mappa
+*/
+bool Player::move(int direction){
+    bool end_game = false;
     char oldchar;
-    if(this->checkMovement(direction) == true){
+    if(this->check_movement(direction) == true){
         switch(direction){
             case SOPRA:
-                oldchar = this->ptr_mappa->getRow(this->y+2)->row[this->x];
+                oldchar = this->ptr_mappa->get_row(this->y+2)->row[this->x];
                 if(oldchar == PROIETTILE){
                     // non muoverti perche' e' presente un proiettile nella tua posizione
-                    return;
+                    return end_game;
                 }
                 if(oldchar == CHAR_ARTIGLIERE || oldchar == CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK){
                     end_game = true;
-                    return;
+                    return end_game;
                 }
                 else if(oldchar == BONUS_SALUTE){
-                    esegui_bonus = COD_BONUS_SALUTE; 
+                    exec_bonus = COD_BONUS_SALUTE; 
                 }
                 else if(oldchar == BONUS_BOMBA){
-                    esegui_bonus = COD_BONUS_BOMBA;
+                    exec_bonus = COD_BONUS_BOMBA;
                 }
                 else if(oldchar == MALUS_SALUTE){
-                    esegui_bonus = COD_MALUS_SALUTE;
+                    exec_bonus = COD_MALUS_SALUTE;
                 }
                 else if(oldchar == BONUS_PROIETTILI_SPECIALI){
-                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                    exec_bonus = COD_BONUS_PROIETTILI_SPECIALI;
                 }
-                this->ptr_mappa->setChar(this->x, this->y + 2, PLAYER);
-                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
+                this->ptr_mappa->set_char(this->x, this->y + 2, PLAYER);
+                this->ptr_mappa->set_char(this->x, this->y, SPAZIO_VUOTO);
                 this->y += 2;
                 // aggiunta new line 
-                if(OFFSET < this->y && this->y - OFFSET + this->ptr_mappa->getHeight() >  this->ptr_mappa->getTotalHeight()){
-                    this->ptr_mappa->newRow();
-                    this->ptr_mappa->newRow();
+                if(OFFSET < this->y && this->y - OFFSET + this->ptr_mappa->get_height() >  this->ptr_mappa->get_total_height()){
+                    this->ptr_mappa->new_row();
+                    this->ptr_mappa->new_row();
                 }
             break;
 
             case SOTTO:
-                oldchar = this->ptr_mappa->getRow(this->y-2)->row[this->x];
+                oldchar = this->ptr_mappa->get_row(this->y-2)->row[this->x];
                 if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
                 else if(oldchar == BONUS_SALUTE){
-                   esegui_bonus = COD_BONUS_SALUTE; //Diamo il valore 1 al bonus salute aggiuntiva
+                   exec_bonus = COD_BONUS_SALUTE; //Diamo il valore 1 al bonus salute aggiuntiva
                 }
                 else if(oldchar == BONUS_BOMBA){
-                    esegui_bonus = COD_BONUS_BOMBA;
+                    exec_bonus = COD_BONUS_BOMBA;
                 }
                 else if(oldchar == MALUS_SALUTE){
-                    esegui_bonus = COD_MALUS_SALUTE;
+                    exec_bonus = COD_MALUS_SALUTE;
                 }
                 else if(oldchar == BONUS_PROIETTILI_SPECIALI){
-                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                    exec_bonus = COD_BONUS_PROIETTILI_SPECIALI;
                 }
-                this->ptr_mappa->setChar(this->x, this->y -2, PLAYER);
-                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
+                this->ptr_mappa->set_char(this->x, this->y -2, PLAYER);
+                this->ptr_mappa->set_char(this->x, this->y, SPAZIO_VUOTO);
                 this->y -= 2;
             break;
 
             case DESTRA:
-                oldchar = this->ptr_mappa->getRow(this->y)->row[this->x + 1];
+                oldchar = this->ptr_mappa->get_row(this->y)->row[this->x + 1];
                 if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
                 else if(oldchar == BONUS_SALUTE){
-                    esegui_bonus = COD_BONUS_SALUTE; //diamo il valore 1 al bonus salute aggiuntiva
+                    exec_bonus = COD_BONUS_SALUTE; //diamo il valore 1 al bonus salute aggiuntiva
                 }
                 else if(oldchar == BONUS_BOMBA){
-                    esegui_bonus = COD_BONUS_BOMBA;
+                    exec_bonus = COD_BONUS_BOMBA;
                 }
                 else if(oldchar == MALUS_SALUTE){
-                    esegui_bonus = COD_MALUS_SALUTE;
+                    exec_bonus = COD_MALUS_SALUTE;
                 }
                 else if(oldchar == BONUS_PROIETTILI_SPECIALI){
-                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                    exec_bonus = COD_BONUS_PROIETTILI_SPECIALI;
                 }
-                this->ptr_mappa->setChar(this->x +1, this->y, PLAYER);
-                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
+                this->ptr_mappa->set_char(this->x +1, this->y, PLAYER);
+                this->ptr_mappa->set_char(this->x, this->y, SPAZIO_VUOTO);
                 this->x += 1;
             break;
 
             case SINISTRA:
-                oldchar = this->ptr_mappa->getRow(this->y)->row[this->x - 1];
+                oldchar = this->ptr_mappa->get_row(this->y)->row[this->x - 1];
                 if(oldchar == CHAR_ARTIGLIERE || oldchar==CHAR_BOSS || oldchar == CHAR_SOLD_SEMPLICE || oldchar == CHAR_TANK || oldchar == PROIETTILE){
                     end_game = true;
                 }
                 else if(oldchar == BONUS_SALUTE){
-                    esegui_bonus = COD_BONUS_SALUTE; //diamo il valore 1 al bonus salute aggiuntiva
+                    exec_bonus = COD_BONUS_SALUTE; //diamo il valore 1 al bonus salute aggiuntiva
                 }
                 else if(oldchar == BONUS_BOMBA){
-                    esegui_bonus = COD_BONUS_BOMBA;
+                    exec_bonus = COD_BONUS_BOMBA;
                 }
                 else if(oldchar == MALUS_SALUTE){
-                    esegui_bonus = COD_MALUS_SALUTE;
+                    exec_bonus = COD_MALUS_SALUTE;
                 }
                 else if(oldchar == BONUS_PROIETTILI_SPECIALI){
-                    esegui_bonus = COD_BONUS_PROIETTILI_SPECIALI;
+                    exec_bonus = COD_BONUS_PROIETTILI_SPECIALI;
                 }
-                this->ptr_mappa->setChar(this->x -1, this->y, PLAYER);
-                this->ptr_mappa->setChar(this->x, this->y, SPAZIO_VUOTO);
+                this->ptr_mappa->set_char(this->x -1, this->y, PLAYER);
+                this->ptr_mappa->set_char(this->x, this->y, SPAZIO_VUOTO);
                 this->x -= 1;
             break;
 
             case SPAZIO:
-                this->deve_sparare = true;
+                this->should_shoot = true;
             break;
         }
     }
+    return end_game;
 }
 
+
+/*  Author:         Alex Lorenzato 
+    Parameters:     void
+    Return value:   valore della cordinata x del player
+    Comments:       restituisce il valore x della cordinata del player
+*/
 int Player::getX(void){ return this->x; }
+
+/*  Author:         Alex Lorenzato 
+    Parameters:     void
+    Return value:   valore della cordinata y del player
+    Comments:       restituisce il valore y della cordinata del player
+*/
 int Player::getY(void){ return this->y; }
+
+/*  Author:         Alex Lorenzato 
+    Parameters:     void
+    Return value:   valore della vita del player
+    Comments:       restituisce il valore della vita del player
+*/
 int Player::get_health(void){ return this->health_points;}
 
-//Modifica la vita del player. Restituisce True se il player è morto
+/*  Author:         Alex Lorenzato 
+    Parameters:     value -> valore che viene aggiunto alla vita del player (per toglierne passare un valore negativo)
+    Return value:   True se il player e' morto, False altrimenti
+    Comments:       Cambia la vita del player del valore passato
+*/
 bool Player::change_health(int value){
-
-    //For debug purpose
-    ofstream stats;
-    stats.open("statsPlayer.txt");
-    stats << "Vita -> " << this->health_points << "\nDanno / Bonus / Malus che sto per subire -> " << value << endl;
-    //end of debug test
-
     this->health_points = this->health_points + value;
-    
-    //Debug
-    stats << "Vita dopo l'ultima modifica -> " << health_points;
-    stats.close();
-    //Ancora debug
     if (this->health_points <= 0) return true;
     else return false;
 }

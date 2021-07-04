@@ -5,7 +5,6 @@ per usare costanti:
 #include "path_to_this_file"
 using namespace constants;
 */
-bool end_game = false; // TODO: ATTENTO A STA VARIABILE GLOBALE
 namespace constants{
 
     /* Costanti mappa */

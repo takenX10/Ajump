@@ -8,7 +8,7 @@ using namespace std;
 NB. Commenti tecnici possono essere trovati nel file "bonus.h"
 */
 
-Bonus::Bonus(Mappa *map, Player *player, Lista_nemici *nemici, BulletList *proiettili){
+Bonus::Bonus(Map *map, Player *player, EnemyList *nemici, BulletList *proiettili){
     this->map = map;
     this->player = player;
     this->nemico = nemici;
@@ -58,7 +58,7 @@ void Bonus::aggiungi_bonus(){
         uno spazio vuoto con sotto almeno due basi (in modo che il player possa arrivarci agevolmente)
     */
 
-    while( ! (this->map->getRow(spawn_y)->row[spawn_x] == SPAZIO_VUOTO && this->map->getRow(spawn_y-1)->row[spawn_x] == PIATTAFORMA && this->map->getRow(spawn_y-3)->row[spawn_x] == PIATTAFORMA)){
+    while( ! (this->map->get_row(spawn_y)->row[spawn_x] == SPAZIO_VUOTO && this->map->get_row(spawn_y-1)->row[spawn_x] == PIATTAFORMA && this->map->get_row(spawn_y-3)->row[spawn_x] == PIATTAFORMA)){
         if(left == false){
             spawn_x = spawn_x + shift;
             left = true;
@@ -92,7 +92,7 @@ void Bonus::aggiungi_bonus(){
         nuovo_bonus->next = NULL;
         tmp = NULL; 
     }
-    this->map->setChar(nuovo_bonus->x, nuovo_bonus->y, char_of_bonus(nuovo_bonus->kind_of_bonus) );
+    this->map->set_char(nuovo_bonus->x, nuovo_bonus->y, char_of_bonus(nuovo_bonus->kind_of_bonus) );
 }
 
 void Bonus::rimuovi_bonus(int id){
@@ -122,19 +122,21 @@ void Bonus::rimuovi_bonus(int id){
     }
 }
 
-void Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
+// restituisce il valore di end_game
+bool Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
+    bool end_game = false;
     if(kind_of_bonus == COD_BONUS_SALUTE){ 
         this->player->change_health(VALORE_BONUS_SALUTE); 
     }
     else if(kind_of_bonus == COD_BONUS_BOMBA){ 
 
         //Elimino tutti i nemici presenti nella mappa (NON i loro proiettili)
-        ptr_nodo_nemici tmp = this->nemico->head;
+        ptr_enemy_node tmp = this->nemico->get_head();
         if(tmp != NULL){
             while(tmp->next != NULL){
-                this->nemico->elimina_nemico(tmp->next->id);
+                this->nemico->delete_enemy(tmp->next->id);
             }
-            this->nemico->elimina_nemico(tmp->id);  
+            this->nemico->delete_enemy(tmp->id);  
         }
     }
     else if(kind_of_bonus == COD_MALUS_SALUTE){ 
@@ -155,7 +157,7 @@ void Bonus::esegui_bonus(int kind_of_bonus, int x, int y){
     rimuovi_bonus(tmp->id);
     tmp = NULL;
 
-    
+    return end_game;
 }
 
 

@@ -1,14 +1,8 @@
-/*
-@ Author: Alessandro Frau
-
-*/
-#include<iostream>
-#include "Mappa.h"
+#include "Bullet.h"
+#include "Map.h"
 #include "Player.h"
 #include "costanti.hpp"
-#include "nemici.h"
-#include "Bullet.h"
-#include "Gioco.h"
+
 using namespace constants;
 using namespace std;
 
@@ -18,7 +12,7 @@ using namespace std;
     Return value:   void
     Comments:       Costruttore
 */
-BulletList::BulletList(Mappa *map, Player *p){
+BulletList::BulletList(Map *map, Player *p){
     this->head = NULL;
     this->current_id = 0;
     this->map = map;
@@ -54,8 +48,8 @@ void BulletList::add_bullet(int x, int y, int direction, int who_shot){
     else new_bullet->damage = DANNO_PLAYER; //DANNO CHE FA IL PLAYER QUANDO SPARA
     
     // inserimento nella mappa del proiettile
-    new_bullet->old_char = this->map->getRow(y)->row[x];
-    this->map->setChar(x, y, PROIETTILE);
+    new_bullet->old_char = this->map->get_row(y)->row[x];
+    this->map->set_char(x, y, PROIETTILE);
 
     // la lista e' ordinata per righe, in testa il proiettile piu in alto e in coda quello piu in basso
     // l'ordine nella stessa riga non e' considerato, i proiettili sono sparsi
@@ -141,7 +135,7 @@ char BulletList::set_and_retrieve(int x, int y, int old_char){
     Comments:       Funzione che fa sparare un proiettile a tutti i nemici contemporaneamente
 */
 void BulletList::shoot_bullet(void){
-    if(this->map->getRow(this->player->getY()+1)->row[this->player->getX()] != PROIETTILE){
+    if(this->map->get_row(this->player->getY()+1)->row[this->player->getX()] != PROIETTILE){
         this->add_bullet(this->player->getX(), this->player->getY()+1, SOPRA, -1);
         // Attenzione: quando a sparare è il player la variabile "who_shot" viene settata
         // di default a -1
@@ -198,7 +192,7 @@ void BulletList::set_damage_enemy_x(int x){
 
 /*  Author:         Alessandro Frau (Parte logica), Francesco Apollonio (Parte legata al danno in base al tipo di nemico)
     Parameters:     void
-    Return value:   void
+    Return value:   restituisce il valore di end_game
     Comments:       - La funzione si occupa di muovere tutti i proiettili nelle giuste
                         posizioni, 
                     - La testa e' il proiettile piu in alto
@@ -220,19 +214,20 @@ void BulletList::set_damage_enemy_x(int x){
     - e si ricerca la nuova posizione nella lista del proiettile andando avanti fino al punto giusto
       facendo attenzione agli estremi.
 */
-void BulletList::move_bullet(void){
+bool BulletList::move_bullet(void){
     ptr_bullet_node tmp = this->head;
     bool collision;
+    bool end_game = false;
     bool bullet_on_player = false;
     ptr_bullet_node aux;
     while(tmp != NULL){
         // aggiorna posizione vecchia proiettile nella mappa
         if(tmp->old_char != CHAR_ARTIGLIERE && tmp->old_char != CHAR_SOLD_SEMPLICE
            && tmp->old_char != CHAR_TANK && tmp->old_char != CHAR_BOSS){
-            this->map->setChar(tmp->x, tmp->y, tmp->old_char);
+            this->map->set_char(tmp->x, tmp->y, tmp->old_char);
         }
         tmp->y += (tmp->direction == SOPRA ? 1 : -1);
-        char new_old_char = this->map->getRow(tmp->y)->row[tmp->x];
+        char new_old_char = this->map->get_row(tmp->y)->row[tmp->x];
         // controlli per capire cosa e' presente nella nuova posizione
         if(new_old_char == PLAYER){
             //change health restituisce true se è il player è morto
@@ -241,7 +236,7 @@ void BulletList::move_bullet(void){
                 end_game = true;                
             }else{
                 tmp->old_char = PLAYER;
-                //this->map->setChar(tmp->x, tmp->y, PLAYER);
+                //this->map->set_char(tmp->x, tmp->y, PLAYER);
                 this->delete_bullet(tmp->id);          
                 tmp=this->head;    
                 bullet_on_player = true;                
@@ -253,14 +248,14 @@ void BulletList::move_bullet(void){
             tmp->old_char = new_old_char;
         }
 
-       if (bullet_on_player == false) this->map->setChar(tmp->x, tmp->y, PROIETTILE);      
+       if (bullet_on_player == false) this->map->set_char(tmp->x, tmp->y, PROIETTILE);      
        
         // elimina proiettili out of bounds
         if (bullet_on_player == false){
-            this->map->setChar(tmp->x, tmp->y, PROIETTILE);
+            this->map->set_char(tmp->x, tmp->y, PROIETTILE);
         
-            if( (tmp->y < 1 || tmp->y > this->map->getTotalHeight() - 1 ) ){ // non so se eliminare i proiettili se sono sotto al player
-                this->map->setChar(tmp->x, tmp->y, tmp->old_char);
+            if( (tmp->y < 1 || tmp->y > this->map->get_total_height() - 1 ) ){ // non so se eliminare i proiettili se sono sotto al player
+                this->map->set_char(tmp->x, tmp->y, tmp->old_char);
                 if(tmp->next == NULL){
                     this->delete_bullet(tmp->id);
                     tmp = NULL;
@@ -278,7 +273,7 @@ void BulletList::move_bullet(void){
 
                 // Controllo collisioni con Bonus
                 if(new_old_char == COD_BONUS_SALUTE || new_old_char == COD_BONUS_BOMBA || new_old_char == COD_MALUS_SALUTE || new_old_char == COD_BONUS_PROIETTILI_SPECIALI){
-                    this->map->setChar(tmp->x, tmp->y, new_old_char);
+                    this->map->set_char(tmp->x, tmp->y, new_old_char);
                 }
                 //In questo modo il proiettile "passa sotto al Bonus"
  
@@ -294,7 +289,7 @@ void BulletList::move_bullet(void){
                     while(aux != NULL && aux->y >= tmp->y && !collision){
                         if(tmp->y == aux->y && tmp->x == aux->x){
                             if(aux->direction == SOPRA){
-                                this->map->setChar(aux->x, aux->y, aux->old_char);
+                                this->map->set_char(aux->x, aux->y, aux->old_char);
                                 this->delete_bullet(tmp->id);
                                 this->delete_bullet(aux->id);
                                 collision = true;
@@ -309,7 +304,7 @@ void BulletList::move_bullet(void){
                     while(aux != NULL && aux->y <= tmp->y && !collision){
                         if(tmp->y == aux->y && tmp->x == aux->x){
                             if(aux->direction == SOTTO){
-                                this->map->setChar(aux->x, aux->y, aux->old_char);
+                                this->map->set_char(aux->x, aux->y, aux->old_char);
                                 this->delete_bullet(tmp->id);
                                 this->delete_bullet(aux->id);
                                 collision = true;
@@ -396,6 +391,7 @@ void BulletList::move_bullet(void){
         tmp->already_moved = false;
         tmp = tmp->next;
     }
-   }
+    return end_game;
+}
 
 

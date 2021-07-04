@@ -1,6 +1,6 @@
 #include <iostream>
 #include "ExternalFunctions.h"
-#include "Mappa.h"
+#include "Map.h"
 #include "costanti.hpp"
 using namespace std;
 using namespace constants;
@@ -10,14 +10,14 @@ using namespace constants;
     Return value:   none
     Comments:       inizializzazione mappa, vengono riempiti i primi map_height piani con dele piattaforme
 */
-Mappa::Mappa(int map_height /*= 0*/, int map_width /*= 0*/){
+Map::Map(int map_height /*= 0*/, int map_width /*= 0*/){
     this->map_height = map_height;
     this->map_width = map_width;
     this->map_head = NULL;
     this->map_tail = NULL;
     this->total_height = 0;
     for(int i=0; i < this->map_height; i++){
-        this->newRow();
+        this->new_row();
     }
 }
 
@@ -26,9 +26,9 @@ Mappa::Mappa(int map_height /*= 0*/, int map_width /*= 0*/){
     Return value:   none
     Comments:       crea un piano riempiendolo con le piattaforme, distingue i casi checkpoint/ground floor/riga vuota/riga con piattaforme
 */
-void Mappa::newRow(void){
+void Map::new_row(void){
     if(this->map_head == NULL){         // caso mappa vuota
-        this->map_head = new Map;
+        this->map_head = new map_node;
         this->map_head->next = NULL;
         this->map_head->prev = NULL;
         this->map_head->num_row = 0;
@@ -40,7 +40,7 @@ void Mappa::newRow(void){
         this->map_tail = this->map_head;
         this->total_height = this->map_tail->num_row;
     }else{
-        ptr_Map new_row = new Map;               // "collego" la nuova riga all'ultima riga generata
+        ptr_map_node new_row = new map_node;               // "collego" la nuova riga all'ultima riga generata
         this->map_tail->next = new_row;
         new_row->num_row = this->map_tail->num_row+1;
         new_row->prev = this->map_tail; 
@@ -83,12 +83,12 @@ void Mappa::newRow(void){
 
 
 /*  Author:         Alex Lorenzato
-    Parameters:     vita giocatore, 
+    Parameters:     punto piu in alto da visualizzare, vita player, altezza massima raggiunta e numero di proiettili speciali
     Return value:   none
     Comments:       gestione della stampa della mappa
 */
-void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili){
-    ptr_Map map = this->map_tail;
+void Map::print_map(int top_line, int vita, int altezza_totale, int proiettili){
+    ptr_map_node map = this->map_tail;
     if(this->map_tail->num_row + 1< top_line){
         cout<<this->map_tail->num_row<<"<= "<<top_line - 1<<endl;
         cout << "ERROR: WRONG TOP LINE"<<endl;
@@ -129,8 +129,8 @@ void Mappa::printMap(int top_line, int vita, int altezza_totale, int proiettili)
     Return value:   puntatore alla riga cercata
     Comments:       getter di una riga
 */
-ptr_Map Mappa::getRow(int n){
-    ptr_Map tmp = this->map_tail;
+ptr_map_node Map::get_row(int n){
+    ptr_map_node tmp = this->map_tail;
     if(n > tmp->num_row){                       // map_tail corrisponde alla riga che contraddistingue la temporanea fine della mappa, quindi non posso cercare
         cout << "ERROR: LA RIGA NON ESISTE";    // righe con un num_row superiore
         return NULL;
@@ -146,8 +146,8 @@ ptr_Map Mappa::getRow(int n){
     Return value:   none
     Comments:       scrive un carattere in una posizione della mappa
 */
-void Mappa::setChar(int x, int y, char c){
-    ptr_Map tmp = this->map_tail;
+void Map::set_char(int x, int y, char c){
+    ptr_map_node tmp = this->map_tail;
     
     if(y > tmp->num_row){
         cout << "ERROR: LA RIGA NON ESISTE";
@@ -159,7 +159,23 @@ void Mappa::setChar(int x, int y, char c){
     }
 }
 
-// getter
-int Mappa::getWidth(void){ return this->map_width; }
-int Mappa::getHeight(void){ return this->map_height; }
-int Mappa::getTotalHeight(void){return this->total_height;}
+/*  Author:         Alex Lorenzato
+    Parameters:     void
+    Return value:   larghezza della mappa
+    Comments:       restituisce la larghezza della mappa
+*/
+int Map::get_width(void){ return this->map_width; }
+
+/*  Author:         Alex Lorenzato
+    Parameters:     void
+    Return value:   altezza della mappa
+    Comments:       restituisce l'altezza della mappa
+*/
+int Map::get_height(void){ return this->map_height; }
+
+/*  Author:         Alex Lorenzato
+    Parameters:     void
+    Return value:   altezza totale della mappa
+    Comments:       restituisce l'altezza totale della mappa
+*/
+int Map::get_total_height(void){return this->total_height;}
