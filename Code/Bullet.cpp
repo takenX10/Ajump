@@ -132,7 +132,7 @@ char BulletList::set_and_retrieve(int x, int y, int old_char){
 /*  Author:         Alessandro Frau
     Parameters:     void
     Return value:   void
-    Comments:       Funzione che fa sparare un proiettile a tutti i nemici contemporaneamente
+    Comments:       Funzione che fa sparare un proiettile al player
 */
 void BulletList::shoot_bullet(void){
     if(this->map->get_row(this->player->getY()+1)->row[this->player->getX()] != PROIETTILE){
