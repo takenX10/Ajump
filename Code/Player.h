@@ -9,11 +9,11 @@ class Player{
         int y;
         int health_points;
         Map *ptr_mappa;
-    public:
-        // TODO: Mettere queste variabili private e implementare i getter e setter
         int damage; //Danno del Player
         int exec_bonus = -1; //Con questo paramentro comunico alla classe Bonus se ed eventualmente quale bonus eseguire nel momento in cui player ci passa sopra; -1 è default.
-        bool should_shoot = false;
+        bool should_shoot = false; //permette la comunicazione tra la funzione che fa partire lo sparo e quella che decide se sparare.
+
+    public:
 
         /*  Author:         Alex Lorenzato
             Parameters:     mappa, posizione giocatore, punti vita iniziali
@@ -63,6 +63,46 @@ class Player{
             Comments:       Cambia la vita del player del valore passato
         */
         bool change_health(int value);
+
+        /*  Author:         Francesco Apollonio
+            Parameters:     void
+            Return value:   int value -> il danno causato da proietitli "standard" del player
+            Comments:       setta il danno del proiettile del player
+        */
+
+        int get_damage_player(void);
+
+        /*  Author:         Francesco Apollonio
+            Parameters:     void
+            Return value:   int -> valore che indica se, ed eventualmente quale, bonus è necessario eseguire sul player.
+            Comments:       -1 è il valore di default (nessun bonus da eseguire)
+        */
+       
+        int get_exec_bonus(void);
+
+        /*  Author:         Francesco Apollonio
+            Parameters:     int value -> valore da settare per il parametro "exec_bonus".
+            Return value:   void
+            Comments:       //
+        */
+
+        void set_exec_bonus(int value);
+
+        /*  Author:         Alessandro Frau
+            Parameters:     void
+            Return value:   bool -> valore del parametro "should_shoot"
+            Comments:       il valore "should_shoot" permette la comunicazione tra la funzione che fa partire lo sparo e quella che decide se sparare.
+        */
+
+        bool get_should_shoot(void);
+
+        /*  Author:         Alessandro Frau
+            Parameters:     bool value -> parametro che verrà assegnato a "should_shoot"
+            Return value:   void
+            Comments:       il valore "should_shoot" permette la comunicazione tra la funzione che fa partire lo sparo e quella che decide se sparare.
+        */
+
+        void set_should_shoot(bool value);
 };
 #include "Player.cpp"
 #endif

@@ -10,7 +10,6 @@
 #include "Bullet.h"
 #include "bonus.h"
 #include "Scoreboard.h"
-//#include "../Alice/Scoreboard.cpp"
 
 using namespace std;
 using namespace constants;
@@ -67,7 +66,7 @@ void Game::auto_print_map(){
         Sleep(REFRESH_RATE);
         
         if(counter_bullet_movement == bullet_movement_speed){
-            this->end_game = this->bullet->move_bullet();
+            this->end_game = this->bullet->move_bullet() || this->end_game;
             if(this->bullet->get_damage_enemy_x() != -1){
                 this->enemy->damage_enemy_x(this->bullet->get_damage_enemy_x());
                 this->bullet->set_damage_enemy_x(-1);
@@ -76,12 +75,12 @@ void Game::auto_print_map(){
         }
 
         if(counter_fire == enemy_fire_rate){
-            this->end_game = this->enemy->shoot();
+            this->end_game = this->enemy->shoot() || this->end_game;
             counter_fire = -1;
         }
 
         if(counter_enemy_movement == enemy_movement_speed){ // tickrate del movimento dei bullet.
-            this->end_game = this->enemy->move_enemy();
+            this->end_game = this->enemy->move_enemy() || this->end_game;
             counter_enemy_movement = -1;
         }
         counter_enemy_movement++;
@@ -96,13 +95,13 @@ void Game::auto_print_map(){
         int should_spawn = (height - 1) % FREQ_SPAWN_BONUS; //In base alla suddetta decido se è il momento di far spawnare un bonus o meno
         
         if(height > 1 && should_spawn == 0 && bonus->get_last_spawn_height() != height){
-            this->bonus->aggiungi_bonus();
+            this->bonus->add_bonus();
             bonus->set_last_spawn_height(height); //Questo controllo serve per evitare lo spawn di più bonus quando rimango alla stessa altezza per più tempo
         }
         
-        if(this->p->exec_bonus != -1){ 
-            this->end_game = this->bonus->esegui_bonus(this->p->exec_bonus, this->p->getX(), this->p->getY());
-            this->p->exec_bonus = -1;
+        if(p->get_exec_bonus() != -1){ 
+            this->end_game = this->bonus->exec_bonus(p->get_exec_bonus(), this->p->getX(), this->p->getY()) || this->end_game;
+            p->set_exec_bonus(-1);
         }
 
         //Spawn dei nemici
@@ -124,9 +123,9 @@ void Game::key_listener(void){
     int key;
     while(!this->end_game) {
         key = _getch();      // ricevo input da tastiera, modifico posizione giocatore, e stampo mappa con la posiz aggiornata
-        this->end_game = this->p->move(key);
-        if(this->p->should_shoot && !this->end_game){
-            this->p->should_shoot = false;
+        this->end_game = this->p->move(key) || this->end_game;
+        if(p->get_should_shoot() && !this->end_game){
+            p->set_should_shoot(false);
             this->bullet->shoot_bullet();
             //Se sono attivi "bullet speciali", ne scalo uno ad ogni colpo sparato. (Ogni tasto 'spazio' premuto)
             int num_spec_bull = bullet->get_special_bullet();
@@ -137,3 +136,11 @@ void Game::key_listener(void){
     }
 }
 
+/*  Author:         Alessandro Frau
+    Parameters:     value -> valore di end_game
+    Return value:   void
+    Comments:       setta il valore di end_game a value
+*/
+void Game::set_end_game(bool value){
+    this->end_game = value;
+}

@@ -212,7 +212,7 @@ void EnemyList::damage_enemy_x(int x){
             tmp->entity.change_health( -(DANNO_PROIETT_SPECIALE) );
         }
         else{
-            tmp->entity.change_health( -(this->player->damage) ); 
+            tmp->entity.change_health( -(player->get_damage_player()) ); 
         }
     }
     

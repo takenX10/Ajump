@@ -217,3 +217,58 @@ bool Player::change_health(int value){
     else return false;
 }
 
+
+/*  Author:         Francesco Apollonio
+    Parameters:     void
+    Return value:   int value -> il danno causato da proietitli "standard" del player
+    Comments:       setta il danno del proiettile del player
+*/
+
+
+int Player::get_damage_player(void){
+    return this->damage;
+}
+
+
+/*  Author:         Francesco Apollonio
+    Parameters:     void
+    Return value:   int -> valore che indica se, ed eventualmente quale, bonus è necessario eseguire sul player.
+    Comments:       -1 è il valore di default (nessun bonus da eseguire)
+*/
+
+int Player::get_exec_bonus(void){
+    return this->exec_bonus;
+}
+
+
+/*  Author:         Francesco Apollonio
+    Parameters:     int value -> valore da settare per il parametro "exec_bonus".
+    Return value:   void
+    Comments:       //
+*/
+
+void Player::set_exec_bonus(int value){
+    this->exec_bonus = value;
+}
+
+
+/*  Author:         //
+    Parameters:     void
+    Return value:   bool -> valore del parametro "should_shoot"
+    Comments:       //
+*/
+
+bool Player::get_should_shoot(void){
+    return this->should_shoot;
+}
+
+
+/*  Author:         //
+    Parameters:     bool value -> parametro che verrà assegnato a "should_shoot"
+    Return value:   void
+    Comments:       //
+*/
+
+void Player::set_should_shoot(bool value){
+    this->should_shoot = value;
+}

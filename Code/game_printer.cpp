@@ -116,10 +116,11 @@ void print_map(void){
 
     hide_cursor(); // Rende il cursore invisibile
 
-    thread print_map_thread(&Game::auto_print_map, g);
-    thread get_position(&Game::key_listener, g);
+    thread print_map_thread(&Game::auto_print_map, &g);
+    thread get_position(&Game::key_listener, &g);
 
     print_map_thread.join();
+    g.set_end_game(true);
     game_over((m.get_total_height()-29)/2);
 }
 

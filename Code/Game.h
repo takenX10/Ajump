@@ -43,6 +43,13 @@ class Game{
                             del player, e fa cio che gli viene dato in input dal tasto (spara / fa muovere il player)
         */
         void key_listener(void);
+
+        /*  Author:         Alessandro Frau
+            Parameters:     value -> valore di end_game
+            Return value:   void
+            Comments:       setta il valore di end_game a value
+        */
+        void set_end_game(bool value);
 };
 #include "Game.cpp"
 #endif

@@ -13,15 +13,15 @@
 using namespace constants;
 using namespace std;
 
-struct nodo_bonus{
+struct bonus_node{
     int kind_of_bonus;
     int x;
     int y;
     int id;
-    struct nodo_bonus *next;
-    struct nodo_bonus *prev;
+    struct bonus_node *next;
+    struct bonus_node *prev;
 };
-typedef nodo_bonus *ptr_bonus;
+typedef bonus_node *ptr_bonus;
 
 
 class Bonus{
@@ -29,8 +29,8 @@ protected:
     ptr_bonus head;
     Map *map;
     Player *player;
-    EnemyList *nemico;
-    BulletList *proiettili;
+    EnemyList *enemy;
+    BulletList *bullets;
     int current_id;
     int last_spawn_height;    //Parametro utile ad evitare lo spawn di più bonus nello stesso punto (livello) della mappa.
 
@@ -60,7 +60,7 @@ public:
         
     */
 
-    void aggiungi_bonus();
+    void add_bonus();
 
     
 
@@ -70,7 +70,7 @@ public:
         Comments:       Ricerca un bonus tramite il suo ID e lo rimuove dalla lista.
     */
 
-    void rimuovi_bonus(int id);
+    void remove_bonus(int id);
 
 
 
@@ -81,7 +81,7 @@ public:
         Comments:       La funzione esegue il bonus, eseguendo gli 'effetti' corrispondenti; Quindi elimina il bonus dalla mappa e della lista (richiamando la funzione di cui sopra)
     */
 
-    bool esegui_bonus(int kind_of_bonus, int x, int y);
+    bool exec_bonus(int kind_of_bonus, int x, int y);
 
 
 
@@ -116,5 +116,5 @@ public:
 
 };
 
-#include "bonus.cpp"
+#include "Bonus.cpp"
 #endif

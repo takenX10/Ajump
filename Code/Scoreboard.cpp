@@ -6,7 +6,7 @@
 #include "Game.h"
 #include "Map.h"
 #include "Player.h"
-#include "bonus.h"
+#include "Bonus.h"
 #include "Enemy.h"
 using namespace std;
 
