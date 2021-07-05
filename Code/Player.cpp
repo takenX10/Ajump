@@ -252,10 +252,10 @@ void Player::set_exec_bonus(int value){
 }
 
 
-/*  Author:         //
+/*  Author:         Alessandro Frau
     Parameters:     void
     Return value:   bool -> valore del parametro "should_shoot"
-    Comments:       //
+    Comments:       il valore "should_shoot" permette la comunicazione tra la funzione che fa partire lo sparo e quella che decide se sparare.
 */
 
 bool Player::get_should_shoot(void){
@@ -263,10 +263,10 @@ bool Player::get_should_shoot(void){
 }
 
 
-/*  Author:         //
+/*  Author:         Alessandro Frau
     Parameters:     bool value -> parametro che verrà assegnato a "should_shoot"
     Return value:   void
-    Comments:       //
+    Comments:       il valore "should_shoot" permette la comunicazione tra la funzione che fa partire lo sparo e quella che decide se sparare.
 */
 
 void Player::set_should_shoot(bool value){
