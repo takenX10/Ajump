@@ -1,10 +1,5 @@
 1 alex 361
-2 bellarega 110
-3 test 100
-4 france 98
-5 .iolkjhgfvbjk 92
-6 aaa 90
-7 saaa 80
-8 dfdsfd 70
-9 zvcdsf 60
-10 ixczj 50
+2 apo 234
+3 Ale 211
+4 Ali 203
+5 test 1
